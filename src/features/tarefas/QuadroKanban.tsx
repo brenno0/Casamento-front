@@ -458,6 +458,9 @@ function CartaoConteudo({
           <span className="rounded-pill bg-salvia-claro px-2 text-salvia-escuro">
             {LABEL_RESPONSAVEL[tarefa.responsavel]}
           </span>
+          {tarefa.fornecedorNome && (
+            <span className="rounded-pill bg-dourado-claro px-2 text-grafite">{tarefa.fornecedorNome}</span>
+          )}
           {atrasada && (
             <span className="rounded-pill bg-rosa-antigo-escuro px-2 text-marfim">Atrasada</span>
           )}

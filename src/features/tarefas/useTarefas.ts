@@ -25,6 +25,8 @@ export interface Tarefa {
   prazo: string | null;
   responsavel: Responsavel;
   ordem: number;
+  fornecedorId: number | null;
+  fornecedorNome: string | null;
 }
 
 export interface Coluna {
@@ -99,6 +101,7 @@ export interface TarefaInput {
   descricao: string | null;
   prazo: string | null;
   responsavel: Responsavel;
+  fornecedorId?: number | null;
 }
 
 export function useCriarTarefa() {

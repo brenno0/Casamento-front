@@ -13,6 +13,8 @@ function tarefaFake(id: number, colunaId: number, ordem: number, extra: Partial<
     prazo: null,
     responsavel: 'ambos',
     ordem,
+    fornecedorId: null,
+    fornecedorNome: null,
     ...extra,
   };
 }
@@ -201,6 +203,7 @@ describe('TarefasPage', () => {
           descricao: null,
           prazo: '2027-04-10',
           responsavel: 'noivo',
+          fornecedorId: null,
           colunaId: 2,
         }),
       }),

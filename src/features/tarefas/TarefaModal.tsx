@@ -10,6 +10,7 @@ import {
   type Responsavel,
   type Tarefa,
 } from './useTarefas';
+import { useFornecedores } from '../fornecedores/useFornecedores';
 
 export type ModoModal = { tipo: 'criar'; colunaId: number } | { tipo: 'editar'; tarefa: Tarefa };
 
@@ -38,7 +39,9 @@ export function TarefaModal({
   const [prazo, setPrazo] = useState(tarefa?.prazo ?? '');
   const [responsavel, setResponsavel] = useState<Responsavel>(tarefa?.responsavel ?? 'ambos');
   const [colunaId, setColunaId] = useState(modo.tipo === 'criar' ? modo.colunaId : (tarefa?.colunaId ?? 0));
+  const [fornecedorId, setFornecedorId] = useState<number | null>(tarefa?.fornecedorId ?? null);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+  const fornecedores = useFornecedores();
 
   const criar = useCriarTarefa();
   const atualizar = useAtualizarTarefa();
@@ -65,6 +68,7 @@ export function TarefaModal({
       descricao: descricao.trim() === '' ? null : descricao.trim(),
       prazo: prazo === '' ? null : prazo,
       responsavel,
+      fornecedorId,
     };
     if (tarefa) {
       const mudouColuna = colunaId !== tarefa.colunaId;
@@ -165,6 +169,24 @@ export function TarefaModal({
               </select>
             </label>
           </div>
+          <label className="block">
+            <span className="text-sm text-grafite-suave">Fornecedor</span>
+            <select
+              value={fornecedorId ?? ''}
+              onChange={(e) => {
+                setFornecedorId(e.target.value === '' ? null : Number(e.target.value));
+                limparErros();
+              }}
+              className={inputClass}
+            >
+              <option value="">Nenhum</option>
+              {(fornecedores.data ?? []).map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nome} ({f.categoria})
+                </option>
+              ))}
+            </select>
+          </label>
           {(
             <label className="block">
               <span className="text-sm text-grafite-suave">Coluna</span>

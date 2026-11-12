@@ -7,6 +7,8 @@ import { ConfiguracoesPage } from './features/painel/ConfiguracoesPage';
 import { PainelLayout } from './features/painel/PainelLayout';
 import { PainelHomePage, PainelModuloPage } from './features/painel/PainelPages';
 import { HomePage } from './features/site/HomePage';
+import { FornecedorDetalhePage } from './features/fornecedores/FornecedorDetalhePage';
+import { FornecedoresPage } from './features/fornecedores/FornecedoresPage';
 import { TarefasPage } from './features/tarefas/TarefasPage';
 
 export const routes: RouteObject[] = [
@@ -23,6 +25,8 @@ export const routes: RouteObject[] = [
           { index: true, element: <PainelHomePage /> },
           { path: 'configuracoes', element: <ConfiguracoesPage /> },
           { path: 'tarefas', element: <TarefasPage /> },
+          { path: 'fornecedores', element: <FornecedoresPage /> },
+          { path: 'fornecedores/:id', element: <FornecedorDetalhePage /> },
           { path: ':modulo', element: <PainelModuloPage /> },
           { path: '*', element: <NotFoundPage embedded /> },
         ],
