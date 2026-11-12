@@ -19,16 +19,21 @@ export interface MockFetchOptions {
   logado?: boolean;
   /** Caminhos (ex.: `/api/auth/me`) que respondem 500. */
   falhar?: string[];
+  /**
+   * Rotas extras do painel (só com sessão). Devolver `undefined` deixa seguir para as rotas padrão.
+   * `path` vem sem `/api`; `search` inclui o `?`.
+   */
+  rotas?: (req: { method: string; path: string; search: string; body: unknown }) => Response | undefined;
 }
 
-function json(body: unknown, status = 200): Response {
+export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
 }
 
-function erro(status: number, code: string): Response {
+export function erro(status: number, code: string): Response {
   return json({ error: { code, message: code } }, status);
 }
 
@@ -36,11 +41,11 @@ function erro(status: number, code: string): Response {
  * Mocka `fetch` como uma API fake com sessão em memória:
  * `/publico/casal`, `/auth/login|logout|me`, `/painel/casal` (GET/PUT). O resto, 404.
  */
-export function mockFetch({ logado = false, falhar = [] }: MockFetchOptions = {}) {
+export function mockFetch({ logado = false, falhar = [], rotas }: MockFetchOptions = {}) {
   const estado = { logado, casal: { ...CASAL_FAKE } };
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init: RequestInit = {}) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const path = new URL(url, 'http://localhost').pathname;
+    const { pathname: path, search } = new URL(url, 'http://localhost');
     const method = (init.method ?? 'GET').toUpperCase();
     const body = typeof init.body === 'string' ? (JSON.parse(init.body) as Record<string, string>) : {};
 
@@ -64,6 +69,13 @@ export function mockFetch({ logado = false, falhar = [] }: MockFetchOptions = {}
 
     if (path.startsWith('/api/painel/')) {
       if (!estado.logado) return erro(401, 'UNAUTHENTICATED');
+      const extra = rotas?.({
+        method,
+        path: path.slice('/api'.length),
+        search,
+        body: typeof init.body === 'string' ? JSON.parse(init.body) : undefined,
+      });
+      if (extra) return extra;
       if (path === '/api/painel/casal' && method === 'GET') return json(estado.casal);
       if (path === '/api/painel/casal' && method === 'PUT') {
         estado.casal = { ...estado.casal, ...body };

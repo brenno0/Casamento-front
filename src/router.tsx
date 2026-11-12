@@ -7,6 +7,7 @@ import { ConfiguracoesPage } from './features/painel/ConfiguracoesPage';
 import { PainelLayout } from './features/painel/PainelLayout';
 import { PainelHomePage, PainelModuloPage } from './features/painel/PainelPages';
 import { HomePage } from './features/site/HomePage';
+import { TarefasPage } from './features/tarefas/TarefasPage';
 
 export const routes: RouteObject[] = [
   { path: '/', element: <HomePage /> },
@@ -21,6 +22,7 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <PainelHomePage /> },
           { path: 'configuracoes', element: <ConfiguracoesPage /> },
+          { path: 'tarefas', element: <TarefasPage /> },
           { path: ':modulo', element: <PainelModuloPage /> },
           { path: '*', element: <NotFoundPage embedded /> },
         ],

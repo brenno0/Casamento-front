@@ -3,7 +3,10 @@ export interface ModuloPainel {
   label: string;
 }
 
-/** Módulos futuros do painel (placeholders até cada história chegar). */
+/**
+ * Módulos do painel na navegação. Os que já têm página própria são rotas em `router.tsx`
+ * (ex.: `tarefas`); os demais caem no placeholder até a história deles chegar.
+ */
 export const MODULOS_PAINEL: ModuloPainel[] = [
   { slug: 'tarefas', label: 'Tarefas' },
   { slug: 'fornecedores', label: 'Fornecedores' },

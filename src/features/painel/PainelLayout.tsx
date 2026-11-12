@@ -70,7 +70,7 @@ export function PainelLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 px-gutter py-8 md:px-10">
+      <main className="min-w-0 flex-1 px-gutter py-8 md:px-10">
         <Outlet />
       </main>
     </div>

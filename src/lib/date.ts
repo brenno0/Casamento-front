@@ -22,3 +22,11 @@ export function formatDataExtenso(isoDate: string): string {
   if (!nomeMes) return isoDate;
   return `${Number(dia)} de ${nomeMes} de ${ano}`;
 }
+
+/** `2027-07-17` → `17/07/2027` (sem passar por fuso horário). */
+export function formatDataCurta(isoDate: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (!match) return isoDate;
+  const [, ano, mes, dia] = match;
+  return `${dia}/${mes}/${ano}`;
+}

@@ -1,0 +1,224 @@
+import { useEffect, useId, useState, type FormEvent } from 'react';
+import { ApiError } from '../../lib/api';
+import {
+  RESPONSAVEIS,
+  useAtualizarTarefa,
+  useCriarTarefa,
+  useExcluirTarefa,
+  type Coluna,
+  type Responsavel,
+  type Tarefa,
+} from './useTarefas';
+
+export type ModoModal = { tipo: 'criar'; colunaId: number } | { tipo: 'editar'; tarefa: Tarefa };
+
+const TITULO_MAX = 140;
+
+const inputClass =
+  'mt-1 block w-full rounded-card border border-dourado-claro bg-white px-3 py-2 text-grafite focus:border-dourado';
+
+export function TarefaModal({
+  modo,
+  colunas,
+  onClose,
+}: {
+  modo: ModoModal;
+  colunas: Coluna[];
+  onClose: () => void;
+}) {
+  const tituloId = useId();
+  const tarefa = modo.tipo === 'editar' ? modo.tarefa : null;
+
+  const [titulo, setTitulo] = useState(tarefa?.titulo ?? '');
+  const [descricao, setDescricao] = useState(tarefa?.descricao ?? '');
+  const [prazo, setPrazo] = useState(tarefa?.prazo ?? '');
+  const [responsavel, setResponsavel] = useState<Responsavel>(tarefa?.responsavel ?? 'ambos');
+  const [colunaId, setColunaId] = useState(modo.tipo === 'criar' ? modo.colunaId : (tarefa?.colunaId ?? 0));
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+
+  const criar = useCriarTarefa();
+  const atualizar = useAtualizarTarefa();
+  const excluir = useExcluirTarefa();
+  const salvar = tarefa ? atualizar : criar;
+  const ocupado = criar.isPending || atualizar.isPending || excluir.isPending;
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const invalido = titulo.trim() === '';
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (invalido) return;
+    const dados = {
+      titulo: titulo.trim(),
+      descricao: descricao.trim() === '' ? null : descricao.trim(),
+      prazo: prazo === '' ? null : prazo,
+      responsavel,
+    };
+    if (tarefa) {
+      atualizar.mutate({ id: tarefa.id, ...dados }, { onSuccess: onClose });
+    } else {
+      criar.mutate({ ...dados, colunaId }, { onSuccess: onClose });
+    }
+  }
+
+  function limparErros() {
+    criar.reset();
+    atualizar.reset();
+  }
+
+  const erro = salvar.error ?? excluir.error;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={tituloId}
+        className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-marfim p-6 shadow-suave"
+      >
+        <h2 id={tituloId} className="text-2xl">
+          {tarefa ? 'Editar tarefa' : 'Nova tarefa'}
+        </h2>
+        <form className="mt-4 space-y-4" onSubmit={onSubmit} noValidate>
+          <label className="block">
+            <span className="text-sm text-grafite-suave">Título</span>
+            <input
+              autoFocus
+              required
+              maxLength={TITULO_MAX}
+              value={titulo}
+              onChange={(e) => {
+                setTitulo(e.target.value);
+                limparErros();
+              }}
+              className={inputClass}
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm text-grafite-suave">Descrição</span>
+            <textarea
+              rows={3}
+              maxLength={2000}
+              value={descricao}
+              onChange={(e) => {
+                setDescricao(e.target.value);
+                limparErros();
+              }}
+              className={inputClass}
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm text-grafite-suave">Prazo</span>
+              <input
+                type="date"
+                value={prazo}
+                onChange={(e) => {
+                  setPrazo(e.target.value);
+                  limparErros();
+                }}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm text-grafite-suave">Responsável</span>
+              <select
+                value={responsavel}
+                onChange={(e) => {
+                  setResponsavel(e.target.value as Responsavel);
+                  limparErros();
+                }}
+                className={inputClass}
+              >
+                {RESPONSAVEIS.map((r) => (
+                  <option key={r.valor} value={r.valor}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {!tarefa && (
+            <label className="block">
+              <span className="text-sm text-grafite-suave">Coluna</span>
+              <select
+                value={colunaId}
+                onChange={(e) => setColunaId(Number(e.target.value))}
+                className={inputClass}
+              >
+                {colunas.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {invalido && titulo !== '' && (
+            <p className="text-rosa-antigo-escuro" role="alert">
+              O título é obrigatório.
+            </p>
+          )}
+          {erro && (
+            <p className="text-rosa-antigo-escuro" role="alert">
+              {erro instanceof ApiError && erro.status === 400
+                ? 'Confira os campos (título até 140 caracteres).'
+                : erro instanceof ApiError && erro.status === 404
+                  ? 'Essa tarefa ou coluna não existe mais.'
+                  : 'Não foi possível salvar agora. Tente novamente.'}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={invalido || ocupado}
+              className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim transition-opacity disabled:opacity-60"
+            >
+              {salvar.isPending ? 'Salvando…' : tarefa ? 'Salvar' : 'Criar tarefa'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-pill px-4 py-2 text-grafite-suave hover:bg-marfim-escuro"
+            >
+              Cancelar
+            </button>
+            {tarefa &&
+              (confirmarExclusao ? (
+                <button
+                  type="button"
+                  disabled={ocupado}
+                  onClick={() => excluir.mutate(tarefa.id, { onSuccess: onClose })}
+                  className="ml-auto rounded-pill bg-grafite px-4 py-2 text-marfim disabled:opacity-60"
+                >
+                  {excluir.isPending ? 'Excluindo…' : 'Confirmar exclusão'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmarExclusao(true)}
+                  className="ml-auto rounded-pill px-4 py-2 text-rosa-antigo-escuro hover:bg-rosa-antigo-claro"
+                >
+                  Excluir tarefa
+                </button>
+              ))}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
