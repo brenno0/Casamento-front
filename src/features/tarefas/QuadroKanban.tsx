@@ -240,6 +240,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
   const [nome, setNome] = useState(coluna.nome);
   const renomear = useRenomearColuna();
   const excluir = useExcluirColuna();
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -304,25 +305,72 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
           </button>
           <button
             type="button"
-            aria-label={`Excluir coluna ${coluna.nome}`}
-            disabled={excluir.isPending}
-            onClick={() => excluir.mutate(coluna.id)}
-            className="rounded-pill px-2 py-0.5 text-sm text-rosa-antigo-escuro hover:bg-rosa-antigo-claro disabled:opacity-60"
+            aria-label={`Coluna ${coluna.nome} conta como concluída`}
+            aria-pressed={coluna.concluida}
+            title="Tarefas nesta coluna contam como concluídas"
+            disabled={renomear.isPending}
+            onClick={() => {
+              excluir.reset();
+              renomear.mutate({ id: coluna.id, concluida: !coluna.concluida });
+            }}
+            className={`rounded-pill px-2 py-0.5 text-sm hover:bg-marfim-escuro disabled:opacity-60 ${
+              coluna.concluida ? 'bg-salvia-claro text-grafite' : 'text-grafite-suave'
+            }`}
           >
-            Excluir
+            {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
           </button>
+          {confirmandoExclusao ? (
+            <>
+              <button
+                type="button"
+                disabled={excluir.isPending}
+                onClick={() =>
+                  excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
+                }
+                className="rounded-pill bg-rosa-antigo-escuro px-2 py-0.5 text-sm text-marfim disabled:opacity-60"
+              >
+                Confirmar exclusão
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmandoExclusao(false)}
+                className="rounded-pill px-2 py-0.5 text-sm text-grafite-suave"
+              >
+                Cancelar
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              aria-label={`Excluir coluna ${coluna.nome}`}
+              onClick={() => {
+                renomear.reset();
+                excluir.reset();
+                setConfirmandoExclusao(true);
+              }}
+              className="rounded-pill px-2 py-0.5 text-sm text-rosa-antigo-escuro hover:bg-rosa-antigo-claro"
+            >
+              Excluir
+            </button>
+          )}
         </div>
       )}
       {renomear.isError && (
         <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
-          Não foi possível renomear (até 40 caracteres).
+          {renomear.error instanceof ApiError && renomear.error.code === 'ULTIMA_COLUNA_CONCLUIDA'
+            ? 'O quadro precisa de ao menos uma coluna de concluídas.'
+            : renomear.error instanceof ApiError && renomear.error.status === 400
+              ? 'Nome da coluna: de 1 a 40 caracteres.'
+              : 'Não foi possível salvar a coluna.'}
         </p>
       )}
       {excluir.isError && (
         <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
           {excluir.error instanceof ApiError && excluir.error.code === 'COLUNA_NAO_VAZIA'
             ? 'Esvazie a coluna antes de excluí-la.'
-            : 'Não foi possível excluir a coluna.'}
+            : excluir.error instanceof ApiError && excluir.error.code === 'ULTIMA_COLUNA_CONCLUIDA'
+              ? 'O quadro precisa de ao menos uma coluna de concluídas.'
+              : 'Não foi possível excluir a coluna.'}
         </p>
       )}
     </header>

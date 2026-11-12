@@ -1,7 +1,7 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { QuadroKanban } from './QuadroKanban';
 import { TarefaModal, type ModoModal } from './TarefaModal';
-import { useCriarColuna, useMoverTarefa, useQuadro, type FiltroTarefas } from './useTarefas';
+import { useCriarColuna, useMoverTarefa, useQuadro, type FiltroTarefas, type MoverVars } from './useTarefas';
 
 const FILTROS: { valor: FiltroTarefas; label: string }[] = [
   { valor: 'todas', label: 'Todas' },
@@ -16,6 +16,10 @@ export function TarefasPage() {
   // Só arrasta na visão completa e com os dados dela (não os do filtro anterior).
   const arrastavel = filtro === 'todas' && !isPlaceholderData;
   const mover = useMoverTarefa();
+  const moverTarefa = (vars: MoverVars) => {
+    mover.reset();
+    mover.mover(vars);
+  };
   const fecharModal = useCallback(() => setModal(null), []);
 
   const primeiraColuna = quadro?.colunas[0];
@@ -90,10 +94,7 @@ export function TarefasPage() {
             <QuadroKanban
               quadro={quadro}
               arrastavel={arrastavel}
-              onMover={(vars) => {
-                mover.reset();
-                mover.mover(vars);
-              }}
+              onMover={moverTarefa}
               onEditar={(tarefa) => setModal({ tipo: 'editar', tarefa })}
               onNovaTarefa={(colunaId) => setModal({ tipo: 'criar', colunaId })}
             />
@@ -108,6 +109,7 @@ export function TarefasPage() {
           modo={modal}
           colunas={quadro.colunas}
           onClose={fecharModal}
+          onMover={moverTarefa}
         />
       )}
     </section>

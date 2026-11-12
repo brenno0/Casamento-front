@@ -126,7 +126,7 @@ export function useExcluirTarefa() {
   });
 }
 
-interface MoverVars {
+export interface MoverVars {
   id: number;
   colunaId: number;
   ordem: number;
@@ -136,28 +136,33 @@ interface MoverVars {
  * Mover com atualização otimista no quadro "todas". O cache é atualizado já na chamada
  * (sem esperar um tick), para o cartão não "voltar" entre o soltar e a resposta.
  */
+export const MOVER_MUTATION_KEY = ['tarefas', 'mover'] as const;
+
 export function useMoverTarefa() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
+    mutationKey: MOVER_MUTATION_KEY,
     mutationFn: ({ id, colunaId, ordem }: MoverVars & { anterior?: Quadro }) =>
       api.post<Tarefa>(`/painel/tarefas/${id}/mover`, { colunaId, ordem }),
     onError: (_error, { anterior }) => {
-      if (anterior) queryClient.setQueryData(quadroQueryKey('todas'), anterior);
+      // Com outro movimento em voo, o instantâneo apagaria esse movimento; o refetch do onSettled corrige.
+      const outrosEmVoo = queryClient.isMutating({ mutationKey: MOVER_MUTATION_KEY }) > 1;
+      if (anterior && !outrosEmVoo) queryClient.setQueryData(quadroQueryKey('todas'), anterior);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: TAREFAS_QUERY_KEY }),
   });
 
   function mover(vars: MoverVars) {
-    const anterior = aplicarOtimista(queryClient, vars);
-    mutation.mutate({ ...vars, anterior });
+    void aplicarOtimista(queryClient, vars).then((anterior) => mutation.mutate({ ...vars, anterior }));
   }
 
   return { ...mutation, mover };
 }
 
-function aplicarOtimista(queryClient: QueryClient, vars: MoverVars): Quadro | undefined {
+async function aplicarOtimista(queryClient: QueryClient, vars: MoverVars): Promise<Quadro | undefined> {
   const key = quadroQueryKey('todas');
-  void queryClient.cancelQueries({ queryKey: key });
+  // Um refetch em andamento sobrescreveria o estado otimista ao terminar.
+  await queryClient.cancelQueries({ queryKey: key });
   const anterior = queryClient.getQueryData<Quadro>(key);
   if (anterior) queryClient.setQueryData(key, moverNoQuadro(anterior, vars));
   return anterior;
@@ -174,8 +179,8 @@ export function useCriarColuna() {
 export function useRenomearColuna() {
   const invalidar = useInvalidarTarefas();
   return useMutation({
-    mutationFn: ({ id, nome }: { id: number; nome: string }) =>
-      api.put<Coluna>(`/painel/tarefas/colunas/${id}`, { nome }),
+    mutationFn: ({ id, ...dados }: { id: number; nome?: string; concluida?: boolean }) =>
+      api.put<Coluna>(`/painel/tarefas/colunas/${id}`, dados),
     onSuccess: invalidar,
   });
 }

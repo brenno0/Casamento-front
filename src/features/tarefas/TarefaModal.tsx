@@ -6,6 +6,7 @@ import {
   useCriarTarefa,
   useExcluirTarefa,
   type Coluna,
+  type MoverVars,
   type Responsavel,
   type Tarefa,
 } from './useTarefas';
@@ -21,10 +22,13 @@ export function TarefaModal({
   modo,
   colunas,
   onClose,
+  onMover,
 }: {
   modo: ModoModal;
   colunas: Coluna[];
   onClose: () => void;
+  /** Move a tarefa (o quadro mostra o erro, se houver). */
+  onMover: (vars: MoverVars) => void;
 }) {
   const tituloId = useId();
   const tarefa = modo.tipo === 'editar' ? modo.tarefa : null;
@@ -44,11 +48,12 @@ export function TarefaModal({
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose();
+      // Fechar com salvamento em andamento esconderia um erro que ainda pode chegar.
+      if (event.key === 'Escape' && !ocupado) onClose();
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, ocupado]);
 
   const invalido = titulo.trim() === '';
 
@@ -62,7 +67,17 @@ export function TarefaModal({
       responsavel,
     };
     if (tarefa) {
-      atualizar.mutate({ id: tarefa.id, ...dados }, { onSuccess: onClose });
+      const mudouColuna = colunaId !== tarefa.colunaId;
+      atualizar.mutate(
+        { id: tarefa.id, ...dados },
+        {
+          onSuccess: () => {
+            // Ordem acima do tamanho da coluna: o servidor coloca no fim.
+            if (mudouColuna) onMover({ id: tarefa.id, colunaId, ordem: Number.MAX_SAFE_INTEGER });
+            onClose();
+          },
+        },
+      );
     } else {
       criar.mutate({ ...dados, colunaId }, { onSuccess: onClose });
     }
@@ -79,7 +94,7 @@ export function TarefaModal({
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !ocupado) onClose();
       }}
     >
       <div
@@ -150,7 +165,7 @@ export function TarefaModal({
               </select>
             </label>
           </div>
-          {!tarefa && (
+          {(
             <label className="block">
               <span className="text-sm text-grafite-suave">Coluna</span>
               <select
