@@ -93,3 +93,19 @@ export const useAtualizarConvidado = () =>
     api.put<Convidado>(`/painel/convidados/${id}`, dados),
   );
 export const useExcluirConvidado = () => useMutacao((id: number) => api.del<void>(`/painel/convidados/${id}`));
+
+export interface Filtros {
+  lado: Lado | '';
+  tipo: Tipo | '';
+  funcao: Funcao | '';
+  rsvp: Rsvp | '';
+}
+
+export function passaFiltros(c: Convidado, f: Filtros): boolean {
+  return (
+    (!f.lado || c.lado === f.lado) &&
+    (!f.tipo || c.tipo === f.tipo) &&
+    (!f.funcao || c.funcao === f.funcao) &&
+    (!f.rsvp || c.rsvp === f.rsvp)
+  );
+}

@@ -20,25 +20,11 @@ import {
   type Lado,
   type Rsvp,
   type Tipo,
+  passaFiltros,
+  type Filtros,
 } from './useConvidados';
 
-export interface Filtros {
-  lado: Lado | '';
-  tipo: Tipo | '';
-  funcao: Funcao | '';
-  rsvp: Rsvp | '';
-}
-
 const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
-
-export function passaFiltros(c: Convidado, f: Filtros): boolean {
-  return (
-    (!f.lado || c.lado === f.lado) &&
-    (!f.tipo || c.tipo === f.tipo) &&
-    (!f.funcao || c.funcao === f.funcao) &&
-    (!f.rsvp || c.rsvp === f.rsvp)
-  );
-}
 
 type Modal =
   | { tipo: 'grupo'; grupo?: Grupo }
