@@ -45,5 +45,11 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 export const api = {
   get: <T>(path: string) => apiFetch<T>(path),
   post: <T>(path: string, body?: unknown) =>
-    apiFetch<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }),
+    apiFetch<T>(path, { method: 'POST', body: jsonBody(body) }),
+  put: <T>(path: string, body?: unknown) => apiFetch<T>(path, { method: 'PUT', body: jsonBody(body) }),
+  del: <T>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
 };
+
+function jsonBody(body: unknown): string | undefined {
+  return body === undefined ? undefined : JSON.stringify(body);
+}
