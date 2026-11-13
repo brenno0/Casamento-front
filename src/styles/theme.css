@@ -1,0 +1,86 @@
+/*
+ * Identidade visual (ux-direction.md): elegante, romântica, editorial.
+ * Fontes carregadas do Google Fonts em index.html:
+ * Cormorant Garamond (texto e títulos) e Great Vibes (script).
+ */
+@import 'tailwindcss';
+
+@theme {
+  /* Paleta */
+  --color-marfim: #fbf7f0;
+  --color-marfim-escuro: #f1e9dc;
+  --color-rosa-antigo: #c48b8b;
+  --color-rosa-antigo-claro: #e8cfcb;
+  --color-rosa-antigo-escuro: #9c6466;
+  --color-salvia: #9caf88;
+  --color-salvia-claro: #d5dfcb;
+  --color-salvia-escuro: #6f8261;
+  --color-dourado: #c9a96e;
+  --color-dourado-claro: #e6d4ad;
+  --color-grafite: #3a3a3c;
+  --color-grafite-suave: #6b6b6e;
+
+  /* Tipografia */
+  --font-serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-script: 'Great Vibes', 'Cormorant Garamond', cursive;
+  --font-sans: var(--font-serif);
+
+  /* Espaçamentos */
+  --spacing-gutter: 1rem;
+  --spacing-section: 6rem;
+  --spacing-sidebar: 16rem;
+
+  /* Raios */
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Sombras */
+  --shadow-suave: 0 10px 30px -12px rgb(58 58 60 / 0.18);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-marfim font-serif text-grafite antialiased;
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif text-grafite;
+    font-weight: 500;
+    line-height: 1.15;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-dourado;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Recado novo entrando no mural. */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
