@@ -1,64 +1,185 @@
 /*
- * Identidade visual (ux-direction.md): elegante, romântica, editorial.
- * Fontes carregadas do Google Fonts em index.html:
- * Cormorant Garamond (texto e títulos) e Great Vibes (script).
+ * Identidade visual "Mesa Posta": a mesa do casamento posta para cada convidado.
+ * Linho branco, tinta verde-garrafa, amarelo de vela; papel branco de cantos retos.
+ * Fontes (index.html): Libre Caslon Display/Text (títulos) e Figtree (texto e interface).
  */
 @import 'tailwindcss';
 
 @theme {
   /* Paleta */
-  --color-marfim: #fbf7f0;
-  --color-marfim-escuro: #f1e9dc;
-  --color-rosa-antigo: #c48b8b;
-  --color-rosa-antigo-claro: #e8cfcb;
-  --color-rosa-antigo-escuro: #9c6466;
-  --color-salvia: #9caf88;
-  --color-salvia-claro: #d5dfcb;
-  --color-salvia-escuro: #6f8261;
-  --color-dourado: #c9a96e;
-  --color-dourado-claro: #e6d4ad;
-  --color-grafite: #3a3a3c;
-  --color-grafite-suave: #6b6b6e;
+  --color-linho: #f6f7f3;
+  --color-linho-escuro: #e9ede5;
+  --color-papel: #ffffff;
+  --color-tinta: #17241c;
+  --color-verde: #1f3d2e;
+  --color-verde-suave: #4d6255;
+  --color-musgo: #3d6a50;
+  --color-folha: #d3dccf;
+  --color-folha-claro: #e3ebdf;
+  --color-folha-escuro: #a9b9a8;
+  --color-vela: #f0d277;
+  --color-vela-claro: #faf0cc;
+  --color-erro: #a3352b;
 
   /* Tipografia */
-  --font-serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
-  --font-script: 'Great Vibes', 'Cormorant Garamond', cursive;
-  --font-sans: var(--font-serif);
+  --font-display: 'Libre Caslon Display', 'Libre Caslon Text', 'Big Caslon', Georgia, serif;
+  --font-caslon: 'Libre Caslon Text', 'Big Caslon', Georgia, serif;
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
 
   /* Espaçamentos */
-  --spacing-gutter: 1rem;
-  --spacing-section: 6rem;
-  --spacing-sidebar: 16rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-section: 8rem;
+  --spacing-sidebar: 17rem;
 
-  /* Raios */
-  --radius-card: 1rem;
-  --radius-pill: 9999px;
+  /* Raios: papel tem canto quase reto */
+  --radius-card: 0.25rem;
+  --radius-botao: 0.1875rem;
 
-  /* Sombras */
-  --shadow-suave: 0 10px 30px -12px rgb(58 58 60 / 0.18);
+  /* Sombra de papel sobre o linho */
+  --shadow-suave: 0 1px 2px rgb(23 36 28 / 0.06), 0 12px 32px -16px rgb(23 36 28 / 0.22);
+
+  --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--color-folha-escuro) var(--color-linho);
   }
 
   body {
-    @apply bg-marfim font-serif text-grafite antialiased;
-    font-size: 1.125rem;
-    line-height: 1.6;
+    @apply bg-linho font-sans text-tinta antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    font-variant-numeric: tabular-nums;
+    caret-color: var(--color-verde);
+  }
+
+  ::selection {
+    background: var(--color-vela);
+    color: var(--color-tinta);
   }
 
   h1,
-  h2,
+  h2 {
+    @apply font-display text-verde;
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
   h3 {
-    @apply font-serif text-grafite;
-    font-weight: 500;
-    line-height: 1.15;
+    font-family: var(--font-caslon);
+    @apply text-verde;
+    font-weight: 400;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  a {
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
+
+  /* Campos de formulário: papel branco com linha fina, foco em verde. */
+  input:not([type='checkbox'], [type='radio'], [type='file'], [type='color'], [type='range']),
+  select,
+  textarea {
+    transition:
+      border-color 150ms,
+      box-shadow 150ms;
+  }
+  input:not([type='checkbox'], [type='radio'], [type='file'], [type='color'], [type='range']):focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-verde);
+    box-shadow: 0 0 0 3px rgb(31 61 46 / 0.14);
+  }
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--color-verde);
+  }
+
+  button,
+  [role='button'],
+  summary,
+  label[class*='cursor-pointer'] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-dourado;
+    @apply outline-2 outline-offset-2 outline-verde;
+  }
+}
+
+/* Peças da mesa, compartilhadas pelo site dos convidados. */
+@layer components {
+  /* Cartão de papel com filete interno, como marcador de lugar e menu. */
+  .cartao-mesa {
+    @apply bg-papel shadow-suave relative rounded-card;
+  }
+  .cartao-mesa::after {
+    content: '';
+    position: absolute;
+    inset: 0.5rem;
+    border: 1px solid var(--color-folha);
+    pointer-events: none;
+  }
+
+  /* Versalete espaçado dos menus impressos. */
+  .versalete {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .botao {
+    @apply inline-flex min-h-12 items-center justify-center rounded-botao bg-verde px-7 py-3 font-semibold text-linho;
+    transition:
+      background-color 200ms,
+      transform 200ms var(--ease-saida);
+  }
+  .botao:hover:not(:disabled) {
+    background-color: var(--color-tinta);
+  }
+  .botao:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .botao:disabled {
+    opacity: 0.5;
+  }
+  .botao-contorno {
+    @apply inline-flex min-h-12 items-center justify-center rounded-botao border border-verde px-7 py-3 font-semibold text-verde;
+    transition:
+      background-color 200ms,
+      color 200ms;
+  }
+  .botao-contorno:hover:not(:disabled) {
+    @apply bg-verde text-linho;
+  }
+  .sobre-verde .botao {
+    @apply bg-linho text-verde;
+  }
+  .sobre-verde .botao:hover:not(:disabled) {
+    background-color: var(--color-vela);
+  }
+  .sobre-verde .botao-contorno {
+    @apply border-linho/60 text-linho;
+  }
+  .sobre-verde .botao-contorno:hover:not(:disabled) {
+    @apply bg-linho text-verde;
+  }
+
+  .campo {
+    @apply mt-2 block w-full rounded-card border border-folha-escuro bg-papel px-4 py-3 text-tinta;
   }
 }
 
@@ -78,6 +199,26 @@
   from {
     opacity: 0;
     transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Entrada da abertura: os nomes sobem de trás de uma dobra. */
+@keyframes subir {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
     opacity: 1;

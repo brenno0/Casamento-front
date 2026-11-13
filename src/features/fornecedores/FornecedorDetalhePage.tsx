@@ -26,14 +26,14 @@ export function FornecedorDetalhePage() {
 
   if (isPending) {
     return (
-      <p role="status" className="text-grafite-suave">
+      <p role="status" className="text-verde-suave">
         Carregando…
       </p>
     );
   }
   if (isError || !data) {
     return (
-      <p role="alert" className="text-rosa-antigo-escuro">
+      <p role="alert" className="text-erro">
         Fornecedor não encontrado. <Link to="/painel/fornecedores" className="underline">Voltar</Link>
       </p>
     );
@@ -53,14 +53,14 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
   return (
     <section className="space-y-8">
       <div>
-        <Link to="/painel/fornecedores" className="text-sm text-grafite-suave underline">
+        <Link to="/painel/fornecedores" className="text-sm text-verde-suave underline">
           ← Fornecedores
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="text-4xl">{f.nome}</h1>
           <BadgeStatus status={f.status} />
         </div>
-        <p className="text-grafite-suave">{f.categoria}</p>
+        <p className="text-verde-suave">{f.categoria}</p>
       </div>
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Mudar status">
@@ -70,15 +70,15 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
             type="button"
             disabled={mudar.isPending}
             onClick={() => mudar.mutate(s)}
-            className={`rounded-pill px-4 py-1 disabled:opacity-60 ${
-              s === 'descartado' ? 'border border-rosa-antigo-escuro text-rosa-antigo-escuro' : 'bg-rosa-antigo-escuro text-marfim'
+            className={`rounded-botao px-4 py-1 disabled:opacity-60 ${
+              s === 'descartado' ? 'border border-verde text-verde' : 'bg-verde text-linho'
             }`}
           >
             Marcar como {labelStatus(s).toLowerCase()}
           </button>
         ))}
         {mudar.isError && (
-          <p role="alert" className="text-rosa-antigo-escuro">
+          <p role="alert" className="text-erro">
             Não foi possível mudar o status.
           </p>
         )}
@@ -90,25 +90,25 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
         atualizar={salvarDados}
       />
 
-      <section aria-labelledby="contrato-titulo" className="rounded-card border border-dourado-claro bg-white p-4">
+      <section aria-labelledby="contrato-titulo" className="rounded-card border border-folha bg-white p-4">
         <h2 id="contrato-titulo" className="text-2xl">
           Contrato
         </h2>
         {f.contrato ? (
           <p className="mt-2">
-            <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="text-rosa-antigo-escuro underline">
+            <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="text-verde underline">
               {f.contrato.nomeOriginal}
             </a>
             <button
               type="button"
               onClick={() => atualizar.mutate({ contratoArquivoId: null })}
-              className="ml-3 text-sm text-grafite-suave underline"
+              className="ml-3 text-sm text-verde-suave underline"
             >
               Remover
             </button>
           </p>
         ) : (
-          <p className="mt-2 text-grafite-suave">Nenhum contrato anexado.</p>
+          <p className="mt-2 text-verde-suave">Nenhum contrato anexado.</p>
         )}
         <div className="mt-3">
           <FileUpload
@@ -118,7 +118,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
           />
         </div>
         {atualizar.isError && atualizar.error instanceof ApiError && atualizar.error.code === 'CONTRATO_DEVE_SER_PDF' && (
-          <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
+          <p role="alert" className="mt-1 text-sm text-erro">
             O contrato deve ser um PDF.
           </p>
         )}
@@ -131,7 +131,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
           Tarefas vinculadas
         </h2>
         {f.tarefas.length === 0 ? (
-          <p className="mt-2 text-grafite-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
+          <p className="mt-2 text-verde-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
         ) : (
           <ul className="mt-2 list-disc pl-6">
             {f.tarefas.map((t) => (
@@ -141,28 +141,28 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
         )}
       </section>
 
-      <div className="border-t border-dourado-claro pt-4">
+      <div className="border-t border-folha pt-4">
         {confirmando ? (
           <div className="flex gap-2">
             <button
               type="button"
               disabled={excluir.isPending}
               onClick={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
-              className="rounded-pill bg-rosa-antigo-escuro px-4 py-1 text-marfim"
+              className="rounded-botao bg-verde px-4 py-1 text-linho"
             >
               Confirmar exclusão
             </button>
-            <button type="button" onClick={() => setConfirmando(false)} className="px-4 py-1 text-grafite-suave">
+            <button type="button" onClick={() => setConfirmando(false)} className="px-4 py-1 text-verde-suave">
               Cancelar
             </button>
           </div>
         ) : (
-          <button type="button" onClick={() => setConfirmando(true)} className="text-rosa-antigo-escuro underline">
+          <button type="button" onClick={() => setConfirmando(true)} className="text-verde underline">
             Excluir fornecedor
           </button>
         )}
         {excluir.isError && (
-          <p role="alert" className="mt-1 text-rosa-antigo-escuro">
+          <p role="alert" className="mt-1 text-erro">
             Não foi possível excluir.
           </p>
         )}
@@ -209,27 +209,27 @@ function DadosForm({
   return (
     <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2" noValidate aria-label="Dados do fornecedor">
       <label className="block">
-        <span className="text-sm text-grafite-suave">Nome</span>
+        <span className="text-sm text-verde-suave">Nome</span>
         <input maxLength={120} value={dados.nome} onChange={(e) => campo('nome', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Categoria</span>
+        <span className="text-sm text-verde-suave">Categoria</span>
         <input maxLength={60} value={dados.categoria} onChange={(e) => campo('categoria', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Telefone</span>
+        <span className="text-sm text-verde-suave">Telefone</span>
         <input type="tel" value={dados.telefone} onChange={(e) => campo('telefone', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">E-mail</span>
+        <span className="text-sm text-verde-suave">E-mail</span>
         <input type="email" value={dados.email} onChange={(e) => campo('email', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Site ou Instagram</span>
+        <span className="text-sm text-verde-suave">Site ou Instagram</span>
         <input value={dados.site} onChange={(e) => campo('site', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Responsável</span>
+        <span className="text-sm text-verde-suave">Responsável</span>
         <select
           value={dados.responsavel}
           onChange={(e) => campo('responsavel', e.target.value as ResponsavelFornecedor)}
@@ -243,20 +243,20 @@ function DadosForm({
         </select>
       </label>
       <label className="block sm:col-span-2">
-        <span className="text-sm text-grafite-suave">Observações</span>
+        <span className="text-sm text-verde-suave">Observações</span>
         <textarea rows={3} value={dados.observacoes} onChange={(e) => campo('observacoes', e.target.value)} className={inputClass} />
       </label>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button
           type="submit"
           disabled={!dados.nome.trim() || !dados.categoria.trim() || atualizar.isPending}
-          className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60"
+          className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60"
         >
           Salvar dados
         </button>
         {atualizar.isSuccess && <span role="status">Salvo.</span>}
         {atualizar.isError && (
-          <span role="alert" className="text-rosa-antigo-escuro">
+          <span role="alert" className="text-erro">
             Não foi possível salvar. Confira os campos.
           </span>
         )}
@@ -298,11 +298,11 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
         Orçamentos
       </h2>
       {f.orcamentos.length === 0 ? (
-        <p className="mt-2 text-grafite-suave">Nenhum orçamento ainda.</p>
+        <p className="mt-2 text-verde-suave">Nenhum orçamento ainda.</p>
       ) : (
         <div className="mt-2 overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="text-sm text-grafite-suave">
+            <thead className="text-sm text-verde-suave">
               <tr>
                 <th className="py-1 pr-4">Descrição</th>
                 <th className="py-1 pr-4">Data</th>
@@ -314,7 +314,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
               {f.orcamentos.map((o) => {
                 const maisBarato = o.valorCentavos === menor;
                 return (
-                  <tr key={o.id} className={maisBarato ? 'bg-salvia-claro' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
+                  <tr key={o.id} className={maisBarato ? 'bg-folha-claro' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
                     <td className="py-2 pr-4">
                       {o.descricao}
                       {o.arquivo && (
@@ -326,14 +326,14 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
                     <td className="py-2 pr-4">{formatDataCurta(o.data)}</td>
                     <td className="py-2 pr-4 font-semibold">
                       {formatarCentavos(o.valorCentavos)}
-                      {maisBarato && <span className="ml-2 text-sm font-normal text-salvia-escuro">menor</span>}
+                      {maisBarato && <span className="ml-2 text-sm font-normal text-musgo">menor</span>}
                     </td>
                     <td className="py-2">
                       <button
                         type="button"
                         aria-label={`Excluir orçamento ${o.descricao}`}
                         onClick={() => excluir.mutate(o.id)}
-                        className="text-sm text-rosa-antigo-escuro underline"
+                        className="text-sm text-verde underline"
                       >
                         Excluir
                       </button>
@@ -348,37 +348,37 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
 
       <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-4" noValidate aria-label="Novo orçamento">
         <label className="block sm:col-span-2">
-          <span className="text-sm text-grafite-suave">Descrição</span>
+          <span className="text-sm text-verde-suave">Descrição</span>
           <input maxLength={500} value={descricao} onChange={(e) => setDescricao(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-grafite-suave">Valor (R$)</span>
+          <span className="text-sm text-verde-suave">Valor (R$)</span>
           <input inputMode="decimal" placeholder="0,00" value={valor} onChange={(e) => setValor(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-grafite-suave">Data</span>
+          <span className="text-sm text-verde-suave">Data</span>
           <input type="date" value={data} onChange={(e) => setData(e.target.value)} className={inputClass} />
         </label>
         <div className="sm:col-span-3">
           <FileUpload label="Anexo (opcional)" onEnviado={(a) => setArquivoId(a.id)} />
-          {arquivoId && <p className="text-sm text-salvia-escuro">Anexo pronto.</p>}
+          {arquivoId && <p className="text-sm text-musgo">Anexo pronto.</p>}
         </div>
         <div className="flex items-end">
           <button
             type="submit"
             disabled={!valido || criar.isPending}
-            className="w-full rounded-pill bg-rosa-antigo-escuro px-4 py-2 text-marfim disabled:opacity-60"
+            className="w-full rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60"
           >
             Adicionar
           </button>
         </div>
         {valor !== '' && valorCentavos === null && (
-          <p role="alert" className="text-sm text-rosa-antigo-escuro sm:col-span-4">
+          <p role="alert" className="text-sm text-erro sm:col-span-4">
             Valor inválido. Use o formato 1.234,56.
           </p>
         )}
         {criar.isError && (
-          <p role="alert" className="text-sm text-rosa-antigo-escuro sm:col-span-4">
+          <p role="alert" className="text-sm text-erro sm:col-span-4">
             Não foi possível adicionar o orçamento.
           </p>
         )}

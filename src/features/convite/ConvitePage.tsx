@@ -46,7 +46,7 @@ export function ConvitePage() {
         site={publico.data}
         slots={{ presentes: <Vitrine token={null} /> }}
         aviso={
-          <p role="status" className="bg-rosa-antigo-claro px-gutter py-2 text-center text-sm text-rosa-antigo-escuro">
+          <p role="status" className="bg-vela-claro px-gutter py-3 text-center text-verde">
             Não encontramos este convite. Confira o link que você recebeu; abaixo está o site aberto.
           </p>
         }

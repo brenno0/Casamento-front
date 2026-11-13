@@ -10,7 +10,7 @@ function mensagemDeErro(error: unknown): string {
 }
 
 const inputClass =
-  'mt-1 block w-full rounded-card border border-dourado-claro bg-white px-4 py-2 text-grafite focus:border-dourado';
+  'campo';
 
 export function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -32,14 +32,14 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-marfim px-gutter">
-      <section className="w-full max-w-sm rounded-card bg-white/70 p-8 shadow-suave">
-        <h1 className="text-center font-script text-5xl text-rosa-antigo-escuro">Entrar</h1>
-        <p className="mt-2 text-center text-grafite-suave">Painel do casal</p>
+    <main className="flex min-h-svh items-center justify-center bg-linho px-gutter">
+      <section className="cartao-mesa w-full max-w-md px-8 py-12 sm:px-12">
+        <h1 className="text-5xl">Entrar</h1>
+        <p className="mt-2 text-lg text-verde-suave">Painel do casal</p>
 
-        <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
+        <form className="mt-10 space-y-5" onSubmit={onSubmit} noValidate>
           <label className="block">
-            <span className="text-sm text-grafite-suave">E-mail</span>
+            <span className="text-sm font-medium text-verde-suave">E-mail</span>
             <input
               type="email"
               name="email"
@@ -51,7 +51,7 @@ export function LoginPage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Senha</span>
+            <span className="text-sm font-medium text-verde-suave">Senha</span>
             <input
               type="password"
               name="senha"
@@ -64,7 +64,7 @@ export function LoginPage() {
           </label>
 
           {login.isError && (
-            <p className="text-rosa-antigo-escuro" role="alert">
+            <p className="text-erro" role="alert">
               {mensagemDeErro(login.error)}
             </p>
           )}
@@ -72,7 +72,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={login.isPending || email.trim() === '' || senha === ''}
-            className="w-full rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim transition-opacity disabled:opacity-60"
+            className="botao w-full"
           >
             {login.isPending ? 'Entrando…' : 'Entrar'}
           </button>

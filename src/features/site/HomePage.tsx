@@ -5,10 +5,10 @@ import { useSitePublico } from './useSite';
 
 export function Carregando({ erro }: { erro: boolean }): ReactNode {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center bg-marfim px-gutter text-center">
-      <p className="font-script text-5xl text-rosa-antigo-escuro">Carregando o nosso dia…</p>
+    <main className="flex min-h-svh flex-col items-center justify-center bg-linho px-gutter text-center">
+      <p className="font-display text-4xl text-verde sm:text-5xl">Carregando o nosso dia…</p>
       {erro ? (
-        <p className="mt-6 text-rosa-antigo-escuro" role="alert">
+        <p className="mt-6 text-lg text-erro" role="alert">
           Não foi possível carregar o site agora. Tente novamente em instantes.
         </p>
       ) : (

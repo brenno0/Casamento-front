@@ -20,7 +20,7 @@ export function MapaLocal({ latitude, longitude, nome }: { latitude: number; lon
           attribution: '&copy; OpenStreetMap',
         }).addTo(m);
         // Marcador em círculo: dispensa as imagens de ícone do Leaflet.
-        L.circleMarker([latitude, longitude], { radius: 10, color: '#9c6466', fillColor: '#c48b8b', fillOpacity: 0.9 })
+        L.circleMarker([latitude, longitude], { radius: 10, color: '#1f3d2e', fillColor: '#f0d277', fillOpacity: 0.9 })
           .addTo(m)
           .bindTooltip(nome);
         mapa = m;
@@ -34,5 +34,5 @@ export function MapaLocal({ latitude, longitude, nome }: { latitude: number; lon
     };
   }, [latitude, longitude, nome]);
 
-  return <div ref={ref} role="img" aria-label={`Mapa: ${nome}`} className="mt-3 h-56 w-full overflow-hidden rounded-card" />;
+  return <div ref={ref} role="img" aria-label={`Mapa: ${nome}`} className="mt-6 h-64 w-full overflow-hidden rounded-card" />;
 }

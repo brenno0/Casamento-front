@@ -200,7 +200,7 @@ function ColunaKanban({
   return (
     <section
       aria-label={coluna.nome}
-      className="flex w-72 shrink-0 flex-col rounded-card border border-dourado-claro bg-white/70"
+      className="flex w-72 shrink-0 flex-col rounded-card border border-folha bg-white/70"
     >
       <CabecalhoColuna coluna={coluna} total={tarefas.length} />
       <SortableContext items={tarefas.map((t) => idTarefa(t.id))} strategy={verticalListSortingStrategy}>
@@ -208,7 +208,7 @@ function ColunaKanban({
           ref={setNodeRef}
           className={[
             'flex min-h-24 flex-col gap-2 px-3 pb-3 transition-colors',
-            isOver ? 'bg-rosa-antigo-claro/30' : '',
+            isOver ? 'bg-vela-claro/30' : '',
           ].join(' ')}
         >
           {tarefas.map((t) => (
@@ -220,14 +220,14 @@ function ColunaKanban({
               onEditar={onEditar}
             />
           ))}
-          {tarefas.length === 0 && <li className="py-4 text-center text-sm text-grafite-suave">Nada aqui.</li>}
+          {tarefas.length === 0 && <li className="py-4 text-center text-sm text-verde-suave">Nada aqui.</li>}
         </ul>
       </SortableContext>
       <button
         type="button"
         onClick={() => onNovaTarefa(coluna.id)}
         aria-label={`Nova tarefa em ${coluna.nome}`}
-        className="mx-3 mb-3 rounded-pill px-3 py-1.5 text-left text-salvia-escuro hover:bg-salvia-claro/50"
+        className="mx-3 mb-3 rounded-botao px-3 py-1.5 text-left text-musgo hover:bg-folha-claro/50"
       >
         + Nova tarefa
       </button>
@@ -265,12 +265,12 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               setNome(e.target.value);
               renomear.reset();
             }}
-            className="min-w-0 flex-1 rounded-card border border-dourado-claro bg-white px-2 py-1"
+            className="min-w-0 flex-1 rounded-card border border-folha bg-white px-2 py-1"
           />
           <button
             type="submit"
             disabled={nome.trim() === '' || renomear.isPending}
-            className="rounded-pill bg-rosa-antigo-escuro px-3 py-1 text-sm text-marfim disabled:opacity-60"
+            className="rounded-botao bg-verde px-3 py-1 text-sm text-linho disabled:opacity-60"
           >
             Salvar
           </button>
@@ -281,7 +281,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               setNome(coluna.nome);
               renomear.reset();
             }}
-            className="rounded-pill px-2 py-1 text-sm text-grafite-suave"
+            className="rounded-botao px-2 py-1 text-sm text-verde-suave"
           >
             Cancelar
           </button>
@@ -289,7 +289,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
       ) : (
         <div className="flex items-center gap-2">
           <h2 className="flex-1 truncate text-xl">
-            {coluna.nome} <span className="text-base text-grafite-suave">({total})</span>
+            {coluna.nome} <span className="text-base text-verde-suave">({total})</span>
           </h2>
           <button
             type="button"
@@ -299,7 +299,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               setEditando(true);
               excluir.reset();
             }}
-            className="rounded-pill px-2 py-0.5 text-sm text-grafite-suave hover:bg-marfim-escuro"
+            className="rounded-botao px-2 py-0.5 text-sm text-verde-suave hover:bg-linho-escuro"
           >
             Renomear
           </button>
@@ -313,8 +313,8 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               excluir.reset();
               renomear.mutate({ id: coluna.id, concluida: !coluna.concluida });
             }}
-            className={`rounded-pill px-2 py-0.5 text-sm hover:bg-marfim-escuro disabled:opacity-60 ${
-              coluna.concluida ? 'bg-salvia-claro text-grafite' : 'text-grafite-suave'
+            className={`rounded-botao px-2 py-0.5 text-sm hover:bg-linho-escuro disabled:opacity-60 ${
+              coluna.concluida ? 'bg-folha-claro text-tinta' : 'text-verde-suave'
             }`}
           >
             {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
@@ -327,14 +327,14 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                 onClick={() =>
                   excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
                 }
-                className="rounded-pill bg-rosa-antigo-escuro px-2 py-0.5 text-sm text-marfim disabled:opacity-60"
+                className="rounded-botao bg-verde px-2 py-0.5 text-sm text-linho disabled:opacity-60"
               >
                 Confirmar exclusão
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmandoExclusao(false)}
-                className="rounded-pill px-2 py-0.5 text-sm text-grafite-suave"
+                className="rounded-botao px-2 py-0.5 text-sm text-verde-suave"
               >
                 Cancelar
               </button>
@@ -348,7 +348,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                 excluir.reset();
                 setConfirmandoExclusao(true);
               }}
-              className="rounded-pill px-2 py-0.5 text-sm text-rosa-antigo-escuro hover:bg-rosa-antigo-claro"
+              className="rounded-botao px-2 py-0.5 text-sm text-verde hover:bg-vela-claro"
             >
               Excluir
             </button>
@@ -356,7 +356,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
         </div>
       )}
       {renomear.isError && (
-        <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
+        <p role="alert" className="mt-1 text-sm text-erro">
           {renomear.error instanceof ApiError && renomear.error.code === 'ULTIMA_COLUNA_CONCLUIDA'
             ? 'O quadro precisa de ao menos uma coluna de concluídas.'
             : renomear.error instanceof ApiError && renomear.error.status === 400
@@ -365,7 +365,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
         </p>
       )}
       {excluir.isError && (
-        <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
+        <p role="alert" className="mt-1 text-sm text-erro">
           {excluir.error instanceof ApiError && excluir.error.code === 'COLUNA_NAO_VAZIA'
             ? 'Esvazie a coluna antes de excluí-la.'
             : excluir.error instanceof ApiError && excluir.error.code === 'ULTIMA_COLUNA_CONCLUIDA'
@@ -413,7 +413,7 @@ function CartaoTarefa({
               {...attributes}
               onKeyDown={onKeyDown}
               aria-label={`Mover ${tarefa.titulo}`}
-              className="cursor-grab rounded px-1 text-grafite-suave hover:text-grafite active:cursor-grabbing"
+              className="cursor-grab rounded px-1 text-verde-suave hover:text-tinta active:cursor-grabbing"
             >
               ⠿
             </button>
@@ -439,30 +439,30 @@ function CartaoConteudo({
 }) {
   return (
     <article
-      className={`flex gap-2 rounded-card border border-marfim-escuro bg-white p-3 transition-shadow hover:shadow-suave ${className}`}
+      className={`flex gap-2 rounded-card border border-linho-escuro bg-white p-3 transition-shadow hover:shadow-suave ${className}`}
     >
       <div className="min-w-0 flex-1">
         <button
           type="button"
           onClick={onEditar}
-          className="block w-full text-left leading-snug text-grafite hover:text-rosa-antigo-escuro"
+          className="block w-full text-left leading-snug text-tinta hover:text-verde"
         >
           {tarefa.titulo}
         </button>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           {tarefa.prazo && (
-            <span className={atrasada ? 'text-rosa-antigo-escuro' : 'text-grafite-suave'}>
+            <span className={atrasada ? 'text-erro' : 'text-verde-suave'}>
               {formatDataCurta(tarefa.prazo)}
             </span>
           )}
-          <span className="rounded-pill bg-salvia-claro px-2 text-salvia-escuro">
+          <span className="rounded-botao bg-folha-claro px-2 text-musgo">
             {LABEL_RESPONSAVEL[tarefa.responsavel]}
           </span>
           {tarefa.fornecedorNome && (
-            <span className="rounded-pill bg-dourado-claro px-2 text-grafite">{tarefa.fornecedorNome}</span>
+            <span className="rounded-botao bg-folha px-2 text-tinta">{tarefa.fornecedorNome}</span>
           )}
           {atrasada && (
-            <span className="rounded-pill bg-rosa-antigo-escuro px-2 text-marfim">Atrasada</span>
+            <span className="rounded-botao bg-verde px-2 text-linho">Atrasada</span>
           )}
         </div>
       </div>

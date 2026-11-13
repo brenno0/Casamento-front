@@ -81,7 +81,7 @@ export function PresentesAdminPage({ extras }: { extras?: ReactNode } = {}) {
   return (
     <section>
       <h1 className="text-4xl">Presentes</h1>
-      <p className="mt-2 text-grafite-suave">Itens da lista e presentes recebidos. Só vocês veem quem deu e quanto.</p>
+      <p className="mt-2 text-verde-suave">Itens da lista e presentes recebidos. Só vocês veem quem deu e quanto.</p>
       <div role="tablist" aria-label="Presentes" className="mt-6 flex gap-2">
         {(
           [
@@ -89,7 +89,7 @@ export function PresentesAdminPage({ extras }: { extras?: ReactNode } = {}) {
             ['recebidos', 'Presentes recebidos'],
           ] as const
         ).map(([v, l]) => (
-          <button key={v} role="tab" type="button" aria-selected={aba === v} onClick={() => setAba(v)} className={`rounded-pill border px-4 py-1 ${aba === v ? 'border-rosa-antigo-escuro bg-rosa-antigo-claro text-rosa-antigo-escuro' : 'border-dourado-claro text-grafite-suave'}`}>
+          <button key={v} role="tab" type="button" aria-selected={aba === v} onClick={() => setAba(v)} className={`rounded-botao border px-4 py-1 ${aba === v ? 'border-verde bg-vela-claro text-verde' : 'border-folha text-verde-suave'}`}>
             {l}
           </button>
         ))}
@@ -105,29 +105,29 @@ function Itens() {
   const [editando, setEditando] = useState<ItemPainel | 'novo' | null>(null);
 
   if (isPending) return <p role="status">Carregando…</p>;
-  if (isError || !data) return <p role="alert" className="text-rosa-antigo-escuro">Não foi possível carregar os itens.</p>;
+  if (isError || !data) return <p role="alert" className="text-erro">Não foi possível carregar os itens.</p>;
   const ids = data.map((i) => i.id);
 
   return (
     <div className="space-y-4">
-      <button type="button" onClick={() => setEditando('novo')} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim">
+      <button type="button" onClick={() => setEditando('novo')} className="rounded-botao bg-verde px-6 py-2 text-linho">
         Novo item
       </button>
-      {data.length === 0 && <p className="text-grafite-suave">Nenhum item ainda.</p>}
+      {data.length === 0 && <p className="text-verde-suave">Nenhum item ainda.</p>}
       <ul className="space-y-2">
         {data.map((i, idx) => (
-          <li key={i.id} className={`flex flex-wrap items-center gap-3 rounded-card border border-dourado-claro bg-white p-3 ${i.ativo ? '' : 'opacity-60'}`}>
+          <li key={i.id} className={`flex flex-wrap items-center gap-3 rounded-card border border-folha bg-white p-3 ${i.ativo ? '' : 'opacity-60'}`}>
             <span className="flex gap-1">
               <button type="button" aria-label={`Subir ${i.nome}`} disabled={idx === 0} onClick={() => ordenar.mutate(moverNaLista(ids, idx, -1))} className="px-2 disabled:opacity-30">↑</button>
               <button type="button" aria-label={`Descer ${i.nome}`} disabled={idx === ids.length - 1} onClick={() => ordenar.mutate(moverNaLista(ids, idx, 1))} className="px-2 disabled:opacity-30">↓</button>
             </span>
             {i.fotoUrl && <img src={i.fotoUrl} alt="" className="h-12 w-12 rounded object-cover" />}
-            <button type="button" onClick={() => setEditando(i)} className="flex-1 text-left hover:text-rosa-antigo-escuro">
+            <button type="button" onClick={() => setEditando(i)} className="flex-1 text-left hover:text-verde">
               <strong>{i.nome}</strong> · {formatarCentavos(i.precoCentavos)}
               {i.fracionavel ? ` · cotas: ${i.progresso}%` : ` · restam ${i.restante} de ${i.quantidade}`}
               {!i.ativo && ' · inativo'}
             </button>
-            <span className="text-sm text-grafite-suave">arrecadado {formatarCentavos(i.arrecadadoCentavos)}</span>
+            <span className="text-sm text-verde-suave">arrecadado {formatarCentavos(i.arrecadadoCentavos)}</span>
           </li>
         ))}
       </ul>
@@ -184,20 +184,20 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && !salvar.isPending && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={item ? 'Editar item' : 'Novo item'} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-marfim p-6 shadow-suave">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && !salvar.isPending && onClose()}>
+      <div role="dialog" aria-modal="true" aria-label={item ? 'Editar item' : 'Novo item'} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-6 shadow-suave">
         <h2 className="text-2xl">{item ? 'Editar item' : 'Novo item'}</h2>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Nome</span>
+            <span className="text-sm text-verde-suave">Nome</span>
             <input maxLength={100} value={d.nome} onChange={(e) => set('nome', e.target.value)} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Descrição</span>
+            <span className="text-sm text-verde-suave">Descrição</span>
             <textarea rows={2} maxLength={500} value={d.descricao} onChange={(e) => set('descricao', e.target.value)} className={inputClass} />
           </label>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Preço (R$)</span>
+            <span className="text-sm text-verde-suave">Preço (R$)</span>
             <input inputMode="decimal" value={d.preco} onChange={(e) => set('preco', e.target.value)} className={inputClass} />
           </label>
           <label className="flex items-end gap-2 pb-2">
@@ -206,21 +206,21 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
           </label>
           {d.fracionavel ? (
             <label className="block">
-              <span className="text-sm text-grafite-suave">Cota mínima (R$)</span>
+              <span className="text-sm text-verde-suave">Cota mínima (R$)</span>
               <input inputMode="decimal" value={d.cota} onChange={(e) => set('cota', e.target.value)} className={inputClass} />
             </label>
           ) : (
             <label className="block">
-              <span className="text-sm text-grafite-suave">Quantidade</span>
+              <span className="text-sm text-verde-suave">Quantidade</span>
               <input type="number" min={1} value={d.quantidade} onChange={(e) => set('quantidade', e.target.value)} className={inputClass} />
             </label>
           )}
           <label className="block">
-            <span className="text-sm text-grafite-suave">Link da loja (opcional)</span>
+            <span className="text-sm text-verde-suave">Link da loja (opcional)</span>
             <input type="url" value={d.linkLoja} onChange={(e) => set('linkLoja', e.target.value)} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Para uma viagem (opcional)</span>
+            <span className="text-sm text-verde-suave">Para uma viagem (opcional)</span>
             <select value={d.viagemId ?? ''} onChange={(e) => set('viagemId', e.target.value === '' ? null : Number(e.target.value))} className={inputClass}>
               <option value="">Nenhuma</option>
               {viagens.data?.map((v) => (
@@ -230,28 +230,28 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
           </label>
           <div className="sm:col-span-2">
             <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />
-            {d.fotoArquivoId && <p className="text-sm text-salvia-escuro">Foto definida.</p>}
+            {d.fotoArquivoId && <p className="text-sm text-musgo">Foto definida.</p>}
           </div>
           <label className="flex items-center gap-2 sm:col-span-2">
             <input type="checkbox" checked={d.ativo} onChange={(e) => set('ativo', e.target.checked)} />
             <span>Visível na lista</span>
           </label>
           {salvar.isError && (
-            <p role="alert" className="text-rosa-antigo-escuro sm:col-span-2">
+            <p role="alert" className="text-erro sm:col-span-2">
               {salvar.error instanceof ApiError ? salvar.error.message : 'Não foi possível salvar.'}
             </p>
           )}
           <div className="flex justify-between gap-2 sm:col-span-2">
             {item ? (
-              <button type="button" onClick={() => excluir.mutate(item.id, { onSuccess: onClose })} className="text-rosa-antigo-escuro underline">
+              <button type="button" onClick={() => excluir.mutate(item.id, { onSuccess: onClose })} className="text-erro underline">
                 Excluir (desativa se já houver presentes)
               </button>
             ) : (
               <span />
             )}
             <div className="flex gap-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-grafite-suave">Cancelar</button>
-              <button type="submit" disabled={!valido || salvar.isPending} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">Salvar</button>
+              <button type="button" onClick={onClose} className="px-4 py-2 text-verde-suave">Cancelar</button>
+              <button type="submit" disabled={!valido || salvar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">Salvar</button>
             </div>
           </div>
         </form>
@@ -281,7 +281,7 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         <label className="block">
-          <span className="text-sm text-grafite-suave">Via</span>
+          <span className="text-sm text-verde-suave">Via</span>
           <select value={via} onChange={(e) => setVia(e.target.value)} className={inputClass}>
             <option value="">Todas</option>
             <option value="checkout">Pagamento online</option>
@@ -289,7 +289,7 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-grafite-suave">Status</span>
+          <span className="text-sm text-verde-suave">Status</span>
           <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
             <option value="">Todos</option>
             {Object.entries(LABEL_STATUS).map(([v, l]) => (
@@ -297,32 +297,32 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
             ))}
           </select>
         </label>
-        <a href="/api/painel/presentes/export.csv" download className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
+        <a href="/api/painel/presentes/export.csv" download className="rounded-botao border border-verde px-4 py-2 text-verde">
           Exportar doações (CSV)
         </a>
         {extras}
       </div>
       {isPending && <p role="status">Carregando…</p>}
-      {isError && <p role="alert" className="text-rosa-antigo-escuro">Não foi possível carregar os presentes.</p>}
-      {data && data.length === 0 && <p className="text-grafite-suave">Nenhum presente ainda.</p>}
+      {isError && <p role="alert" className="text-erro">Não foi possível carregar os presentes.</p>}
+      {data && data.length === 0 && <p className="text-verde-suave">Nenhum presente ainda.</p>}
       <ul className="space-y-2">
         {data?.map((p) => (
-          <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="rounded-card border border-dourado-claro bg-white p-3">
+          <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="rounded-card border border-folha bg-white p-3">
             <div className="flex flex-wrap items-center gap-3">
               <strong>{p.doadorNome}</strong>
               <span>{p.itemNome}</span>
               <span>{formatarCentavos(p.valorCentavos)}</span>
-              <span className="rounded-pill bg-marfim-escuro px-2 text-sm">{LABEL_STATUS[p.status]}</span>
-              <span className="text-sm text-grafite-suave">{p.via === 'loja' ? 'Loja' : `Online${p.metodo ? ` (${p.metodo === 'pix' ? 'PIX' : 'cartão'})` : ''}`}</span>
-              <span className="text-sm text-grafite-suave">{new Date(p.criadoEm).toLocaleDateString('pt-BR')}</span>
+              <span className="rounded-botao bg-linho-escuro px-2 text-sm">{LABEL_STATUS[p.status]}</span>
+              <span className="text-sm text-verde-suave">{p.via === 'loja' ? 'Loja' : `Online${p.metodo ? ` (${p.metodo === 'pix' ? 'PIX' : 'cartão'})` : ''}`}</span>
+              <span className="text-sm text-verde-suave">{new Date(p.criadoEm).toLocaleDateString('pt-BR')}</span>
               {p.status === 'comprado' && (
-                <button type="button" onClick={() => recebido.mutate(p.id)} className="ml-auto rounded-pill bg-salvia-escuro px-3 py-1 text-sm text-marfim">
+                <button type="button" onClick={() => recebido.mutate(p.id)} className="ml-auto rounded-botao bg-musgo px-3 py-1 text-sm text-linho">
                   Marcar recebido
                 </button>
               )}
             </div>
             {(p.mensagem || p.numeroPedido || p.doadorEmail || p.fotoArquivoId) && (
-              <p className="mt-1 text-sm text-grafite-suave">
+              <p className="mt-1 text-sm text-verde-suave">
                 {p.mensagem && <>“{p.mensagem}” </>}
                 {p.numeroPedido && <>· pedido {p.numeroPedido} </>}
                 {p.doadorEmail && <>· {p.doadorEmail} </>}
