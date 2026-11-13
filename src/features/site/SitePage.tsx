@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { formatDataCurta, formatDataExtenso } from '../../lib/date';
-import { useRevelarAoRolar } from '../../lib/motion';
 import { MapaLocal } from './MapaLocal';
 import {
   instanteCerimonia,
@@ -13,7 +12,6 @@ import {
   type SitePublico,
 } from './useSite';
 
-/** Conteúdo das seções que outras histórias preenchem (envelope, RSVP, presentes, mural). */
 export interface SlotsSite {
   rsvp?: ReactNode;
   presentes?: ReactNode;
@@ -26,36 +24,37 @@ type Props =
 
 const ehConvite = (l: LocalPublico | LocalConvite): l is LocalConvite => 'endereco' in l;
 
+const momentos = [
+  { src: '/images/casal/nayane-brenno-encontro.jpeg', alt: 'Nayane e Brenno em um momento descontraído juntos' },
+  { src: '/images/casal/nayane-brenno-cerimonia.jpeg', alt: 'Nayane e Brenno em traje de casamento' },
+  { src: '/images/casal/nayane-brenno-flores.jpeg', alt: 'Nayane e Brenno ao lado de flores' },
+];
+
 export function SitePage(props: Props) {
   const { site, camada, slots = {}, aviso } = props;
-  const raiz = useRef<HTMLElement>(null);
-  useRevelarAoRolar(raiz, [site]);
   const convite = camada === 'convite';
-
   const secoes: [string, string, boolean][] = [
     ['historia', 'Nossa história', site.historia.length > 0],
+    ['momentos', 'Momentos', true],
     ['locais', 'Cerimônia e festa', true],
     ['dress-code', 'Dress code', true],
     ['rsvp', 'Confirmar presença', convite],
-    ['presentes', 'Presentes', true],
+    ['presentes', 'Lista de presentes', true],
     ['galeria', 'Galeria', site.galeria.length > 0],
-    ['mural', 'Mural', convite],
+    ['mural', 'Mural de recados', convite],
     ['faq', 'Dúvidas', site.faq.length > 0],
   ];
 
   return (
-    <main ref={raiz} className="bg-marfim text-grafite">
-      <nav aria-label="Seções" className="sticky top-0 z-40 overflow-x-auto border-b border-dourado-claro bg-marfim/90 backdrop-blur">
-        <ul className="mx-auto flex max-w-5xl gap-4 px-gutter py-2 text-sm whitespace-nowrap">
-          {secoes
-            .filter(([, , mostrar]) => mostrar)
-            .map(([id, label]) => (
-              <li key={id}>
-                <a href={`#${id}`} className="text-grafite-suave hover:text-rosa-antigo-escuro">
-                  {label}
-                </a>
-              </li>
-            ))}
+    <main className="wedding-site">
+      <nav aria-label="Seções" className="wedding-nav">
+        <a href="#inicio" className="wedding-brand" aria-label={`${site.casal.nomeNoiva} e ${site.casal.nomeNoivo}, início`}>
+          <span>{site.casal.nomeNoiva}</span><i aria-hidden="true">&</i><span>{site.casal.nomeNoivo}</span>
+        </a>
+        <ul>
+          {secoes.filter(([, , mostrar]) => mostrar).map(([id, label]) => (
+            <li key={id}><a href={`#${id}`}>{label}</a></li>
+          ))}
         </ul>
       </nav>
 
@@ -64,104 +63,106 @@ export function SitePage(props: Props) {
       <Hero site={site} saudacao={convite ? (props.site as SiteConvite).grupo : undefined} />
 
       {site.historia.length > 0 && (
-        <Secao id="historia" titulo="Nossa história">
-          <ol className="relative mx-auto max-w-3xl border-l border-dourado pl-8">
+        <Secao id="historia" titulo="Nossa história" subtitulo="De tantos encontros, nasceu o nosso para sempre.">
+          <ol className="story-list">
             {site.historia.map((h) => (
-              <li key={h.id} data-reveal className="mb-12">
-                <span aria-hidden="true" className="absolute -left-1.5 mt-2 h-3 w-3 rounded-full bg-rosa-antigo" />
-                <p className="text-sm tracking-widest text-salvia-escuro uppercase">{formatDataCurta(h.data)}</p>
-                <h3 className="mt-1 text-3xl">{h.titulo}</h3>
-                {h.fotoUrl && (
-                  <img src={h.fotoUrl} alt={h.titulo} loading="lazy" className="mt-4 w-full rounded-card object-cover shadow-suave" />
-                )}
-                {h.texto && <p className="mt-3 whitespace-pre-line">{h.texto}</p>}
+              <li key={h.id} data-reveal>
+                <time dateTime={h.data}>{formatDataCurta(h.data)}</time>
+                <div>
+                  <h3>{h.titulo}</h3>
+                  {h.texto && <p>{h.texto}</p>}
+                  {h.fotoUrl && <img src={h.fotoUrl} alt={h.titulo} loading="lazy" />}
+                </div>
               </li>
             ))}
           </ol>
         </Secao>
       )}
 
-      <Secao id="locais" titulo="Cerimônia e festa">
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-          {site.locais.map((l) => (
-            <article key={l.tipo} data-reveal aria-label={LABEL_LOCAL[l.tipo]} className="rounded-card border border-dourado-claro bg-white p-6 text-center shadow-suave">
-              <p className="text-sm tracking-[0.3em] text-salvia-escuro uppercase">{LABEL_LOCAL[l.tipo]}</p>
-              <h3 className="mt-2 text-3xl">{l.nome}</h3>
-              <p className="mt-2">
-                {formatDataExtenso(l.data)} · {l.horario.replace(':', 'h')}
-              </p>
-              {ehConvite(l) && <DetalhesLocal l={l} />}
+      <section id="momentos" className="moments-section" aria-labelledby="momentos-titulo">
+        <div className="moments-copy" data-reveal>
+          <h2 id="momentos-titulo">O amor mora<br />nos detalhes.</h2>
+          <p>Um pouquinho dos caminhos que trouxeram a gente até aqui.</p>
+        </div>
+        <ul className="moments-grid" aria-label="Fotos de Nayane e Brenno">
+          {momentos.map((foto, i) => (
+            <li key={foto.src} data-reveal className={`moment moment-${i + 1}`}>
+              <img src={foto.src} alt={foto.alt} loading={i === 0 ? 'eager' : 'lazy'} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <Secao id="locais" titulo="Cerimônia e festa" subtitulo="Vai ser ainda mais especial com você por perto.">
+        <div className="venue-list">
+          {site.locais.map((l, i) => (
+            <article key={l.tipo} data-reveal aria-label={LABEL_LOCAL[l.tipo]} className="venue">
+              <span className="venue-index">{String(i + 1).padStart(2, '0')}</span>
+              <div className="venue-info">
+                <p className="section-overline">{LABEL_LOCAL[l.tipo]}</p>
+                <h3>{l.nome}</h3>
+                <p><time dateTime={l.data}>{formatDataExtenso(l.data)}</time><span aria-hidden="true"> · </span>{l.horario.replace(':', 'h')}</p>
+                {ehConvite(l) && <DetalhesLocal l={l} />}
+              </div>
+              {!convite && i === 0 && <p className="venue-note">Endereço e mapa estão no convite que você recebeu.</p>}
             </article>
           ))}
         </div>
-        {!convite && (
-          <p className="mt-6 text-center text-sm text-grafite-suave">
-            Endereços e mapas estão no link do convite que você recebeu.
-          </p>
-        )}
       </Secao>
 
-      <Secao id="dress-code" titulo="Dress code">
-        <div data-reveal className="mx-auto max-w-2xl text-center">
-          <p className="whitespace-pre-line">{site.dressCode.texto}</p>
+      <Secao id="dress-code" titulo="Dress code" subtitulo="Um pedido carinhoso para celebrar com conforto e elegância.">
+        <div className="dress-code" data-reveal>
+          <p>{site.dressCode.texto}</p>
           {site.dressCode.paleta.length > 0 && (
-            <ul aria-label="Paleta sugerida" className="mt-6 flex justify-center gap-3">
-              {site.dressCode.paleta.map((cor) => (
-                <li key={cor}>
-                  <span aria-label={cor} title={cor} className="block h-12 w-12 rounded-full border border-dourado-claro shadow-suave" style={{ backgroundColor: cor }} />
-                </li>
-              ))}
+            <ul aria-label="Paleta sugerida">
+              {site.dressCode.paleta.map((cor) => <li key={cor}><span aria-label={cor} title={cor} style={{ backgroundColor: cor }} /></li>)}
             </ul>
           )}
         </div>
       </Secao>
 
       {convite && (
-        <Secao id="rsvp" titulo="Confirmar presença">
-          {slots.rsvp ?? <p className="text-center text-grafite-suave">A confirmação de presença abre em breve.</p>}
+        <Secao id="rsvp" titulo="Confirmar presença" subtitulo="Conte pra gente se vem comemorar este dia." tone="green">
+          {slots.rsvp ?? <p className="section-fallback">A confirmação de presença abre em breve.</p>}
         </Secao>
       )}
 
-      <Secao id="presentes" titulo="Lista de presentes">
-        {slots.presentes ?? <p className="text-center text-grafite-suave">A lista de presentes chega em breve.</p>}
+      <Secao id="presentes" titulo="Lista de presentes" subtitulo="Sua presença é o melhor presente. Se quiser nos mimar, preparamos uma lista especial.">
+        {slots.presentes ?? <p className="section-fallback">A lista de presentes chega em breve.</p>}
       </Secao>
 
       {site.galeria.length > 0 && <Galeria fotos={site.galeria} />}
 
       {convite && (
-        <Secao id="mural" titulo="Mural de recados">
-          {slots.mural ?? <p className="text-center text-grafite-suave">O mural de recados abre em breve.</p>}
+        <Secao id="mural" titulo="Mural de recados" subtitulo="Vamos guardar cada palavra com muito carinho." tone="green">
+          {slots.mural ?? <p className="section-fallback">O mural de recados abre em breve.</p>}
         </Secao>
       )}
 
       {site.faq.length > 0 && (
-        <Secao id="faq" titulo="Dúvidas">
-          <div className="mx-auto max-w-2xl space-y-3">
-            {site.faq.map((f) => (
-              <details key={f.id} data-reveal className="rounded-card border border-dourado-claro bg-white p-4">
-                <summary className="cursor-pointer text-xl">{f.pergunta}</summary>
-                <p className="mt-2 whitespace-pre-line">{f.resposta}</p>
-              </details>
-            ))}
+        <Secao id="faq" titulo="Dúvidas" subtitulo="Um guia rápido para aproveitar esse dia com a gente.">
+          <div className="faq-list">
+            {site.faq.map((f) => <details key={f.id} data-reveal><summary>{f.pergunta}</summary><p>{f.resposta}</p></details>)}
           </div>
         </Secao>
       )}
 
-      <footer className="py-12 text-center">
-        <p className="font-script text-4xl text-rosa-antigo-escuro">
-          {site.casal.nomeNoiva} &amp; {site.casal.nomeNoivo}
-        </p>
+      <footer className="wedding-footer">
+        <p className="footer-names">{site.casal.nomeNoiva} <i aria-hidden="true">&</i> {site.casal.nomeNoivo}</p>
+        <p><time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time></p>
+        <a href="#inicio">Voltar ao início ↑</a>
       </footer>
     </main>
   );
 }
 
-function Secao({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+function Secao({ id, titulo, subtitulo, children, tone }: { id: string; titulo: string; subtitulo?: string; children: ReactNode; tone?: 'green' }) {
   return (
-    <section id={id} aria-labelledby={`${id}-titulo`} className="scroll-mt-12 px-gutter py-section odd:bg-marfim-escuro/40">
-      <h2 id={`${id}-titulo`} data-reveal className="mb-10 text-center font-script text-5xl text-rosa-antigo-escuro sm:text-6xl">
-        {titulo}
-      </h2>
+    <section id={id} aria-labelledby={`${id}-titulo`} className={`wedding-section${tone ? ` wedding-section-${tone}` : ''}`}>
+      <header className="section-heading" data-reveal>
+        <h2 id={`${id}-titulo`}>{titulo}</h2>
+        {subtitulo && <p>{subtitulo}</p>}
+      </header>
       {children}
     </section>
   );
@@ -169,18 +170,21 @@ function Secao({ id, titulo, children }: { id: string; titulo: string; children:
 
 function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: { nome: string; mensagem: string | null } }) {
   return (
-    <header className="flex min-h-[85svh] flex-col items-center justify-center px-gutter py-section text-center">
-      {saudacao && <p className="mb-4 text-lg text-salvia-escuro">Olá, {saudacao.nome}!</p>}
-      <p className="text-sm tracking-[0.3em] text-salvia-escuro uppercase">Vamos nos casar</p>
-      <h1 className="mt-6 font-script text-6xl leading-tight text-rosa-antigo-escuro sm:text-8xl">
-        {site.casal.nomeNoiva} &amp; {site.casal.nomeNoivo}
-      </h1>
-      <div aria-hidden="true" className="mx-auto mt-6 h-px w-24 bg-dourado" />
-      <p className="mt-6 text-2xl sm:text-3xl">
-        <time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time>
-      </p>
-      <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais[0]?.horario} />
-      {saudacao?.mensagem && <p className="mx-auto mt-8 max-w-xl whitespace-pre-line italic">{saudacao.mensagem}</p>}
+    <header id="inicio" className="wedding-hero">
+      <div className="hero-copy">
+        {saudacao && <p className="guest-greeting">Querida família {saudacao.nome},</p>}
+        <h1><span>{site.casal.nomeNoiva}</span><i aria-hidden="true">&amp;</i><span>{site.casal.nomeNoivo}</span></h1>
+        <p className="hero-invite-line">Com alegria, convidamos você.</p>
+        <div className="hero-rule" aria-hidden="true"><span /></div>
+        <p className="hero-date"><time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time></p>
+        {saudacao?.mensagem && <p className="hero-message">{saudacao.mensagem}</p>}
+        <a className="hero-link" href="#locais">Conheça os detalhes <span aria-hidden="true">↓</span></a>
+        <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais[0]?.horario} />
+      </div>
+      <figure className="hero-church-art">
+        <img src="/images/casal/igreja-aquarela.jpeg" alt="Ilustração em aquarela da igreja da cerimônia" fetchPriority="high" />
+      </figure>
+      <p className="hero-side-note" aria-hidden="true">17 · 07 · 2027</p>
     </header>
   );
 }
@@ -193,21 +197,11 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
     return () => clearInterval(id);
   }, []);
   const t = tempoRestante(alvo, agora);
-  if (t.chegou) return <p className="mt-8 text-2xl text-salvia-escuro">É hoje!</p>;
-  const partes: [number, string][] = [
-    [t.dias, 'dias'],
-    [t.horas, 'horas'],
-    [t.minutos, 'min'],
-    [t.segundos, 'seg'],
-  ];
+  if (t.chegou) return <p className="countdown-today">É hoje!</p>;
+  const partes: [number, string][] = [[t.dias, 'dias'], [t.horas, 'horas'], [t.minutos, 'min'], [t.segundos, 'seg']];
   return (
-    <div role="timer" aria-label="Contagem regressiva" className="mt-8 flex gap-4 sm:gap-8">
-      {partes.map(([n, rotulo]) => (
-        <div key={rotulo} className="min-w-14 text-center">
-          <span className="block text-4xl tabular-nums sm:text-5xl">{n}</span>
-          <span className="text-sm tracking-widest text-grafite-suave uppercase">{rotulo}</span>
-        </div>
-      ))}
+    <div role="timer" aria-label="Contagem regressiva" className="countdown">
+      {partes.map(([n, rotulo]) => <div key={rotulo}><span>{n}</span><small>{rotulo}</small></div>)}
     </div>
   );
 }
@@ -215,19 +209,10 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
 function DetalhesLocal({ l }: { l: LocalConvite }) {
   const links = linksMapa(l);
   return (
-    <div className="mt-4">
-      {l.endereco && <p className="text-grafite-suave">{l.endereco}</p>}
+    <div className="venue-details">
+      {l.endereco && <p>{l.endereco}</p>}
       {l.latitude !== null && l.longitude !== null && <MapaLocal latitude={l.latitude} longitude={l.longitude} nome={l.nome} />}
-      {links && (
-        <div className="mt-4 flex justify-center gap-3">
-          <a href={links.google} target="_blank" rel="noreferrer" className="rounded-pill bg-rosa-antigo-escuro px-4 py-2 text-marfim">
-            Google Maps
-          </a>
-          <a href={links.waze} target="_blank" rel="noreferrer" className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
-            Waze
-          </a>
-        </div>
-      )}
+      {links && <div className="map-links"><a href={links.google} target="_blank" rel="noreferrer">Abrir no Google Maps ↗</a><a href={links.waze} target="_blank" rel="noreferrer">Waze ↗</a></div>}
     </div>
   );
 }
@@ -242,22 +227,14 @@ function Galeria({ fotos }: { fotos: { id: number; fotoUrl: string; legenda: str
     return () => document.removeEventListener('keydown', onKey);
   }, [aberta]);
   return (
-    <Secao id="galeria" titulo="Galeria">
-      <ul className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3">
-        {fotos.map((f) => (
-          <li key={f.id} data-reveal>
-            <button type="button" onClick={() => setAberta(f.id)} className="block w-full overflow-hidden rounded-card">
-              <img src={f.fotoUrl} alt={f.legenda || 'Foto do casal'} loading="lazy" className="aspect-square w-full object-cover transition-transform hover:scale-105" />
-            </button>
-          </li>
-        ))}
+    <Secao id="galeria" titulo="Galeria" subtitulo="Cada instante, um pedacinho da nossa história.">
+      <ul className="gallery-grid">
+        {fotos.map((f) => <li key={f.id} data-reveal><button type="button" onClick={() => setAberta(f.id)} aria-label={`Ampliar foto: ${f.legenda || 'Foto do casal'}`}><img src={f.fotoUrl} alt={f.legenda || 'Foto do casal'} loading="lazy" /></button></li>)}
       </ul>
       {atual && (
-        <div role="dialog" aria-modal="true" aria-label={atual.legenda || 'Foto'} className="fixed inset-0 z-50 flex items-center justify-center bg-grafite/80 p-4" onClick={() => setAberta(null)}>
-          <figure className="max-h-full max-w-4xl">
-            <img src={atual.fotoUrl} alt={atual.legenda || 'Foto do casal'} className="max-h-[80svh] rounded-card object-contain" />
-            {atual.legenda && <figcaption className="mt-2 text-center text-marfim">{atual.legenda}</figcaption>}
-          </figure>
+        <div role="dialog" aria-modal="true" aria-label={atual.legenda || 'Foto'} className="gallery-lightbox" onClick={() => setAberta(null)}>
+          <button type="button" aria-label="Fechar foto" onClick={() => setAberta(null)}>×</button>
+          <figure onClick={(e) => e.stopPropagation()}><img src={atual.fotoUrl} alt={atual.legenda || 'Foto do casal'} /><figcaption>{atual.legenda}</figcaption></figure>
         </div>
       )}
     </Secao>

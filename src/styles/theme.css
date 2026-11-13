@@ -7,23 +7,23 @@
 
 @theme {
   /* Paleta */
-  --color-marfim: #fbf7f0;
-  --color-marfim-escuro: #f1e9dc;
-  --color-rosa-antigo: #c48b8b;
-  --color-rosa-antigo-claro: #e8cfcb;
-  --color-rosa-antigo-escuro: #9c6466;
-  --color-salvia: #9caf88;
-  --color-salvia-claro: #d5dfcb;
-  --color-salvia-escuro: #6f8261;
-  --color-dourado: #c9a96e;
-  --color-dourado-claro: #e6d4ad;
-  --color-grafite: #3a3a3c;
-  --color-grafite-suave: #6b6b6e;
+  --color-marfim: #f8f5ec;
+  --color-marfim-escuro: #eee9dd;
+  --color-rosa-antigo: #be8980;
+  --color-rosa-antigo-claro: #ecd8d0;
+  --color-rosa-antigo-escuro: #76514b;
+  --color-salvia: #95a679;
+  --color-salvia-claro: #b0b8a0;
+  --color-salvia-escuro: #718063;
+  --color-dourado: #b8945d;
+  --color-dourado-claro: #e0cfab;
+  --color-grafite: #30372e;
+  --color-grafite-suave: #525a4e;
 
   /* Tipografia */
   --font-serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
   --font-script: 'Great Vibes', 'Cormorant Garamond', cursive;
-  --font-sans: var(--font-serif);
+  --font-sans: 'DM Sans', 'Segoe UI', sans-serif;
 
   /* Espaçamentos */
   --spacing-gutter: 1rem;
@@ -36,6 +36,199 @@
 
   /* Sombras */
   --shadow-suave: 0 10px 30px -12px rgb(58 58 60 / 0.18);
+}
+
+/* Wedding invitation visual system: printed ceremony program meets photo essay. */
+.wedding-site {
+  --paper: #f8f5ec;
+  --paper-bright: #fffdf8;
+  --rose-paper: #e9eadf;
+  --ink: #30372e;
+  --muted: #525a4e;
+  --green: #718063;
+  --green-deep: #515f47;
+  --green-light: #e5e9df;
+  --rose: #95695d;
+  --line: #d8d2c3;
+  --gold: #ae8a52;
+  min-height: 100vh;
+  overflow: clip;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.wedding-site a { color: inherit; text-underline-offset: .22em; }
+.wedding-site img { display: block; max-width: 100%; }
+.wedding-site button, .wedding-site input, .wedding-site select, .wedding-site textarea { font: inherit; }
+.wedding-site h1, .wedding-site h2, .wedding-site h3 { color: var(--ink); }
+.wedding-site ::selection { background: #718063; color: #fffdf8; }
+.wedding-site :focus-visible { outline-color: var(--rose); outline-offset: 4px; }
+.caption-mark { width: .45rem; height: .45rem; border: 1px solid currentColor; transform: rotate(45deg); }
+
+.wedding-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  min-height: 4.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: .65rem clamp(1rem, 5vw, 5rem);
+  border-bottom: 1px solid rgb(81 95 71 / .13);
+  background: rgb(248 245 236 / .97);
+  color: var(--green-deep);
+}
+.wedding-brand { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .42rem; font-size: 1.1rem; text-decoration: none; }
+.wedding-brand i, .footer-names i { color: var(--rose); font-family: var(--font-script); font-size: 1.45em; font-style: normal; }
+.wedding-nav ul { display: flex; align-items: center; gap: clamp(.85rem, 2vw, 2rem); margin: 0; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: thin; }
+.wedding-nav li { flex: 0 0 auto; }
+.wedding-nav li a { color: #50594b; font-size: .78rem; text-decoration: none; transition: color .2s ease; }
+.wedding-nav li a:hover, .wedding-nav li a:focus-visible { color: var(--rose); }
+
+.wedding-hero {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(2.8rem, 5vw, 4.5rem) clamp(1.25rem, 7vw, 7rem) 0;
+  background: var(--paper-bright);
+  color: var(--ink);
+  text-align: center;
+}
+.hero-copy { position: relative; z-index: 1; display: flex; max-width: 46rem; flex-direction: column; align-items: center; padding: 0 0 1.4rem; }
+.guest-greeting { margin: 0 0 1.4rem; color: var(--rose); font-size: 1.1rem; font-style: italic; }
+.section-overline { margin: 0 0 .8rem; color: var(--green); font-family: var(--font-serif); font-size: .76rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
+.hero-copy .section-overline { color: var(--green-deep); }
+.wedding-hero h1 { display: flex; flex-direction: column; align-items: center; gap: 0; margin: .2rem 0 0; color: var(--green-deep); font-family: var(--font-script); font-size: clamp(4.1rem, 7.1vw, 7.2rem); font-weight: 400; line-height: .72; }
+.wedding-hero h1 i { margin: .02em 0; color: var(--rose); font-family: var(--font-script); font-size: .43em; font-style: normal; font-weight: 400; }
+.hero-invite-line { margin: .6rem 0 0; color: var(--muted); font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; }
+.hero-rule { display: flex; width: 8rem; align-items: center; gap: .7rem; margin: 1.3rem auto .8rem; color: var(--gold); }
+.hero-rule::before, .hero-rule::after { height: 1px; flex: 1; background: var(--gold); content: ''; }
+.hero-rule span { width: .45rem; height: .45rem; border: 1px solid currentColor; transform: rotate(45deg); }
+.hero-date { margin: 0; color: var(--ink); font-family: var(--font-serif); font-size: clamp(1.35rem, 1.8vw, 1.75rem); }
+.hero-message { max-width: 32rem; margin: 1.2rem 0 0; color: var(--muted); font-style: italic; white-space: pre-line; }
+.hero-link { display: inline-flex; align-items: center; gap: 1rem; margin-top: 1.8rem; color: var(--green-deep) !important; font-size: .84rem; font-weight: 600; text-decoration: none; }
+.hero-link span { display: inline-grid; width: 2.1rem; height: 2.1rem; place-items: center; border: 1px solid var(--green); border-radius: 50%; transition: background .2s ease, color .2s ease; }
+.hero-link:hover span { background: var(--green); color: white; }
+.hero-church-art { width: 100%; max-width: 95rem; margin: 0; }
+.hero-church-art img { width: 100%; height: auto; mix-blend-mode: multiply; animation: church-arrive .9s cubic-bezier(.16, 1, .3, 1) both; }
+.hero-side-note { position: absolute; right: clamp(1rem, 4vw, 4rem); bottom: 13%; z-index: 1; margin: 0; color: var(--green); font-size: .7rem; letter-spacing: .18em; writing-mode: vertical-rl; }
+.countdown { display: flex; gap: clamp(.8rem, 2vw, 1.6rem); margin-top: 2rem; }
+.countdown div { display: flex; min-width: 3.2rem; flex-direction: column; gap: .05rem; }
+.countdown span { font-size: 1.45rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.countdown small { color: var(--muted); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; }
+.countdown-today { margin-top: 1.5rem; color: var(--green-deep); font-size: 1.3rem; }
+
+.wedding-section { scroll-margin-top: 5rem; padding: clamp(4rem, 8vw, 7.5rem) clamp(1.25rem, 8vw, 8rem); }
+.wedding-section:nth-of-type(even) { background: var(--paper-bright); }
+.wedding-section-green { background: var(--green-light) !important; color: var(--ink); }
+.wedding-section-green h2, .wedding-section-green h3 { color: var(--ink); }
+.section-heading { max-width: 50rem; margin: 0 auto 3.3rem; text-align: center; }
+.section-heading h2, .moments-copy h2 { margin: 0; font-family: var(--font-serif); font-size: clamp(2.5rem, 4.8vw, 4.1rem); font-style: italic; font-weight: 400; letter-spacing: -.025em; line-height: 1; }
+.section-heading > p { max-width: 42rem; margin: .8rem auto 0; color: var(--muted); }
+.wedding-section-green .section-heading > p { color: var(--muted); }
+.section-fallback { text-align: center; }
+
+.story-list { max-width: 54rem; margin: 0 auto; padding: 0; list-style: none; }
+.story-list li { display: grid; grid-template-columns: 9rem 1fr; gap: 2rem; padding: 1.7rem 0; border-top: 1px solid var(--line); }
+.story-list time { padding-top: .3rem; color: var(--rose); font-size: .76rem; letter-spacing: .08em; }
+.story-list h3 { margin: 0; font-size: 1.7rem; }
+.story-list p { max-width: 65ch; margin: .45rem 0 0; white-space: pre-line; }
+.story-list img { max-height: 28rem; margin-top: 1.3rem; object-fit: cover; }
+
+.moments-section { display: grid; grid-template-columns: minmax(15rem, .7fr) minmax(0, 1.3fr); align-items: center; gap: clamp(2rem, 7vw, 8rem); padding: clamp(4rem, 8vw, 8rem) clamp(1.25rem, 10vw, 10rem); background: var(--rose-paper); }
+.moments-copy h2 { font-size: clamp(2.8rem, 4.8vw, 4.5rem); }
+.moments-copy > p:last-child { max-width: 28rem; margin-top: 1.2rem; color: var(--muted); }
+.moments-grid { display: grid; grid-template-columns: 1.25fr .85fr; grid-template-rows: 11rem 11rem; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.moment { overflow: hidden; border: 5px solid var(--paper-bright); box-shadow: 0 8px 22px -12px rgb(23 43 36 / .45); }
+.moment img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.2,.75,.3,1); }
+.moment:hover img { transform: scale(1.035); }
+.moment-1 { grid-row: span 2; }
+.moment-2 { grid-column: 2; grid-row: 1; }
+.moment-3 img { object-position: center 32%; }
+.moment-3 { grid-column: 2; grid-row: 2; }
+
+.church-art { max-width: 58rem; margin: -1rem auto 2rem; }
+.church-art img { width: 100%; max-height: 18rem; object-fit: contain; }
+.venue-list { max-width: 59rem; margin: 0 auto; }
+.venue { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) minmax(11rem, .65fr); align-items: start; gap: 1.4rem; padding: 1.8rem 0; border-top: 1px solid var(--line); }
+.venue-index { padding-top: .2rem; color: var(--rose); font-size: .78rem; letter-spacing: .12em; }
+.venue-info .section-overline { margin-bottom: .35rem; }
+.venue h3 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); }
+.venue-info > p:last-of-type { margin: .4rem 0 0; color: var(--muted); }
+.venue-note { margin: .25rem 0 0; color: var(--muted); font-size: .85rem; }
+.venue-details { margin-top: .7rem; color: var(--muted); }
+.venue-details > p { margin: 0; }
+.map-links { display: flex; gap: 1.2rem; margin-top: .8rem; }
+.map-links a { color: var(--green); font-size: .86rem; font-weight: 600; }
+.map-links a:hover { color: var(--rose); }
+
+.dress-code { max-width: 44rem; margin: 0 auto; text-align: center; }
+.dress-code > p { margin: 0 auto; white-space: pre-line; }
+.dress-code ul { display: flex; justify-content: center; gap: .8rem; margin: 1.7rem 0 0; padding: 0; list-style: none; }
+.dress-code li span { display: block; width: 2.5rem; height: 2.5rem; border: 2px solid var(--paper-bright); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
+.wedding-section-green .dress-code li span { border-color: var(--green); }
+.faq-list { max-width: 48rem; margin: 0 auto; }
+.faq-list details { padding: 1rem 0; border-top: 1px solid var(--line); }
+.faq-list summary { cursor: pointer; font-size: 1.15rem; }
+.faq-list details p { margin: .7rem 0 0; color: var(--muted); white-space: pre-line; }
+.gallery-grid { display: grid; max-width: 70rem; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin: 0 auto; padding: 0; list-style: none; }
+.gallery-grid button { width: 100%; overflow: hidden; border: 0; padding: 0; background: none; cursor: zoom-in; }
+.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform .4s ease; }
+.gallery-grid button:hover img { transform: scale(1.04); }
+.gallery-lightbox { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 2rem; background: rgb(22 31 27 / .94); }
+.gallery-lightbox > button { position: absolute; top: 1rem; right: 1.5rem; border: 0; background: transparent; color: white; font-size: 2.4rem; cursor: pointer; }
+.gallery-lightbox figure { max-width: min(85vw, 65rem); margin: 0; }
+.gallery-lightbox img { max-height: 78svh; object-fit: contain; }
+.gallery-lightbox figcaption { margin-top: .75rem; color: white; text-align: center; }
+.wedding-footer { padding: 3.5rem 1rem; background: var(--paper-bright); text-align: center; }
+.footer-names { margin: 0; font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; }
+.wedding-footer > p:nth-child(2) { margin: .2rem 0 1.2rem; color: var(--muted); font-size: .86rem; }
+.wedding-footer > a { color: var(--green); font-size: .8rem; }
+
+@media (max-width: 860px) {
+  .wedding-nav { align-items: flex-start; flex-direction: column; gap: .3rem; padding: .65rem 1rem .45rem; }
+  .wedding-nav ul { width: 100%; gap: 1.15rem; padding-bottom: .28rem; }
+  .wedding-nav li a { font-size: .74rem; }
+  .wedding-hero { padding: 3.25rem clamp(1.25rem, 7vw, 4rem) 0; }
+  .wedding-hero h1 { font-size: clamp(4rem, 14vw, 6.5rem); }
+  .hero-side-note { bottom: 4%; font-size: .62rem; }
+  .hero-church-art { width: calc(100% + 2.5rem); max-width: none; margin: 0 -1.25rem; }
+  .moments-section { grid-template-columns: 1fr; gap: 2rem; }
+  .moments-grid { grid-template-rows: clamp(8rem, 22vw, 13rem) clamp(8rem, 22vw, 13rem); }
+}
+@media (max-width: 560px) {
+  .wedding-hero { padding-top: 2.8rem; }
+  .wedding-hero h1 { font-size: clamp(3.5rem, 17vw, 5.5rem); }
+  .wedding-section { padding: 4rem 1.25rem; }
+  .section-heading { margin-bottom: 2.3rem; }
+  .story-list li { grid-template-columns: 1fr; gap: .5rem; padding: 1.2rem 0; }
+  .venue { grid-template-columns: 2rem minmax(0, 1fr); gap: .8rem; }
+  .venue-note { grid-column: 2; }
+  .map-links { flex-wrap: wrap; }
+  .moments-section { padding: 4rem 1.25rem; }
+  .moments-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 8rem 8rem; gap: .45rem; }
+  .moment-1 { grid-row: span 1; }
+  .moment-2, .moment-3 { grid-column: 2; }
+  .moment-2 { grid-row: 1; }
+  .moment-3 { grid-row: 2; }
+  .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+  .gallery-lightbox { padding: .75rem; }
+  .gallery-lightbox figure { max-width: 94vw; }
+}
+
+@keyframes church-arrive {
+  from { opacity: .7; filter: blur(3px); transform: translateY(8px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-church-art img { animation: none; }
+  .moment img, .hero-link span { transition: none; }
 }
 
 @layer base {
