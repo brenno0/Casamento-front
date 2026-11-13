@@ -178,6 +178,37 @@
     @apply bg-linho text-verde;
   }
 
+  /* Aquarela de fundo quase branco: as bordas somem no linho. */
+  .aquarela {
+    mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent), linear-gradient(to bottom, transparent, black 3%);
+    mask-composite: intersect;
+  }
+
+  /* Galeria em varal: polaroides presas por prendedor, levemente tortas, que balançam. */
+  .polaroide {
+    position: relative;
+    transform: rotate(var(--giro, 0deg));
+    transform-origin: 50% 0;
+    transition: transform 500ms var(--ease-saida);
+  }
+  .polaroide:hover,
+  .polaroide:focus-within {
+    animation: balancar 1.2s var(--ease-saida);
+    z-index: 1;
+  }
+  .prendedor {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    z-index: 1;
+    width: 0.875rem;
+    height: 2.25rem;
+    translate: -50% 0;
+    border-radius: 2px;
+    background: linear-gradient(to right, #c9a46a, #e2c38f 50%, #c9a46a);
+    box-shadow: 0 1px 2px rgb(23 36 28 / 0.25);
+  }
+
   .campo {
     @apply mt-2 block w-full rounded-card border border-folha-escuro bg-papel px-4 py-3 text-tinta;
   }
@@ -223,5 +254,21 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Polaroide balançando no varal. */
+@keyframes balancar {
+  0% {
+    transform: rotate(var(--giro, 0deg));
+  }
+  30% {
+    transform: rotate(calc(var(--giro, 0deg) * -1.4));
+  }
+  60% {
+    transform: rotate(calc(var(--giro, 0deg) * 0.8));
+  }
+  100% {
+    transform: rotate(var(--giro, 0deg));
   }
 }

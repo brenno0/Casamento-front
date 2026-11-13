@@ -10,7 +10,7 @@ describe('site público', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Nayane & Brenno' })).toBeInTheDocument();
     expect(screen.getAllByText('17 de julho de 2027')[0]).toHaveAttribute('datetime', '2027-07-17');
-    expect(screen.getByRole('heading', { name: 'Nos conhecemos' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'O primeiro encontro' })).toBeInTheDocument();
     const cerimonia = screen.getByRole('article', { name: 'Cerimônia' });
     expect(within(cerimonia).getByText('Igreja Matriz')).toBeInTheDocument();
     expect(screen.queryByText(/Rua da Igreja/)).not.toBeInTheDocument();
@@ -19,7 +19,7 @@ describe('site público', () => {
     expect(screen.queryByRole('heading', { name: 'Confirmar presença' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Mural de recados' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Paleta sugerida')).toBeInTheDocument();
-    expect(screen.getByText('Pode levar criança?')).toBeInTheDocument();
+    expect(screen.getByText('Preciso confirmar presença?')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/publico/site', expect.objectContaining({ credentials: 'include' }));
   });
 
