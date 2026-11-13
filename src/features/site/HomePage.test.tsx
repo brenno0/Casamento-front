@@ -15,7 +15,9 @@ describe('site público', () => {
     expect(within(cerimonia).getByText('Igreja Matriz')).toBeInTheDocument();
     expect(screen.queryByText(/Rua da Igreja/)).not.toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /Mapa/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Google Maps' })).not.toBeInTheDocument();
+    expect(within(cerimonia).queryByRole('link', { name: 'Google Maps' })).not.toBeInTheDocument();
+    // O mapa do fim da página é público e aponta para a igreja.
+    expect(screen.getByRole('heading', { name: 'Como chegar' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Confirmar presença' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Mural de recados' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Paleta sugerida')).toBeInTheDocument();

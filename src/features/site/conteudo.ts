@@ -93,3 +93,20 @@ export const DUVIDAS: SitePublico['faq'] = [
     resposta: 'Pode e vamos amar. O mural de recados fica no link do seu convite.',
   },
 ];
+
+/** Locais do mapa no fim da página. `endereco: null` fica de fora até ser definido. */
+export interface LocalMapa {
+  tipo: 'cerimonia' | 'festa';
+  titulo: string;
+  endereco: string | null;
+}
+
+export const COMO_CHEGAR: LocalMapa[] = [
+  {
+    tipo: 'cerimonia',
+    titulo: 'Cerimônia',
+    endereco: 'Praça Nossa Senhora Aparecida, 100 - Nossa Senhora Aparecida, Uberlândia - MG',
+  },
+  // Festa: preencher o endereço quando o local estiver definido.
+  { tipo: 'festa', titulo: 'Festa', endereco: null },
+];

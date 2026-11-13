@@ -209,6 +209,71 @@
     box-shadow: 0 1px 2px rgb(23 36 28 / 0.25);
   }
 
+  /*
+   * Envelope da abertura. Caixa 3:4; o envelope ocupa a base (47% da altura),
+   * a foto (88% da largura) começa dentro dele e sobe até o topo.
+   */
+  .envelope {
+    --papel-envelope: #efe8d8;
+    --papel-envelope-escuro: #e2d8c2;
+    perspective: 1400px;
+    /* Some o que estiver abaixo do envelope: a foto escondida dentro dele. */
+    clip-path: inset(-50% -50% 0 -50%);
+  }
+  .envelope-fundo,
+  .envelope-bolso,
+  .envelope-aba {
+    position: absolute;
+    inset-inline: 0;
+  }
+  .envelope-fundo {
+    bottom: 0;
+    height: 47%;
+    background: var(--papel-envelope-escuro);
+    border-radius: 2px;
+    z-index: 1;
+  }
+  .envelope-bolso {
+    bottom: 0;
+    height: 47%;
+    z-index: 20;
+    background:
+      linear-gradient(to top right, transparent 49.5%, rgb(23 36 28 / 0.06) 50%, transparent 50.5%),
+      linear-gradient(to top left, transparent 49.5%, rgb(23 36 28 / 0.06) 50%, transparent 50.5%),
+      var(--papel-envelope);
+    clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+    filter: drop-shadow(0 -1px 0 rgb(23 36 28 / 0.08));
+  }
+  .envelope-selo {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    translate: -50% -15%;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--color-musgo);
+    white-space: nowrap;
+  }
+  .envelope-aba {
+    top: 53%;
+    height: 24%;
+    z-index: 30;
+    background: linear-gradient(to bottom, var(--papel-envelope-escuro), var(--papel-envelope));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    /* Estado final: aberta, atrás da foto. `animacoes.ts` anima a partir do fechado. */
+    transform: rotateX(180deg);
+    z-index: 5;
+  }
+  .envelope-foto {
+    position: absolute;
+    top: 0;
+    left: 6%;
+    width: 88%;
+    z-index: 40;
+    transform: rotate(-2deg);
+  }
+
   .campo {
     @apply mt-2 block w-full rounded-card border border-folha-escuro bg-papel px-4 py-3 text-tinta;
   }
