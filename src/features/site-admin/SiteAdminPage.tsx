@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { FileUpload } from '../../components/FileUpload';
 import { formatDataCurta } from '../../lib/date';
+import { montarTexto } from '../../lib/whatsapp';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { LABEL_LOCAL } from '../site/useSite';
 import {
@@ -15,7 +16,7 @@ import {
   type SitePainel,
 } from './useSiteAdmin';
 
-type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'extras';
+type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
 
 const ABAS: [Aba, string][] = [
   ['locais', 'Locais'],
@@ -23,6 +24,7 @@ const ABAS: [Aba, string][] = [
   ['dress', 'Dress code e RSVP'],
   ['galeria', 'Galeria'],
   ['faq', 'FAQ'],
+  ['mensagens', 'Mensagens WhatsApp'],
 ];
 
 /** Abas extras (RSVP, mensagens) entram pelas próximas histórias. */
@@ -68,6 +70,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
         {data && aba === 'dress' && <DressCode key={JSON.stringify(data.config)} s={data} />}
         {data && aba === 'galeria' && <Galeria s={data} />}
         {data && aba === 'faq' && <Faq s={data} />}
+        {data && aba === 'mensagens' && <Mensagens key={data.config.mensagemConvite + data.config.mensagemLembrete} s={data} />}
         {data && aba === 'extras' && extras?.conteudo(data)}
       </div>
     </section>
@@ -382,5 +385,61 @@ function Faq({ s }: { s: SitePainel }) {
         </button>
       </form>
     </div>
+  );
+}
+
+function Mensagens({ s }: { s: SitePainel }) {
+  const salvar = useAtualizarConfig();
+  const [convite, setConvite] = useState(s.config.mensagemConvite);
+  const [lembrete, setLembrete] = useState(s.config.mensagemLembrete);
+  const exemplo = { grupo: 'Família Souza', link: `${window.location.origin}/c/exemplo`, prazo: s.config.rsvpPrazo };
+  return (
+    <form
+      aria-label="Mensagens WhatsApp"
+      onSubmit={(e) => {
+        e.preventDefault();
+        salvar.mutate({ mensagemConvite: convite.trim(), mensagemLembrete: lembrete.trim() });
+      }}
+      className="space-y-4 rounded-card border border-dourado-claro bg-white p-4"
+    >
+      <p className="text-sm text-grafite-suave">
+        Use {'{grupo}'}, {'{link}'} e {'{prazo}'}: eles são trocados pelo nome do grupo, o link do convite e o prazo do RSVP.
+      </p>
+      {(
+        [
+          ['Convite', convite, setConvite],
+          ['Lembrete', lembrete, setLembrete],
+        ] as const
+      ).map(([rotulo, valor, set]) => (
+        <div key={rotulo} className="grid gap-3 md:grid-cols-2">
+          <label className="block">
+            <span className="text-sm text-grafite-suave">Mensagem de {rotulo.toLowerCase()}</span>
+            <textarea
+              rows={5}
+              maxLength={1000}
+              value={valor}
+              onChange={(e) => {
+                salvar.reset();
+                set(e.target.value);
+              }}
+              className={inputClass}
+            />
+          </label>
+          <div>
+            <span className="text-sm text-grafite-suave">Prévia</span>
+            <p aria-label={`Prévia do ${rotulo.toLowerCase()}`} className="mt-1 rounded-card bg-salvia-claro p-3 whitespace-pre-line">
+              {montarTexto(valor, exemplo)}
+            </p>
+          </div>
+        </div>
+      ))}
+      <Erro mostrar={salvar.isError} />
+      <div className="flex items-center gap-3">
+        <button type="submit" disabled={!convite.trim() || !lembrete.trim() || salvar.isPending} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">
+          Salvar
+        </button>
+        {salvar.isSuccess && <span role="status">Salvo.</span>}
+      </div>
+    </form>
   );
 }

@@ -38,6 +38,8 @@ export interface Grupo {
   token: string;
   mensagem: string | null;
   statusEnvio: StatusEnvio;
+  enviadoEm: string | null;
+  contatoConvidadoId: number | null;
   convidados: Convidado[];
 }
 
@@ -59,11 +61,15 @@ export const CONVIDADOS_QUERY_KEY = ['painel', 'convidados'] as const;
 export const GRUPOS_QUERY_KEY = [...CONVIDADOS_QUERY_KEY, 'grupos'] as const;
 export const RESUMO_QUERY_KEY = [...CONVIDADOS_QUERY_KEY, 'resumo'] as const;
 
-export function useGrupos(busca: string) {
+export function useGrupos(busca: string, naoConfirmados = false) {
   const termo = busca.trim();
+  const params = new URLSearchParams();
+  if (termo) params.set('busca', termo);
+  if (naoConfirmados) params.set('naoConfirmados', 'true');
+  const qs = params.toString();
   return useQuery({
-    queryKey: [...GRUPOS_QUERY_KEY, termo],
-    queryFn: () => api.get<Grupo[]>(termo ? `/painel/grupos?busca=${encodeURIComponent(termo)}` : '/painel/grupos'),
+    queryKey: [...GRUPOS_QUERY_KEY, termo, naoConfirmados],
+    queryFn: () => api.get<Grupo[]>(`/painel/grupos${qs ? `?${qs}` : ''}`),
   });
 }
 
@@ -80,8 +86,9 @@ function useMutacao<V, R>(fn: (vars: V) => Promise<R>) {
 
 export const useCriarGrupo = () =>
   useMutacao((dados: { nome: string; mensagem?: string | null }) => api.post<Grupo>('/painel/grupos', dados));
+export const useMarcarEnviado = () => useMutacao((id: number) => api.post<Grupo>(`/painel/grupos/${id}/envio`));
 export const useAtualizarGrupo = () =>
-  useMutacao(({ id, ...dados }: { id: number; nome?: string; mensagem?: string | null }) =>
+  useMutacao(({ id, ...dados }: { id: number; nome?: string; mensagem?: string | null; contatoConvidadoId?: number | null }) =>
     api.put<Grupo>(`/painel/grupos/${id}`, dados),
   );
 export const useExcluirGrupo = () => useMutacao((id: number) => api.del<void>(`/painel/grupos/${id}`));

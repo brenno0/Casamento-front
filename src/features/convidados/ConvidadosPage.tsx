@@ -1,5 +1,7 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
+import { linkConvite } from '../../lib/whatsapp';
+import { BotoesWhatsApp } from './BotoesWhatsApp';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import {
   LABEL_FUNCAO,
@@ -37,7 +39,8 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
   const [busca, setBusca] = useState('');
   const [filtros, setFiltros] = useState<Filtros>(SEM_FILTRO);
   const [modal, setModal] = useState<Modal | null>(null);
-  const grupos = useGrupos(busca);
+  const [naoConfirmados, setNaoConfirmados] = useState(false);
+  const grupos = useGrupos(busca, naoConfirmados);
   const algumFiltro = Object.values(filtros).some(Boolean);
   const visiveis = (grupos.data ?? [])
     .map((g) => ({ g, convidados: g.convidados.filter((c) => passaFiltros(c, filtros)) }))
@@ -72,6 +75,10 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
         <Filtro label="Função" valor={filtros.funcao} opcoes={LABEL_FUNCAO} onChange={(v) => setFiltros({ ...filtros, funcao: v as Funcao | '' })} />
         <Filtro label="RSVP" valor={filtros.rsvp} opcoes={LABEL_RSVP} onChange={(v) => setFiltros({ ...filtros, rsvp: v as Rsvp | '' })} />
       </div>
+      <label className="mt-3 flex items-center gap-2">
+        <input type="checkbox" checked={naoConfirmados} onChange={(e) => setNaoConfirmados(e.target.checked)} />
+        <span>Só grupos com alguém sem resposta (para lembrar)</span>
+      </label>
 
       {grupos.isPending && (
         <p role="status" className="mt-6 text-grafite-suave">
@@ -94,7 +101,12 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
               onEditar={() => setModal({ tipo: 'grupo', grupo: g })}
               onNovoConvidado={() => setModal({ tipo: 'convidado', grupoId: g.id })}
               onEditarConvidado={(c) => setModal({ tipo: 'convidado', convidado: c })}
-              acoes={acoesGrupo?.(g)}
+              acoes={
+                <>
+                  <BotoesWhatsApp g={g} lembrete={naoConfirmados} />
+                  {acoesGrupo?.(g)}
+                </>
+              }
             />
           </li>
         ))}
@@ -230,8 +242,6 @@ function CartaoGrupo({
   );
 }
 
-const linkConvite = (token: string) => `${window.location.origin}/c/${token}`;
-
 function CopiarLink({ token, nome }: { token: string; nome: string }) {
   const [copiado, setCopiado] = useState<'ok' | 'erro' | null>(null);
   async function copiar() {
@@ -283,6 +293,8 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
   const salvar = grupo ? atualizar : criar;
   const [nome, setNome] = useState(grupo?.nome ?? '');
   const [mensagem, setMensagem] = useState(grupo?.mensagem ?? '');
+  const [contato, setContato] = useState<number | null>(grupo?.contatoConvidadoId ?? null);
+  const comTelefone = (grupo?.convidados ?? []).filter((c) => c.telefone);
   const [confirmando, setConfirmando] = useState(false);
   const ocupado = salvar.isPending || excluir.isPending;
 
@@ -290,7 +302,7 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
     event.preventDefault();
     if (!nome.trim()) return;
     const dados = { nome: nome.trim(), mensagem: mensagem.trim() || null };
-    if (grupo) atualizar.mutate({ id: grupo.id, ...dados }, { onSuccess: onClose });
+    if (grupo) atualizar.mutate({ id: grupo.id, ...dados, contatoConvidadoId: contato }, { onSuccess: onClose });
     else criar.mutate(dados, { onSuccess: onClose });
   }
 
@@ -305,6 +317,26 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
           <span className="text-sm text-grafite-suave">Mensagem personalizada</span>
           <textarea rows={3} maxLength={1000} value={mensagem} onChange={(e) => setMensagem(e.target.value)} className={inputClass} />
         </label>
+        {grupo && (
+          <label className="block">
+            <span className="text-sm text-grafite-suave">Contato no WhatsApp</span>
+            <select
+              value={contato ?? ''}
+              onChange={(e) => setContato(e.target.value === '' ? null : Number(e.target.value))}
+              className={inputClass}
+            >
+              <option value="">Escolher no WhatsApp na hora</option>
+              {comTelefone.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+            {comTelefone.length === 0 && (
+              <span className="text-xs text-grafite-suave">Cadastre o telefone de alguém do grupo para escolher.</span>
+            )}
+          </label>
+        )}
         {salvar.isError && (
           <p role="alert" className="text-rosa-antigo-escuro">
             Não foi possível salvar o grupo.

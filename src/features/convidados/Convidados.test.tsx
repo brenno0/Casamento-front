@@ -30,9 +30,11 @@ function api() {
         token: 'tok1',
         mensagem: null,
         statusEnvio: 'nao_enviado',
+        enviadoEm: null,
+        contatoConvidadoId: null,
         convidados: [conv(1, 1, 'Pai', { lado: 'noivo' }), conv(2, 1, 'Filha', { tipo: 'crianca', funcao: 'dama', rsvp: 'vai' })],
       },
-      { id: 2, nome: 'Carlos', token: 'tok2', mensagem: null, statusEnvio: 'nao_enviado', convidados: [conv(3, 2, 'Carlos', { funcao: 'padrinho', lado: 'noiva' })] },
+      { id: 2, nome: 'Carlos', token: 'tok2', mensagem: null, statusEnvio: 'nao_enviado', enviadoEm: null, contatoConvidadoId: null, convidados: [conv(3, 2, 'Carlos', { funcao: 'padrinho', lado: 'noiva' })] },
     ],
   };
   const rotas = ({ method, path, search, body }: { method: string; path: string; search: string; body: unknown }) => {
@@ -54,7 +56,7 @@ function api() {
       let grupoId = d.grupoId;
       if (!grupoId) {
         grupoId = estado.proximo++;
-        estado.grupos.push({ id: grupoId, nome: d.nome, token: `t${grupoId}`, mensagem: null, statusEnvio: 'nao_enviado', convidados: [] });
+        estado.grupos.push({ id: grupoId, nome: d.nome, token: `t${grupoId}`, mensagem: null, statusEnvio: 'nao_enviado', enviadoEm: null, contatoConvidadoId: null, convidados: [] });
       }
       const novo = conv(id, grupoId, d.nome, d);
       estado.grupos.find((g) => g.id === grupoId)!.convidados.push(novo);
