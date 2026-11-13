@@ -4,6 +4,7 @@ import { ApiError } from '../../lib/api';
 import { Carregando } from '../site/HomePage';
 import { SitePage } from '../site/SitePage';
 import { useSiteConvite, useSitePublico } from '../site/useSite';
+import { MuralSection } from '../mural/MuralSection';
 import { Vitrine } from '../presentes/Vitrine';
 import { Envelope } from './Envelope';
 import { envelopeJaAberto } from './envelopeStorage';
@@ -31,6 +32,7 @@ export function ConvitePage() {
             slots={{
               rsvp: <RsvpSection token={token} />,
               presentes: <Vitrine token={token} nomePadrao={convite.data.grupo.nome} />,
+              mural: <MuralSection token={token} nomePadrao={convite.data.grupo.nome} />,
             }}
           />
         </div>

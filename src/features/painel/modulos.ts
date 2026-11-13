@@ -14,6 +14,7 @@ export const MODULOS_PAINEL: ModuloPainel[] = [
   { slug: 'viagens', label: 'Viagens' },
   { slug: 'convidados', label: 'Convidados' },
   { slug: 'presentes', label: 'Presentes' },
+  { slug: 'mural', label: 'Mural' },
   { slug: 'site', label: 'Site' },
   { slug: 'roteiro', label: 'Roteiro do dia' },
 ];

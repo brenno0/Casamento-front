@@ -72,3 +72,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Recado novo entrando no mural. */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
