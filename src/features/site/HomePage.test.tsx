@@ -63,7 +63,7 @@ describe('contagem regressiva', () => {
   afterEach(() => vi.useRealTimers());
 
   it('calcula dias, horas, minutos e segundos até 17/07/2027 16:00 em São Paulo', () => {
-    const alvo = instanteCerimonia('2027-07-17');
+    const alvo = instanteCerimonia('2027-07-17', '16:00');
     expect(alvo.toISOString()).toBe('2027-07-17T19:00:00.000Z');
     expect(tempoRestante(alvo, new Date('2027-07-16T18:58:30Z'))).toEqual({
       dias: 1,

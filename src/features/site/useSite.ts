@@ -74,8 +74,8 @@ export function linksMapa(l: LocalConvite): { google: string; waze: string } | n
   return null;
 }
 
-/** Instante da cerimônia: 17/07/2027 16:00 em São Paulo (UTC−3, sem horário de verão). */
-export function instanteCerimonia(dataCasamento: string, horario = '16:00'): Date {
+/** Instante da cerimônia: 17/07/2027 15:30 em São Paulo (UTC−3, sem horário de verão). */
+export function instanteCerimonia(dataCasamento: string, horario = '15:30'): Date {
   return new Date(`${dataCasamento}T${horario}:00-03:00`);
 }
 

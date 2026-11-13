@@ -59,7 +59,7 @@ export const DUVIDAS: SitePublico['faq'] = [
     id: -1,
     pergunta: 'Quando e onde vai ser?',
     resposta:
-      'No dia 17 de julho de 2027. A cerimônia começa às 16h e a festa vem logo depois. Endereços, mapas e rotas estão no link do convite que você recebeu.',
+      'No dia 17 de julho de 2027. A cerimônia começa às 15h30. O endereço, o mapa e as rotas estão no fim desta página.',
   },
   {
     id: -2,
@@ -107,6 +107,4 @@ export const COMO_CHEGAR: LocalMapa[] = [
     titulo: 'Cerimônia',
     endereco: 'Praça Nossa Senhora Aparecida, 100 - Nossa Senhora Aparecida, Uberlândia - MG',
   },
-  // Festa: preencher o endereço quando o local estiver definido.
-  { tipo: 'festa', titulo: 'Festa', endereco: null },
 ];

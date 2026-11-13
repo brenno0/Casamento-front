@@ -35,7 +35,9 @@ export function SitePage(props: Props) {
   useAnimacoesSite(raiz, [site]);
   const convite = camada === 'convite';
   // Derivados memorizados: a página só recalcula quando os dados do site mudam.
-  const { galeria, historia, visiveis, numeros } = useMemo(() => {
+  const { galeria, historia, visiveis, numeros, cerimonia } = useMemo(() => {
+    // Só a cerimônia aparece no site: nem todo convidado vai à festa.
+    const cerimonia = site.locais.filter((l) => l.tipo === 'cerimonia');
     // Fotos do casal vivem no código; a galeria do painel entra depois delas.
     const galeria = [...GALERIA_FIXA, ...site.galeria];
     // Sem capítulos no painel, a história vem inteira do código.
@@ -48,7 +50,7 @@ export function SitePage(props: Props) {
         : CAPITULOS.map((c, i) => ({ id: -(i + 1), fotoUrl: c.fotoUrl, titulo: c.titulo ?? '', data: c.data ?? '', texto: c.texto ?? '' }));
     const secoes: [string, string, boolean][] = [
       ['historia', 'Nossa história', historia.length > 0],
-      ['locais', 'Cerimônia e festa', true],
+      ['locais', 'Cerimônia', cerimonia.length > 0],
       ['dress-code', 'Dress code', true],
       ['rsvp', 'Confirmar presença', convite],
       ['presentes', 'Presentes', true],
@@ -60,7 +62,7 @@ export function SitePage(props: Props) {
     const visiveis = secoes.filter(([, , mostrar]) => mostrar).map(([id, label]): [string, string] => [id, label]);
     // Seções visíveis numeradas como num convite: I, II, III...
     const numeros = new Map(visiveis.map(([id], i) => [id, ROMANOS[i] ?? String(i + 1)]));
-    return { galeria, historia, visiveis, numeros };
+    return { galeria, historia, visiveis, numeros, cerimonia };
   }, [site, convite]);
   const n = (id: string) => numeros.get(id);
 
@@ -114,14 +116,14 @@ export function SitePage(props: Props) {
         <img src={IGREJA_AQUARELA} alt="" width={1600} height={907} loading="lazy" decoding="async" data-pintar className="aquarela mx-auto block w-full max-w-5xl" />
       </figure>
 
-      <Secao id="locais" titulo="Cerimônia e festa" numero={n('locais')} icone="tacas" tom="verde" largo>
+      <Secao id="locais" titulo="Cerimônia" numero={n('locais')} icone="relogio" tom="verde" largo>
         <div data-cardapio className="cartao-mesa cardapio mx-auto max-w-2xl px-8 py-14 text-center text-tinta sm:px-16 sm:py-16">
           <p className="font-display text-2xl text-verde">
             {site.casal.nomeNoiva.charAt(0)} <span className="font-caslon text-lg text-musgo italic">&amp;</span> {site.casal.nomeNoivo.charAt(0)}
           </p>
           <p className="versalete mt-3 text-verde-suave">{formatDataExtenso(site.casal.dataCasamento)}</p>
           <div className="mt-10 space-y-10">
-            {site.locais.map((l, i) => (
+            {cerimonia.map((l, i) => (
               <article key={l.tipo} aria-label={LABEL_LOCAL[l.tipo]}>
                 {i > 0 && (
                   <p aria-hidden="true" className="mb-10 flex items-center justify-center gap-4 text-musgo">
@@ -323,7 +325,7 @@ function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: 
               <time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time>
             </p>
             <p className="mt-1 text-lg text-verde-suave">Vamos nos casar</p>
-            <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais[0]?.horario} />
+            <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais.find((l) => l.tipo === 'cerimonia')?.horario} />
           </div>
 
           {saudacao && (
