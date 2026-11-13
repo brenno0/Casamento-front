@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { formatDataCurta, formatDataExtenso } from '../../lib/date';
 import { useAnimacoesSite } from './animacoes';
 import { CAPITULOS, COMO_CHEGAR, DUVIDAS, FOTO_CAPA, GALERIA_FIXA, IGREJA_AQUARELA } from './conteudo';
@@ -34,31 +34,34 @@ export function SitePage(props: Props) {
   const raiz = useRef<HTMLElement>(null);
   useAnimacoesSite(raiz, [site]);
   const convite = camada === 'convite';
-  // Fotos do casal vivem no código; a galeria do painel entra depois delas.
-  const galeria = [...GALERIA_FIXA, ...site.galeria];
-  // Sem capítulos no painel, a história vem inteira do código.
-  const historia =
-    site.historia.length > 0
-      ? site.historia.map((h, i) => {
-          const c = CAPITULOS[i];
-          return c ? { ...h, fotoUrl: c.fotoUrl, titulo: c.titulo ?? h.titulo, data: c.data ?? h.data, texto: c.texto ?? h.texto } : h;
-        })
-      : CAPITULOS.map((c, i) => ({ id: -(i + 1), fotoUrl: c.fotoUrl, titulo: c.titulo ?? '', data: c.data ?? '', texto: c.texto ?? '' }));
-
-  const secoes: [string, string, boolean][] = [
-    ['historia', 'Nossa história', historia.length > 0],
-    ['locais', 'Cerimônia e festa', true],
-    ['dress-code', 'Dress code', true],
-    ['rsvp', 'Confirmar presença', convite],
-    ['presentes', 'Presentes', true],
-    ['galeria', 'Galeria', true],
-    ['mural', 'Mural', convite],
-    ['faq', 'Dúvidas', true],
-    ['como-chegar', 'Como chegar', true],
-  ];
-
-  // Seções visíveis numeradas como num convite: I, II, III...
-  const numeros = new Map(secoes.filter(([, , mostrar]) => mostrar).map(([id], i) => [id, ROMANOS[i] ?? String(i + 1)]));
+  // Derivados memorizados: a página só recalcula quando os dados do site mudam.
+  const { galeria, historia, visiveis, numeros } = useMemo(() => {
+    // Fotos do casal vivem no código; a galeria do painel entra depois delas.
+    const galeria = [...GALERIA_FIXA, ...site.galeria];
+    // Sem capítulos no painel, a história vem inteira do código.
+    const historia =
+      site.historia.length > 0
+        ? site.historia.map((h, i) => {
+            const c = CAPITULOS[i];
+            return c ? { ...h, fotoUrl: c.fotoUrl, titulo: c.titulo ?? h.titulo, data: c.data ?? h.data, texto: c.texto ?? h.texto } : h;
+          })
+        : CAPITULOS.map((c, i) => ({ id: -(i + 1), fotoUrl: c.fotoUrl, titulo: c.titulo ?? '', data: c.data ?? '', texto: c.texto ?? '' }));
+    const secoes: [string, string, boolean][] = [
+      ['historia', 'Nossa história', historia.length > 0],
+      ['locais', 'Cerimônia e festa', true],
+      ['dress-code', 'Dress code', true],
+      ['rsvp', 'Confirmar presença', convite],
+      ['presentes', 'Presentes', true],
+      ['galeria', 'Galeria', true],
+      ['mural', 'Mural', convite],
+      ['faq', 'Dúvidas', true],
+      ['como-chegar', 'Como chegar', true],
+    ];
+    const visiveis = secoes.filter(([, , mostrar]) => mostrar).map(([id, label]): [string, string] => [id, label]);
+    // Seções visíveis numeradas como num convite: I, II, III...
+    const numeros = new Map(visiveis.map(([id], i) => [id, ROMANOS[i] ?? String(i + 1)]));
+    return { galeria, historia, visiveis, numeros };
+  }, [site, convite]);
   const n = (id: string) => numeros.get(id);
 
   return (
@@ -66,7 +69,7 @@ export function SitePage(props: Props) {
       <Navegacao
         inicialNoiva={site.casal.nomeNoiva.charAt(0)}
         inicialNoivo={site.casal.nomeNoivo.charAt(0)}
-        secoes={secoes.filter(([, , mostrar]) => mostrar).map(([id, label]) => [id, label])}
+        secoes={visiveis}
       />
 
       {aviso}
@@ -87,15 +90,19 @@ export function SitePage(props: Props) {
                 />
                 {h.fotoUrl && (
                   <div data-parallax className={`w-full max-w-xs justify-self-center md:col-span-4 ${i % 2 ? 'md:order-2 md:col-start-9' : ''}`}>
-                    <figure data-reveal className={`bg-papel p-3 shadow-suave ${i % 2 ? 'rotate-[1.5deg]' : '-rotate-[1.5deg]'}`}>
-                      <img src={h.fotoUrl} alt={h.titulo} loading="lazy" className="aspect-[4/5] w-full object-cover" />
+                    <figure data-foto-historia className="bg-papel p-3 shadow-suave">
+                      <img src={h.fotoUrl} alt={h.titulo} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" />
                     </figure>
                   </div>
                 )}
                 <div data-reveal className={h.fotoUrl ? `md:col-span-7 ${i % 2 ? 'md:col-start-2' : 'md:col-start-6'}` : 'max-w-2xl'}>
                   <h3 className="text-3xl sm:text-4xl">{h.titulo}</h3>
                   <p className="versalete mt-3 text-musgo">{dataCapitulo(h.data)}</p>
-                  {h.texto && <p className="mt-6 max-w-[60ch] text-lg whitespace-pre-line">{h.texto}</p>}
+                  {h.texto && (
+                    <p data-linhas className="mt-6 max-w-[60ch] text-lg whitespace-pre-line">
+                      {h.texto}
+                    </p>
+                  )}
                 </div>
               </li>
             ))}
@@ -104,11 +111,11 @@ export function SitePage(props: Props) {
       )}
 
       <figure aria-hidden="true" className="-mb-px px-gutter pt-8">
-        <img src={IGREJA_AQUARELA} alt="" loading="lazy" data-pintar className="aquarela mx-auto block w-full max-w-5xl" />
+        <img src={IGREJA_AQUARELA} alt="" width={1600} height={907} loading="lazy" decoding="async" data-pintar className="aquarela mx-auto block w-full max-w-5xl" />
       </figure>
 
       <Secao id="locais" titulo="Cerimônia e festa" numero={n('locais')} icone="tacas" tom="verde" largo>
-        <div data-reveal className="cartao-mesa cardapio mx-auto max-w-2xl px-8 py-14 text-center text-tinta sm:px-16 sm:py-16">
+        <div data-cardapio className="cartao-mesa cardapio mx-auto max-w-2xl px-8 py-14 text-center text-tinta sm:px-16 sm:py-16">
           <p className="font-display text-2xl text-verde">
             {site.casal.nomeNoiva.charAt(0)} <span className="font-caslon text-lg text-musgo italic">&amp;</span> {site.casal.nomeNoivo.charAt(0)}
           </p>
@@ -118,9 +125,9 @@ export function SitePage(props: Props) {
               <article key={l.tipo} aria-label={LABEL_LOCAL[l.tipo]}>
                 {i > 0 && (
                   <p aria-hidden="true" className="mb-10 flex items-center justify-center gap-4 text-musgo">
-                    <span className="h-px w-16 bg-folha-escuro" />
+                    <span data-filete className="h-px w-16 origin-right bg-folha-escuro" />
                     <span className="font-caslon text-xl italic">&amp;</span>
-                    <span className="h-px w-16 bg-folha-escuro" />
+                    <span data-filete className="h-px w-16 origin-left bg-folha-escuro" />
                   </p>
                 )}
                 <p className="versalete flex items-center justify-center gap-2 text-musgo">
@@ -147,12 +154,12 @@ export function SitePage(props: Props) {
       </Secao>
 
       <Secao id="dress-code" titulo="Dress code" numero={n('dress-code')} icone="cabide">
-        <p data-reveal className="max-w-[40ch] font-caslon text-2xl leading-relaxed whitespace-pre-line text-verde">{site.dressCode.texto}</p>
+        <p data-linhas className="max-w-[40ch] font-caslon text-2xl leading-relaxed whitespace-pre-line text-verde">{site.dressCode.texto}</p>
         {site.dressCode.paleta.length > 0 && (
           <ul data-paleta aria-label="Paleta sugerida" className="mt-10 flex flex-wrap gap-4">
             {site.dressCode.paleta.map((cor) => (
               <li key={cor}>
-                <span aria-label={cor} title={cor} className="block h-24 w-16 rounded-card shadow-suave" style={{ backgroundColor: cor }} />
+                <span aria-label={cor} title={cor} className="block h-24 w-16 rounded-card shadow-suave transition-[translate] duration-500 ease-[var(--ease-saida)] hover:-translate-y-3" style={{ backgroundColor: cor }} />
               </li>
             ))}
           </ul>
@@ -203,8 +210,12 @@ export function SitePage(props: Props) {
       <ComoChegar numero={n('como-chegar')} />
 
       <footer data-rodape className="overflow-hidden bg-verde px-gutter py-24 text-center text-linho">
-        <p className="font-display text-5xl sm:text-6xl">
-          {site.casal.nomeNoiva} <span className="font-caslon text-4xl text-vela italic">&amp;</span> {site.casal.nomeNoivo}
+        <p data-rodape-nomes className="font-display text-5xl sm:text-6xl">
+          {site.casal.nomeNoiva}{' '}
+          <span data-rodape-e className="inline-block font-caslon text-4xl text-vela italic">
+            &amp;
+          </span>{' '}
+          {site.casal.nomeNoivo}
         </p>
         <p className="versalete mt-6 text-linho/80">{formatDataCurta(site.casal.dataCasamento).replaceAll('/', ' · ')}</p>
       </footer>
@@ -290,9 +301,9 @@ function Secao({
 function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: { nome: string; mensagem: string | null } }) {
   const linha = 'block overflow-hidden pb-[0.12em]';
   return (
-    <header className="px-gutter pt-16 pb-24 md:pt-24 md:pb-section">
+    <header data-hero className="px-gutter pt-16 pb-24 md:pt-24 md:pb-section">
       <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-12">
-        <div className="lg:col-span-7">
+        <div data-hero-nomes className="lg:col-span-7">
           <h1 className="text-[clamp(3.5rem,14vw,6rem)] leading-[0.98]">
             <span className={linha}>
               <span data-hero-linha className="block">
@@ -323,7 +334,9 @@ function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: 
           )}
         </div>
 
-        <EnvelopeCapa iniciais={`${site.casal.nomeNoiva.charAt(0)} & ${site.casal.nomeNoivo.charAt(0)}`} />
+        <div data-hero-envelope className="lg:col-span-5">
+          <EnvelopeCapa iniciais={`${site.casal.nomeNoiva.charAt(0)} & ${site.casal.nomeNoivo.charAt(0)}`} />
+        </div>
       </div>
     </header>
   );
@@ -335,7 +348,7 @@ function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: 
  */
 function EnvelopeCapa({ iniciais }: { iniciais: string }) {
   return (
-    <div className="envelope relative mx-auto aspect-[3/4] w-full max-w-sm lg:col-span-5 lg:max-w-none">
+    <div className="envelope relative mx-auto aspect-[3/4] w-full max-w-sm lg:max-w-none">
       <div aria-hidden="true" className="envelope-fundo" />
       <div aria-hidden="true" className="envelope-aba" />
       <figure className="envelope-foto bg-papel p-3 shadow-suave">
@@ -348,12 +361,25 @@ function EnvelopeCapa({ iniciais }: { iniciais: string }) {
   );
 }
 
-export function Contagem({ dataCasamento, horario }: { dataCasamento: string; horario?: string }) {
+export const Contagem = memo(function Contagem({ dataCasamento, horario }: { dataCasamento: string; horario?: string }) {
   const alvo = instanteCerimonia(dataCasamento, horario);
   const [agora, setAgora] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setAgora(new Date()), 1000);
-    return () => clearInterval(id);
+    // Só a contagem re-renderiza a cada segundo; com a aba escondida, para.
+    let id: ReturnType<typeof setInterval> | undefined;
+    const ligar = () => {
+      clearInterval(id);
+      if (document.visibilityState === 'visible') {
+        setAgora(new Date());
+        id = setInterval(() => setAgora(new Date()), 1000);
+      }
+    };
+    ligar();
+    document.addEventListener('visibilitychange', ligar);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', ligar);
+    };
   }, []);
   const t = tempoRestante(alvo, agora);
   if (t.chegou) return <p className="mt-8 font-display text-5xl text-verde">É hoje!</p>;
@@ -373,7 +399,7 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
       ))}
     </div>
   );
-}
+});
 
 function DetalhesLocal({ l }: { l: LocalConvite }) {
   const links = linksMapa(l);
@@ -414,7 +440,7 @@ function Galeria({ fotos, numero }: { fotos: { id: number; fotoUrl: string; lege
   }, [aberta]);
   return (
     <Secao id="galeria" titulo="Galeria" numero={numero} icone="camera" largo>
-      <div className="relative -mx-gutter">
+      <div className="relative -mx-gutter overflow-hidden">
         {/* O varal: um fio levemente curvado atravessando a seção. */}
         <svg aria-hidden="true" viewBox="0 0 1000 40" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 top-3 h-10 w-full text-folha-escuro">
           <path d="M0 6 Q500 46 1000 6" fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
@@ -429,14 +455,14 @@ function Galeria({ fotos, numero }: { fotos: { id: number; fotoUrl: string; lege
             <li key={f.id} className="polaroide shrink-0 snap-center" style={{ '--giro': `${GIROS[i % GIROS.length]}deg` } as CSSProperties}>
               <span aria-hidden="true" className="prendedor" />
               <button type="button" data-polaroide onClick={() => setAberta(f.id)} className="block w-56 bg-papel p-3 pb-4 text-left shadow-suave sm:w-64">
-                <img src={f.fotoUrl} alt={f.legenda || 'Foto do casal'} loading="lazy" className="aspect-square w-full object-cover" />
+                <img src={f.fotoUrl} alt={f.legenda || 'Foto do casal'} loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
                 <span className="mt-3 block min-h-6 font-caslon text-verde-suave italic">{f.legenda}</span>
               </button>
             </li>
           ))}
         </ul>
       </div>
-      <div className="mt-2 flex justify-end gap-3">
+      <div data-setas className="mt-2 flex justify-end gap-3">
         <button type="button" onClick={() => rolar(-1)} aria-label="Fotos anteriores" className="botao-contorno min-h-11 px-5">
           ←
         </button>
@@ -445,7 +471,7 @@ function Galeria({ fotos, numero }: { fotos: { id: number; fotoUrl: string; lege
         </button>
       </div>
       {atual && (
-        <div role="dialog" aria-modal="true" aria-label={atual.legenda || 'Foto'} className="fixed inset-0 z-50 flex items-center justify-center bg-tinta/90 p-4 sm:p-10" onClick={() => setAberta(null)}>
+        <div role="dialog" aria-modal="true" data-lenis-prevent aria-label={atual.legenda || 'Foto'} className="fixed inset-0 z-50 flex items-center justify-center bg-tinta/90 p-4 sm:p-10" onClick={() => setAberta(null)}>
           <figure className="max-h-full max-w-4xl bg-papel p-3">
             <img src={atual.fotoUrl} alt={atual.legenda || 'Foto do casal'} className="max-h-[78svh] object-contain" />
             {atual.legenda && <figcaption className="px-1 pt-3 pb-1 font-caslon text-verde italic">{atual.legenda}</figcaption>}
@@ -495,7 +521,7 @@ function ComoChegar({ numero }: { numero?: string }) {
               key={local.tipo}
               title={`Mapa: ${local.titulo}`}
               src={`https://maps.google.com/maps?q=${q}&z=16&output=embed`}
-              loading="lazy"
+              loading="eager"
               referrerPolicy="no-referrer-when-downgrade"
               className="block aspect-[4/3] w-full border-0 md:aspect-[16/10]"
             />
@@ -522,3 +548,4 @@ function ComoChegar({ numero }: { numero?: string }) {
     </Secao>
   );
 }
+

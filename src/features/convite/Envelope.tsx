@@ -1,3 +1,4 @@
+import { animate } from 'animejs';
 import { useRef, useState } from 'react';
 import { prefereMenosMovimento } from '../../lib/motion';
 import { marcarAberto } from './envelopeStorage';
@@ -21,7 +22,6 @@ export function Envelope({ token, nomeGrupo, onAberto }: { token: string; nomeGr
     setAbrindo(true);
     if (prefereMenosMovimento()) return concluir();
     try {
-      const { animate } = await import('animejs');
       await animate(capa.current!, { rotateX: 180, duration: 1000, ease: 'inOutCubic' });
       await animate(raiz.current!, { opacity: 0, duration: 500, delay: 350, ease: 'linear' });
     } catch {

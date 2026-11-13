@@ -55,6 +55,7 @@ export function Navegacao({ inicialNoiva, inicialNoivo, secoes }: Props) {
         rolou ? 'border-b border-folha bg-linho/90 backdrop-blur-sm' : 'border-b border-transparent bg-linho'
       }`}
     >
+      <span data-progresso aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-vela" />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-gutter">
         <a href="#topo" aria-label="Voltar ao topo" className="shrink-0 font-display text-2xl text-verde">
           {inicialNoiva}
@@ -95,7 +96,7 @@ export function Navegacao({ inicialNoiva, inicialNoivo, secoes }: Props) {
 
       {aberto &&
         createPortal(
-        <div id="menu-secoes" className="fixed inset-0 z-50 flex animate-[surgir_0.4s_var(--ease-saida)_both] flex-col bg-linho px-gutter lg:hidden">
+        <div id="menu-secoes" data-lenis-prevent className="fixed inset-0 z-50 flex animate-[surgir_0.4s_var(--ease-saida)_both] flex-col bg-linho px-gutter lg:hidden">
           <div className="flex h-16 items-center justify-between">
             <span className="font-display text-2xl text-verde">
               {inicialNoiva}

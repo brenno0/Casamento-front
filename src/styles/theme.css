@@ -44,7 +44,6 @@
 @layer base {
   html {
     color-scheme: light;
-    scroll-behavior: smooth;
     scrollbar-color: var(--color-folha-escuro) var(--color-linho);
   }
 
@@ -199,7 +198,7 @@
   /* Galeria em varal: polaroides presas por prendedor, levemente tortas, que balançam. */
   .polaroide {
     position: relative;
-    transform: rotate(var(--giro, 0deg));
+    transform: rotate(calc(var(--giro, 0deg) + var(--balanco, 0deg)));
     transform-origin: 50% 0;
     transition: transform 500ms var(--ease-saida);
   }
@@ -298,6 +297,15 @@
   }
   .sobre-verde .cartao-mesa .botao-contorno:hover:not(:disabled) {
     @apply bg-verde text-linho;
+  }
+
+  /* Varal movido pela rolagem (desktop): sem rolagem própria nem setas. */
+  [data-varal-animado] [data-varal] {
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  [data-varal-animado] [data-setas] {
+    display: none;
   }
 
   .campo {
