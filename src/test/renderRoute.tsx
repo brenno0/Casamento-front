@@ -11,6 +11,36 @@ export const CASAL_FAKE = {
   dataCasamento: '2027-07-17',
 };
 
+export const TOKEN_FAKE = 'token-convite-valido-0123456789abcdef';
+
+export function siteFake(estado: { casal: typeof CASAL_FAKE }) {
+  return {
+    casal: estado.casal,
+    historia: [{ id: 1, data: '2019-03-10', titulo: 'Nos conhecemos', texto: 'Num show.', fotoUrl: null }],
+    locais: [
+      { tipo: 'cerimonia', nome: 'Igreja Matriz', data: '2027-07-17', horario: '16:00' },
+      { tipo: 'festa', nome: 'Espaço Jardim', data: '2027-07-17', horario: '18:30' },
+    ],
+    dressCode: { texto: 'Traje social.', paleta: ['#c9a9a6', '#9caf88'] },
+    galeria: [],
+    faq: [{ id: 1, pergunta: 'Pode levar criança?', resposta: 'Sim!' }],
+  };
+}
+
+export function siteConviteFake(estado: { casal: typeof CASAL_FAKE }) {
+  const base = siteFake(estado);
+  return {
+    ...base,
+    locais: base.locais.map((l, i) => ({
+      ...l,
+      endereco: i === 0 ? 'Rua da Igreja, 10 - Porto Seguro' : 'Estrada do Jardim, 20',
+      latitude: -16.44 + i / 100,
+      longitude: -39.06,
+    })),
+    grupo: { nome: 'Família Souza', mensagem: 'Contamos com vocês!' },
+  };
+}
+
 export const CONTA_FAKE = { id: 1, nome: 'Nayane', email: 'nayane@x.com' };
 export const SENHA_FAKE = 'senha-certa';
 
@@ -51,6 +81,9 @@ export function mockFetch({ logado = false, falhar = [], rotas }: MockFetchOptio
 
     if (falhar.includes(path)) return erro(500, 'INTERNAL_ERROR');
     if (path === '/api/publico/casal' && method === 'GET') return json(estado.casal);
+    if (path === '/api/publico/site' && method === 'GET') return json(siteFake(estado));
+    if (path === `/api/convite/${TOKEN_FAKE}/site` && method === 'GET') return json(siteConviteFake(estado));
+    if (path.startsWith('/api/convite/') && path.endsWith('/site')) return erro(404, 'CONVITE_NOT_FOUND');
 
     if (path === '/api/auth/login' && method === 'POST') {
       if (body.email === CONTA_FAKE.email && body.senha === SENHA_FAKE) {

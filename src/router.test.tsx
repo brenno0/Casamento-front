@@ -7,7 +7,7 @@ describe('rotas', () => {
   });
 
   it('/c/:token mostra o site', async () => {
-    renderRoute('/c/abc123');
+    renderRoute('/c/abc123-token-invalido-000000000');
     expect(await screen.findByRole('heading', { name: 'Nayane & Brenno' })).toBeInTheDocument();
   });
 

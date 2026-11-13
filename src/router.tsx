@@ -11,6 +11,7 @@ import { ConvidadosPage } from './features/convidados/ConvidadosPage';
 import { FinanceiroPage } from './features/financeiro/FinanceiroPage';
 import { FornecedorDetalhePage } from './features/fornecedores/FornecedorDetalhePage';
 import { FornecedoresPage } from './features/fornecedores/FornecedoresPage';
+import { SiteAdminPage } from './features/site-admin/SiteAdminPage';
 import { TarefasPage } from './features/tarefas/TarefasPage';
 
 export const routes: RouteObject[] = [
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
           { path: 'fornecedores', element: <FornecedoresPage /> },
           { path: 'financeiro', element: <FinanceiroPage /> },
           { path: 'convidados', element: <ConvidadosPage /> },
+          { path: 'site', element: <SiteAdminPage /> },
           { path: 'fornecedores/:id', element: <FornecedorDetalhePage /> },
           { path: ':modulo', element: <PainelModuloPage /> },
           { path: '*', element: <NotFoundPage embedded /> },
