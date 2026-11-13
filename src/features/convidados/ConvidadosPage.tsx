@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
 import { linkConvite } from '../../lib/whatsapp';
 import { BotoesWhatsApp } from './BotoesWhatsApp';
+import { CartaoLgpd } from './CartaoLgpd';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import {
   LABEL_FUNCAO,
@@ -111,6 +112,8 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
           </li>
         ))}
       </ul>
+
+      <CartaoLgpd />
 
       {modal?.tipo === 'grupo' && <GrupoModal grupo={modal.grupo} onClose={() => setModal(null)} />}
       {modal?.tipo === 'convidado' && (

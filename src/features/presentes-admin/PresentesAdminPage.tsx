@@ -283,6 +283,9 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
             ))}
           </select>
         </label>
+        <a href="/api/painel/presentes/export.csv" download className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
+          Exportar doações (CSV)
+        </a>
         {extras}
       </div>
       {isPending && <p role="status">Carregando…</p>}
