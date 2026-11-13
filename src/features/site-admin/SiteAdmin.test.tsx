@@ -8,7 +8,7 @@ function painelFake(): SitePainel {
       { id: 1, tipo: 'cerimonia', nome: 'Cerimônia', data: '2027-07-17', horario: '16:00', endereco: '', latitude: null, longitude: null },
       { id: 2, tipo: 'festa', nome: 'Festa', data: '2027-07-17', horario: '18:30', endereco: '', latitude: null, longitude: null },
     ],
-    config: { dressCode: 'Traje social.', paleta: ['#c9a9a6'] },
+    config: { dressCode: 'Traje social.', paleta: ['#c9a9a6'], rsvpPrazo: '2027-06-17' },
     historia: [
       { id: 1, data: '2019-03-10', titulo: 'Nos conhecemos', texto: '', fotoArquivoId: null, fotoUrl: null },
       { id: 2, data: '2024-12-24', titulo: 'Pedido', texto: '', fotoArquivoId: null, fotoUrl: null },

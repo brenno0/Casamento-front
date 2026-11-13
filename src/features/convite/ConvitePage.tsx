@@ -1,20 +1,34 @@
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { ApiError } from '../../lib/api';
 import { Carregando } from '../site/HomePage';
 import { SitePage } from '../site/SitePage';
 import { useSiteConvite, useSitePublico } from '../site/useSite';
+import { Envelope } from './Envelope';
+import { envelopeJaAberto } from './envelopeStorage';
+import { RsvpSection } from './RsvpSection';
 
 /**
- * Site pela camada convite (`/c/:token`). Token inválido cai na camada pública,
- * com um aviso discreto.
+ * Site pela camada convite (`/c/:token`): envelope com o nome do grupo, depois o site
+ * com endereços, mapa e RSVP. Token inválido cai na camada pública, com aviso discreto.
  */
 export function ConvitePage() {
   const token = useParams().token ?? '';
   const convite = useSiteConvite(token);
   const invalido = convite.error instanceof ApiError && convite.error.status === 404;
   const publico = useSitePublico(invalido);
+  const [aberto, setAberto] = useState(() => envelopeJaAberto(token));
 
-  if (convite.data) return <SitePage camada="convite" site={convite.data} />;
+  if (convite.data) {
+    return (
+      <>
+        {!aberto && <Envelope token={token} nomeGrupo={convite.data.grupo.nome} onAberto={() => setAberto(true)} />}
+        <div aria-hidden={!aberto || undefined}>
+          <SitePage camada="convite" site={convite.data} slots={{ rsvp: <RsvpSection token={token} /> }} />
+        </div>
+      </>
+    );
+  }
   if (invalido && publico.data) {
     return (
       <SitePage

@@ -33,6 +33,7 @@ describe('site público', () => {
 describe('site pelo convite', () => {
   it('convite válido mostra saudação, endereços e botões Google Maps/Waze', async () => {
     mockFetch();
+    sessionStorage.setItem(`envelope-aberto:${TOKEN_FAKE}`, '1');
     renderRoute(`/c/${TOKEN_FAKE}`);
     expect(await screen.findByText('Olá, Família Souza!')).toBeInTheDocument();
     expect(screen.getByText('Contamos com vocês!')).toBeInTheDocument();

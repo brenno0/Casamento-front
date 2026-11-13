@@ -20,7 +20,7 @@ type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'extras';
 const ABAS: [Aba, string][] = [
   ['locais', 'Locais'],
   ['historia', 'Nossa história'],
-  ['dress', 'Dress code'],
+  ['dress', 'Dress code e RSVP'],
   ['galeria', 'Galeria'],
   ['faq', 'FAQ'],
 ];
@@ -244,18 +244,23 @@ function DressCode({ s }: { s: SitePainel }) {
   const salvar = useAtualizarConfig();
   const [texto, setTexto] = useState(s.config.dressCode);
   const [paleta, setPaleta] = useState(s.config.paleta);
+  const [prazo, setPrazo] = useState(s.config.rsvpPrazo);
   return (
     <form
       aria-label="Dress code"
       onSubmit={(e) => {
         e.preventDefault();
-        salvar.mutate({ dressCode: texto.trim(), paleta });
+        salvar.mutate({ dressCode: texto.trim(), paleta, rsvpPrazo: prazo });
       }}
       className="space-y-4 rounded-card border border-dourado-claro bg-white p-4"
     >
       <label className="block">
         <span className="text-sm text-grafite-suave">Texto do dress code</span>
         <textarea rows={3} maxLength={1000} value={texto} onChange={(e) => setTexto(e.target.value)} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="text-sm text-grafite-suave">Prazo para confirmar presença (RSVP)</span>
+        <input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} className={inputClass} />
       </label>
       <fieldset>
         <legend className="text-sm text-grafite-suave">Paleta sugerida (até 6 cores)</legend>
@@ -282,7 +287,7 @@ function DressCode({ s }: { s: SitePainel }) {
       </fieldset>
       <Erro mostrar={salvar.isError} />
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={salvar.isPending} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">
+        <button type="submit" disabled={salvar.isPending || !prazo} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">
           Salvar
         </button>
         {salvar.isSuccess && <span role="status">Salvo.</span>}

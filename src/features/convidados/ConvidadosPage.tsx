@@ -205,7 +205,13 @@ function CartaoGrupo({
               {c.tipo === 'crianca' && <span className="rounded-pill bg-marfim-escuro px-2 text-xs">Criança</span>}
               {c.funcao && <span className="rounded-pill bg-dourado-claro px-2 text-xs">{LABEL_FUNCAO[c.funcao]}</span>}
               <span className="text-xs text-grafite-suave">{LABEL_LADO[c.lado]}</span>
-              <span className={`rounded-pill px-2 text-xs ${COR_RSVP[c.rsvp]}`}>{LABEL_RSVP[c.rsvp]}</span>
+              <span
+                className={`rounded-pill px-2 text-xs ${COR_RSVP[c.rsvp]}`}
+                title={c.rsvpEm ? `Respondeu em ${new Date(c.rsvpEm).toLocaleString('pt-BR')}` : undefined}
+              >
+                {LABEL_RSVP[c.rsvp]}
+                {c.rsvpEm && ` · ${new Date(c.rsvpEm).toLocaleDateString('pt-BR')}`}
+              </span>
               {c.acompanhantePermitido && (
                 <span className="text-xs text-grafite-suave">+1{c.acompanhanteNome ? `: ${c.acompanhanteNome}` : ''}</span>
               )}
@@ -217,9 +223,37 @@ function CartaoGrupo({
         <button type="button" onClick={onNovoConvidado} className="text-sm text-rosa-antigo-escuro underline">
           + Convidado neste grupo
         </button>
+        <CopiarLink token={g.token} nome={g.nome} />
         {acoes}
       </div>
     </article>
+  );
+}
+
+const linkConvite = (token: string) => `${window.location.origin}/c/${token}`;
+
+function CopiarLink({ token, nome }: { token: string; nome: string }) {
+  const [copiado, setCopiado] = useState<'ok' | 'erro' | null>(null);
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(linkConvite(token));
+      setCopiado('ok');
+    } catch {
+      setCopiado('erro');
+    }
+  }
+  return (
+    <span className="text-sm">
+      <button type="button" aria-label={`Copiar link do convite de ${nome}`} onClick={() => void copiar()} className="text-grafite-suave underline">
+        Copiar link
+      </button>
+      {copiado === 'ok' && <span role="status" className="ml-1 text-salvia-escuro">copiado!</span>}
+      {copiado === 'erro' && (
+        <span role="status" className="ml-1 break-all text-grafite-suave">
+          {linkConvite(token)}
+        </span>
+      )}
+    </span>
   );
 }
 

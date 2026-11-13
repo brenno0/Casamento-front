@@ -84,6 +84,10 @@ export function mockFetch({ logado = false, falhar = [], rotas }: MockFetchOptio
     if (path === '/api/publico/site' && method === 'GET') return json(siteFake(estado));
     if (path === `/api/convite/${TOKEN_FAKE}/site` && method === 'GET') return json(siteConviteFake(estado));
     if (path.startsWith('/api/convite/') && path.endsWith('/site')) return erro(404, 'CONVITE_NOT_FOUND');
+    if (path.startsWith('/api/convite/')) {
+      const extra = rotas?.({ method, path: path.slice('/api'.length), search, body: typeof init.body === 'string' ? JSON.parse(init.body) : undefined });
+      if (extra) return extra;
+    }
 
     if (path === '/api/auth/login' && method === 'POST') {
       if (body.email === CONTA_FAKE.email && body.senha === SENHA_FAKE) {
