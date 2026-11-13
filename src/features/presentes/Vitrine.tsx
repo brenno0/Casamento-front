@@ -23,58 +23,58 @@ export function Vitrine({
   const [comprando, setComprando] = useState<ItemVitrine | null>(null);
   const [presenteando, setPresenteando] = useState<ItemVitrine | null>(null);
 
-  if (isPending) return <p role="status" className="text-center">Carregando…</p>;
+  if (isPending) return <p role="status" className="text-verde-suave">Carregando…</p>;
   if (isError || !data) {
     return (
-      <p role="alert" className="text-center text-rosa-antigo-escuro">
+      <p role="alert" className="text-erro">
         Não foi possível carregar a lista de presentes.
       </p>
     );
   }
-  if (data.length === 0) return <p className="text-center text-grafite-suave">A lista de presentes chega em breve.</p>;
+  if (data.length === 0) return <p className="text-verde-suave">A lista de presentes chega em breve.</p>;
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <p className="mx-auto mb-8 max-w-2xl text-center text-grafite-suave">
+    <div>
+      <p className="mb-16 max-w-[32ch] font-caslon text-2xl leading-relaxed text-verde">
         Sua presença é o nosso maior presente. Se quiser nos mimar, deixamos algumas ideias abaixo.
       </p>
-      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((item) => (
           <li key={item.id} data-reveal>
-            <article aria-label={item.nome} className={`flex h-full flex-col rounded-card border border-dourado-claro bg-white p-4 shadow-suave ${item.esgotado ? 'opacity-70' : ''}`}>
-              {item.fotoUrl && <img src={item.fotoUrl} alt="" loading="lazy" className="aspect-[4/3] w-full rounded-card object-cover" />}
-              <h3 className="mt-3 text-2xl">{item.nome}</h3>
-              {item.viagem && <p className="text-sm text-salvia-escuro">Para a viagem: {item.viagem.nome}</p>}
-              {item.descricao && <p className="mt-1 text-grafite-suave">{item.descricao}</p>}
-              <p className="mt-2 text-lg">{formatarCentavos(item.precoCentavos)}</p>
+            <article aria-label={item.nome} className={`flex h-full flex-col ${item.esgotado ? 'opacity-60' : ''}`}>
+              {item.fotoUrl && <img src={item.fotoUrl} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />}
+              <h3 className="mt-5 text-2xl">{item.nome}</h3>
+              {item.viagem && <p className="mt-1 text-sm text-musgo">Para a viagem: {item.viagem.nome}</p>}
+              {item.descricao && <p className="mt-1 text-verde-suave">{item.descricao}</p>}
+              <p className="mt-3 font-display text-2xl text-verde">{formatarCentavos(item.precoCentavos)}</p>
               {item.fracionavel && (
-                <div className="mt-2">
-                  <div className="h-2 overflow-hidden rounded-pill bg-marfim-escuro" role="progressbar" aria-label={`Cotas de ${item.nome}`} aria-valuenow={item.progresso} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="h-full bg-salvia-escuro" style={{ width: `${item.progresso}%` }} />
+                <div className="mt-4">
+                  <div className="h-1 overflow-hidden bg-folha" role="progressbar" aria-label={`Cotas de ${item.nome}`} aria-valuenow={item.progresso} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="h-full bg-verde" style={{ width: `${item.progresso}%` }} />
                   </div>
-                  <p className="mt-1 text-sm text-grafite-suave">
+                  <p className="mt-2 text-sm text-verde-suave">
                     {item.progresso}% · cotas a partir de {formatarCentavos(item.cotaMinimaCentavos)}
                   </p>
                 </div>
               )}
-              <div className="mt-auto flex flex-wrap gap-2 pt-4">
+              <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
                 {item.esgotado ? (
-                  <span className="rounded-pill bg-marfim-escuro px-4 py-2 text-grafite-suave">Já escolhido</span>
+                  <span className="font-caslon text-lg text-verde-suave italic">Já escolhido</span>
                 ) : (
                   <>
                     {acaoPresentear?.(item)}
                     {taxas.data?.disponivel && (
-                      <button type="button" onClick={() => setPresenteando(item)} className="rounded-pill bg-rosa-antigo-escuro px-4 py-2 text-marfim">
+                      <button type="button" onClick={() => setPresenteando(item)} className="botao px-6">
                         {item.fracionavel ? 'Dar uma cota' : 'Presentear'}
                       </button>
                     )}
                     {!item.fracionavel && item.linkLoja && (
-                      <a href={item.linkLoja} target="_blank" rel="noreferrer noopener" className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
+                      <a href={item.linkLoja} target="_blank" rel="noreferrer noopener" className="botao-contorno px-6">
                         Comprar na loja
                       </a>
                     )}
                     {!item.fracionavel && (
-                      <button type="button" onClick={() => setComprando(item)} className="rounded-pill px-4 py-2 text-grafite-suave underline">
+                      <button type="button" onClick={() => setComprando(item)} className="py-2 text-verde-suave underline hover:text-verde">
                         Já comprei
                       </button>
                     )}
@@ -123,48 +123,48 @@ function JaCompreiModal({ item, token, nomePadrao, onClose }: { item: ItemVitrin
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && !enviar.isPending && onClose()}>
-      <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="max-h-full w-full max-w-md overflow-y-auto rounded-card bg-marfim p-6 shadow-suave">
-        <h2 id={tituloId} className="text-2xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/50 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && !enviar.isPending && onClose()}>
+      <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-7 shadow-suave sm:p-10">
+        <h2 id={tituloId} className="text-3xl">
           {obrigado ? 'Muito obrigado!' : `Já comprei: ${item.nome}`}
         </h2>
         {obrigado ? (
           <>
             <p className="mt-3">Recebemos seu aviso. Que carinho! 💛</p>
-            <button type="button" onClick={onClose} className="mt-6 rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim">
+            <button type="button" onClick={onClose} className="botao mt-8">
               Fechar
             </button>
           </>
         ) : (
-          <form onSubmit={onSubmit} className="mt-4 space-y-3" noValidate>
+          <form onSubmit={onSubmit} className="mt-6 space-y-5" noValidate>
             <label className="block">
-              <span className="text-sm text-grafite-suave">Seu nome</span>
-              <input autoFocus maxLength={80} value={nome} onChange={(e) => setNome(e.target.value)} className="mt-1 block w-full rounded-card border border-dourado-claro bg-white px-3 py-2" />
+              <span className="text-sm font-medium text-verde-suave">Seu nome</span>
+              <input autoFocus maxLength={80} value={nome} onChange={(e) => setNome(e.target.value)} className="campo" />
             </label>
             <label className="block">
-              <span className="text-sm text-grafite-suave">Mensagem para o casal (opcional)</span>
-              <textarea rows={3} maxLength={1000} value={mensagem} onChange={(e) => setMensagem(e.target.value)} className="mt-1 block w-full rounded-card border border-dourado-claro bg-white px-3 py-2" />
+              <span className="text-sm font-medium text-verde-suave">Mensagem para o casal (opcional)</span>
+              <textarea rows={3} maxLength={1000} value={mensagem} onChange={(e) => setMensagem(e.target.value)} className="campo" />
             </label>
             <label className="block">
-              <span className="text-sm text-grafite-suave">Nº do pedido (opcional)</span>
-              <input maxLength={80} value={pedido} onChange={(e) => setPedido(e.target.value)} className="mt-1 block w-full rounded-card border border-dourado-claro bg-white px-3 py-2" />
+              <span className="text-sm font-medium text-verde-suave">Nº do pedido (opcional)</span>
+              <input maxLength={80} value={pedido} onChange={(e) => setPedido(e.target.value)} className="campo" />
             </label>
             <label className="block">
-              <span className="text-sm text-grafite-suave">Foto do pedido (opcional)</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => void onFoto(e.target.files?.[0])} className="mt-1 block w-full text-sm" />
+              <span className="text-sm font-medium text-verde-suave">Foto do pedido (opcional)</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => void onFoto(e.target.files?.[0])} className="mt-2 block w-full text-sm" />
             </label>
-            {foto && <p className="text-sm text-salvia-escuro">Foto anexada.</p>}
-            {erroFoto && <p role="alert" className="text-sm text-rosa-antigo-escuro">{erroFoto}</p>}
+            {foto && <p className="text-sm text-musgo">Foto anexada.</p>}
+            {erroFoto && <p role="alert" className="text-sm text-erro">{erroFoto}</p>}
             {enviar.isError && (
-              <p role="alert" className="text-rosa-antigo-escuro">
+              <p role="alert" className="text-erro">
                 {enviar.error instanceof ApiError && enviar.error.status === 429 ? 'Muitas tentativas. Tente em um minuto.' : 'Não foi possível registrar agora.'}
               </p>
             )}
-            <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-grafite-suave">
+            <div className="flex items-center justify-end gap-3 pt-3">
+              <button type="button" onClick={onClose} className="px-4 py-3 text-verde-suave hover:text-verde">
                 Cancelar
               </button>
-              <button type="submit" disabled={!nome.trim() || enviar.isPending} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">
+              <button type="submit" disabled={!nome.trim() || enviar.isPending} className="botao">
                 Avisar o casal
               </button>
             </div>

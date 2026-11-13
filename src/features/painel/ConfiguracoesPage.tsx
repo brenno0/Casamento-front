@@ -6,7 +6,7 @@ import { useAtualizarCasal, useCasalPainel } from './useCasalPainel';
 const NOME_MAX = 80;
 
 const inputClass =
-  'mt-1 block w-full rounded-card border border-dourado-claro bg-white px-4 py-2 text-grafite focus:border-dourado';
+  'mt-1 block w-full rounded-card border border-folha bg-white px-4 py-2 text-tinta focus:border-folha-escuro';
 
 export function ConfiguracoesPage() {
   const { data, isPending, isError } = useCasalPainel();
@@ -16,15 +16,15 @@ export function ConfiguracoesPage() {
   return (
     <section>
       <h1 className="text-4xl">Configurações</h1>
-      <p className="mt-3 text-grafite-suave">Nomes do casal exibidos no site e no painel.</p>
+      <p className="mt-3 text-verde-suave">Nomes do casal exibidos no site e no painel.</p>
 
       {isPending && (
-        <p className="mt-6 text-grafite-suave" role="status">
+        <p className="mt-6 text-verde-suave" role="status">
           Carregando…
         </p>
       )}
       {isError && !data && (
-        <p className="mt-6 text-rosa-antigo-escuro" role="alert">
+        <p className="mt-6 text-erro" role="alert">
           Não foi possível carregar as configurações.
         </p>
       )}
@@ -61,7 +61,7 @@ function NomesForm({
   return (
     <form className="mt-6 max-w-md space-y-4" onSubmit={onSubmit} noValidate>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Nome da noiva</span>
+        <span className="text-sm text-verde-suave">Nome da noiva</span>
         <input
           name="nomeNoiva"
           required
@@ -75,7 +75,7 @@ function NomesForm({
         />
       </label>
       <label className="block">
-        <span className="text-sm text-grafite-suave">Nome do noivo</span>
+        <span className="text-sm text-verde-suave">Nome do noivo</span>
         <input
           name="nomeNoivo"
           required
@@ -90,19 +90,19 @@ function NomesForm({
       </label>
 
       {invalido && (
-        <p className="text-rosa-antigo-escuro" role="alert">
+        <p className="text-erro" role="alert">
           Os dois nomes são obrigatórios.
         </p>
       )}
       {atualizar.isError && (
-        <p className="text-rosa-antigo-escuro" role="alert">
+        <p className="text-erro" role="alert">
           {atualizar.error instanceof ApiError && atualizar.error.status === 400
             ? 'Confira os nomes (até 80 caracteres).'
             : 'Não foi possível salvar agora. Tente novamente.'}
         </p>
       )}
       {atualizar.isSuccess && (
-        <p className="text-salvia-escuro" role="status">
+        <p className="text-musgo" role="status">
           Salvo.
         </p>
       )}
@@ -110,7 +110,7 @@ function NomesForm({
       <button
         type="submit"
         disabled={invalido || atualizar.isPending}
-        className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim transition-opacity disabled:opacity-60"
+        className="rounded-botao bg-verde px-6 py-2 text-linho transition-opacity disabled:opacity-60"
       >
         {atualizar.isPending ? 'Salvando…' : 'Salvar'}
       </button>

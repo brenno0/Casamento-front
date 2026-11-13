@@ -16,7 +16,7 @@ export function RoteiroPage() {
   }, []);
 
   if (isPending) return <p role="status">Carregando…</p>;
-  if (isError || !data) return <p role="alert" className="text-rosa-antigo-escuro">Não foi possível carregar o roteiro.</p>;
+  if (isError || !data) return <p role="alert" className="text-erro">Não foi possível carregar o roteiro.</p>;
   const d = destaques(data.etapas, data.data, agora);
 
   return (
@@ -24,13 +24,13 @@ export function RoteiroPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-4xl">Roteiro do dia</h1>
-          <p className="text-grafite-suave">{formatDataExtenso(data.data)}</p>
+          <p className="text-verde-suave">{formatDataExtenso(data.data)}</p>
         </div>
-        <button type="button" onClick={() => setEditando('nova')} className="rounded-pill bg-rosa-antigo-escuro px-5 py-2 text-marfim">
+        <button type="button" onClick={() => setEditando('nova')} className="rounded-botao bg-verde px-5 py-2 text-linho">
           Nova etapa
         </button>
       </div>
-      <ol aria-label="Etapas" className="mt-8 border-l-2 border-dourado pl-6">
+      <ol aria-label="Etapas" className="mt-8 border-l-2 border-folha-escuro pl-6">
         {data.etapas.map((e) => {
           const ehAgora = d.agora === e.id;
           const ehProxima = d.proxima === e.id;
@@ -39,22 +39,22 @@ export function RoteiroPage() {
             <li
               key={e.id}
               aria-current={ehAgora ? 'step' : undefined}
-              className={`relative mb-8 rounded-card p-4 ${ehAgora ? 'bg-rosa-antigo-claro shadow-suave' : ehProxima ? 'bg-white shadow-suave' : ''}`}
+              className={`relative mb-8 rounded-card p-4 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-white shadow-suave' : ''}`}
             >
-              <span aria-hidden="true" className={`absolute top-6 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-rosa-antigo-escuro' : 'bg-dourado'}`} />
+              <span aria-hidden="true" className={`absolute top-6 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-verde' : 'bg-folha-escuro'}`} />
               <p className="text-3xl tabular-nums">
                 {e.horario}
-                {e.horarioFim && <span className="text-xl text-grafite-suave"> – {e.horarioFim}</span>}
-                {ehAgora && <span className="ml-3 rounded-pill bg-rosa-antigo-escuro px-3 py-0.5 align-middle text-sm text-marfim">Agora</span>}
-                {ehProxima && <span className="ml-3 rounded-pill bg-salvia-escuro px-3 py-0.5 align-middle text-sm text-marfim">Próxima</span>}
+                {e.horarioFim && <span className="text-xl text-verde-suave"> – {e.horarioFim}</span>}
+                {ehAgora && <span className="ml-3 rounded-botao bg-verde px-3 py-0.5 align-middle text-sm text-linho">Agora</span>}
+                {ehProxima && <span className="ml-3 rounded-botao bg-musgo px-3 py-0.5 align-middle text-sm text-linho">Próxima</span>}
               </p>
               <h2 className="text-2xl">
-                <button type="button" onClick={() => setEditando(e)} className="text-left hover:text-rosa-antigo-escuro">
+                <button type="button" onClick={() => setEditando(e)} className="text-left hover:text-verde">
                   {e.titulo}
                 </button>
               </h2>
               {(e.local || e.localTexto) && (
-                <p className="text-grafite-suave">
+                <p className="text-verde-suave">
                   {e.local?.nome ?? e.localTexto}
                   {mapa && (
                     <a href={mapa} target="_blank" rel="noreferrer" className="ml-2 underline">
@@ -69,7 +69,7 @@ export function RoteiroPage() {
                   {e.envolvidos.map((en, i) => (
                     <li key={i}>
                       <strong>{en.rotulo}</strong>
-                      {en.tipo === 'funcao' && <span className="text-grafite-suave">: {en.nomes.length ? en.nomes.join(', ') : 'ninguém cadastrado'}</span>}
+                      {en.tipo === 'funcao' && <span className="text-verde-suave">: {en.nomes.length ? en.nomes.join(', ') : 'ninguém cadastrado'}</span>}
                     </li>
                   ))}
                 </ul>
@@ -118,24 +118,24 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-marfim p-6 shadow-suave">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-6 shadow-suave">
         <h2 className="text-2xl">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Início</span>
+            <span className="text-sm text-verde-suave">Início</span>
             <input type="time" value={d.horario} onChange={(e) => setD({ ...d, horario: e.target.value })} className={inputClass} />
           </label>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Fim (opcional)</span>
+            <span className="text-sm text-verde-suave">Fim (opcional)</span>
             <input type="time" value={d.horarioFim} onChange={(e) => setD({ ...d, horarioFim: e.target.value })} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Título</span>
+            <span className="text-sm text-verde-suave">Título</span>
             <input maxLength={100} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Local</span>
+            <span className="text-sm text-verde-suave">Local</span>
             <select value={d.localId ?? ''} onChange={(e) => setD({ ...d, localId: e.target.value ? Number(e.target.value) : null })} className={inputClass}>
               <option value="">Nenhum</option>
               {site.data?.locais.map((l) => (
@@ -144,14 +144,14 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
             </select>
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-grafite-suave">Descrição</span>
+            <span className="text-sm text-verde-suave">Descrição</span>
             <textarea rows={2} maxLength={1000} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
           </label>
           <fieldset className="sm:col-span-2">
-            <legend className="text-sm text-grafite-suave">Envolvidos</legend>
+            <legend className="text-sm text-verde-suave">Envolvidos</legend>
             <ul className="mt-1 flex flex-wrap gap-2">
               {envolvidos.map((en, i) => (
-                <li key={i} className="rounded-pill bg-white px-3 py-1 text-sm">
+                <li key={i} className="rounded-botao bg-white px-3 py-1 text-sm">
                   {rotulo(en)}
                   <button type="button" aria-label={`Remover ${rotulo(en)}`} onClick={() => setEnvolvidos(envolvidos.filter((_, j) => j !== i))} className="ml-1">
                     ×
@@ -181,26 +181,26 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
                     setEnvolvidos([...envolvidos, { texto: novoTexto.trim() }]);
                     setNovoTexto('');
                   }}
-                  className="mt-1 rounded-pill border border-dourado px-3"
+                  className="mt-1 rounded-botao border border-folha-escuro px-3"
                 >
                   +
                 </button>
               </span>
             </div>
           </fieldset>
-          {!fimOk && <p role="alert" className="text-sm text-rosa-antigo-escuro sm:col-span-2">O fim precisa ser depois do início.</p>}
-          {salvar.isError && <p role="alert" className="text-rosa-antigo-escuro sm:col-span-2">Não foi possível salvar.</p>}
+          {!fimOk && <p role="alert" className="text-sm text-erro sm:col-span-2">O fim precisa ser depois do início.</p>}
+          {salvar.isError && <p role="alert" className="text-erro sm:col-span-2">Não foi possível salvar.</p>}
           <div className="flex justify-between gap-2 sm:col-span-2">
             {etapa ? (
-              <button type="button" onClick={() => excluir.mutate(undefined, { onSuccess: onClose })} className="text-rosa-antigo-escuro underline">
+              <button type="button" onClick={() => excluir.mutate(undefined, { onSuccess: onClose })} className="text-erro underline">
                 Excluir etapa
               </button>
             ) : (
               <span />
             )}
             <div className="flex gap-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-grafite-suave">Cancelar</button>
-              <button type="submit" disabled={!d.horario || !d.titulo.trim() || !fimOk || salvar.isPending} className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim disabled:opacity-60">
+              <button type="button" onClick={onClose} className="px-4 py-2 text-verde-suave">Cancelar</button>
+              <button type="submit" disabled={!d.horario || !d.titulo.trim() || !fimOk || salvar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
                 Salvar
               </button>
             </div>

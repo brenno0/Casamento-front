@@ -25,9 +25,9 @@ export function useRevelarAoRolar(ref: RefObject<HTMLElement | null>, deps: unkn
           gsap.utils.toArray<HTMLElement>('[data-reveal]', raiz).forEach((el) => {
             gsap.from(el, {
               opacity: 0,
-              y: 40,
-              duration: 0.9,
-              ease: 'power2.out',
+              y: 24,
+              duration: 1,
+              ease: 'expo.out',
               scrollTrigger: { trigger: el, start: 'top 85%', once: true },
             });
           });

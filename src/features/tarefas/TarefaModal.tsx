@@ -17,7 +17,7 @@ export type ModoModal = { tipo: 'criar'; colunaId: number } | { tipo: 'editar'; 
 const TITULO_MAX = 140;
 
 const inputClass =
-  'mt-1 block w-full rounded-card border border-dourado-claro bg-white px-3 py-2 text-grafite focus:border-dourado';
+  'mt-1 block w-full rounded-card border border-folha bg-white px-3 py-2 text-tinta focus:border-folha-escuro';
 
 export function TarefaModal({
   modo,
@@ -96,7 +96,7 @@ export function TarefaModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !ocupado) onClose();
       }}
@@ -105,14 +105,14 @@ export function TarefaModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={tituloId}
-        className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-marfim p-6 shadow-suave"
+        className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-6 shadow-suave"
       >
         <h2 id={tituloId} className="text-2xl">
           {tarefa ? 'Editar tarefa' : 'Nova tarefa'}
         </h2>
         <form className="mt-4 space-y-4" onSubmit={onSubmit} noValidate>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Título</span>
+            <span className="text-sm text-verde-suave">Título</span>
             <input
               autoFocus
               required
@@ -126,7 +126,7 @@ export function TarefaModal({
             />
           </label>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Descrição</span>
+            <span className="text-sm text-verde-suave">Descrição</span>
             <textarea
               rows={3}
               maxLength={2000}
@@ -140,7 +140,7 @@ export function TarefaModal({
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="text-sm text-grafite-suave">Prazo</span>
+              <span className="text-sm text-verde-suave">Prazo</span>
               <input
                 type="date"
                 value={prazo}
@@ -152,7 +152,7 @@ export function TarefaModal({
               />
             </label>
             <label className="block">
-              <span className="text-sm text-grafite-suave">Responsável</span>
+              <span className="text-sm text-verde-suave">Responsável</span>
               <select
                 value={responsavel}
                 onChange={(e) => {
@@ -170,7 +170,7 @@ export function TarefaModal({
             </label>
           </div>
           <label className="block">
-            <span className="text-sm text-grafite-suave">Fornecedor</span>
+            <span className="text-sm text-verde-suave">Fornecedor</span>
             <select
               value={fornecedorId ?? ''}
               onChange={(e) => {
@@ -189,7 +189,7 @@ export function TarefaModal({
           </label>
           {(
             <label className="block">
-              <span className="text-sm text-grafite-suave">Coluna</span>
+              <span className="text-sm text-verde-suave">Coluna</span>
               <select
                 value={colunaId}
                 onChange={(e) => setColunaId(Number(e.target.value))}
@@ -205,12 +205,12 @@ export function TarefaModal({
           )}
 
           {invalido && titulo !== '' && (
-            <p className="text-rosa-antigo-escuro" role="alert">
+            <p className="text-erro" role="alert">
               O título é obrigatório.
             </p>
           )}
           {erro && (
-            <p className="text-rosa-antigo-escuro" role="alert">
+            <p className="text-erro" role="alert">
               {erro instanceof ApiError && erro.status === 400
                 ? 'Confira os campos (título até 140 caracteres).'
                 : erro instanceof ApiError && erro.status === 404
@@ -223,14 +223,14 @@ export function TarefaModal({
             <button
               type="submit"
               disabled={invalido || ocupado}
-              className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim transition-opacity disabled:opacity-60"
+              className="rounded-botao bg-verde px-6 py-2 text-linho transition-opacity disabled:opacity-60"
             >
               {salvar.isPending ? 'Salvando…' : tarefa ? 'Salvar' : 'Criar tarefa'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-pill px-4 py-2 text-grafite-suave hover:bg-marfim-escuro"
+              className="rounded-botao px-4 py-2 text-verde-suave hover:bg-linho-escuro"
             >
               Cancelar
             </button>
@@ -240,7 +240,7 @@ export function TarefaModal({
                   type="button"
                   disabled={ocupado}
                   onClick={() => excluir.mutate(tarefa.id, { onSuccess: onClose })}
-                  className="ml-auto rounded-pill bg-grafite px-4 py-2 text-marfim disabled:opacity-60"
+                  className="ml-auto rounded-botao bg-tinta px-4 py-2 text-linho disabled:opacity-60"
                 >
                   {excluir.isPending ? 'Excluindo…' : 'Confirmar exclusão'}
                 </button>
@@ -248,7 +248,7 @@ export function TarefaModal({
                 <button
                   type="button"
                   onClick={() => setConfirmarExclusao(true)}
-                  className="ml-auto rounded-pill px-4 py-2 text-rosa-antigo-escuro hover:bg-rosa-antigo-claro"
+                  className="ml-auto rounded-botao px-4 py-2 text-verde hover:bg-vela-claro"
                 >
                   Excluir tarefa
                 </button>

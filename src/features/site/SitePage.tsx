@@ -44,19 +44,26 @@ export function SitePage(props: Props) {
   ];
 
   return (
-    <main ref={raiz} className="bg-marfim text-grafite">
-      <nav aria-label="Seções" className="sticky top-0 z-40 overflow-x-auto border-b border-dourado-claro bg-marfim/90 backdrop-blur">
-        <ul className="mx-auto flex max-w-5xl gap-4 px-gutter py-2 text-sm whitespace-nowrap">
-          {secoes
-            .filter(([, , mostrar]) => mostrar)
-            .map(([id, label]) => (
-              <li key={id}>
-                <a href={`#${id}`} className="text-grafite-suave hover:text-rosa-antigo-escuro">
-                  {label}
-                </a>
-              </li>
-            ))}
-        </ul>
+    <main ref={raiz} id="topo" className="bg-linho text-tinta">
+      <nav aria-label="Seções" className="sticky top-0 z-40 border-b border-folha bg-linho/95">
+        <div className="mx-auto flex max-w-6xl items-center gap-6 px-gutter">
+          <a href="#topo" aria-label="Voltar ao topo" className="shrink-0 py-4 font-display text-xl text-verde">
+            {site.casal.nomeNoiva.charAt(0)}
+            <span className="mx-1 font-caslon text-base text-musgo italic">&amp;</span>
+            {site.casal.nomeNoivo.charAt(0)}
+          </a>
+          <ul className="-mr-gutter flex flex-1 gap-7 overflow-x-auto py-4 pr-gutter text-[0.9375rem] [scrollbar-width:none] whitespace-nowrap md:justify-end">
+            {secoes
+              .filter(([, , mostrar]) => mostrar)
+              .map(([id, label]) => (
+                <li key={id}>
+                  <a href={`#${id}`} className="text-verde-suave transition-colors hover:text-verde">
+                    {label}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </div>
       </nav>
 
       {aviso}
@@ -64,123 +71,186 @@ export function SitePage(props: Props) {
       <Hero site={site} saudacao={convite ? (props.site as SiteConvite).grupo : undefined} />
 
       {site.historia.length > 0 && (
-        <Secao id="historia" titulo="Nossa história">
-          <ol className="relative mx-auto max-w-3xl border-l border-dourado pl-8">
-            {site.historia.map((h) => (
-              <li key={h.id} data-reveal className="mb-12">
-                <span aria-hidden="true" className="absolute -left-1.5 mt-2 h-3 w-3 rounded-full bg-rosa-antigo" />
-                <p className="text-sm tracking-widest text-salvia-escuro uppercase">{formatDataCurta(h.data)}</p>
-                <h3 className="mt-1 text-3xl">{h.titulo}</h3>
+        <Secao id="historia" titulo="Nossa história" largo>
+          <ol className="space-y-24 md:space-y-32">
+            {site.historia.map((h, i) => (
+              <li key={h.id} className={`grid items-center gap-8 md:gap-16 ${h.fotoUrl ? 'md:grid-cols-2' : ''}`}>
                 {h.fotoUrl && (
-                  <img src={h.fotoUrl} alt={h.titulo} loading="lazy" className="mt-4 w-full rounded-card object-cover shadow-suave" />
+                  <figure data-reveal className={`bg-papel p-3 shadow-suave ${i % 2 ? 'md:order-2' : ''}`}>
+                    <img src={h.fotoUrl} alt={h.titulo} loading="lazy" className="aspect-[4/5] w-full object-cover" />
+                  </figure>
                 )}
-                {h.texto && <p className="mt-3 whitespace-pre-line">{h.texto}</p>}
+                <div className={h.fotoUrl ? '' : 'max-w-2xl'}>
+                  <h3 className="text-3xl sm:text-4xl">{h.titulo}</h3>
+                  <p className="versalete mt-3 text-musgo">{formatDataCurta(h.data)}</p>
+                  {h.texto && <p className="mt-6 max-w-[60ch] text-lg whitespace-pre-line">{h.texto}</p>}
+                </div>
               </li>
             ))}
           </ol>
         </Secao>
       )}
 
-      <Secao id="locais" titulo="Cerimônia e festa">
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-          {site.locais.map((l) => (
-            <article key={l.tipo} data-reveal aria-label={LABEL_LOCAL[l.tipo]} className="rounded-card border border-dourado-claro bg-white p-6 text-center shadow-suave">
-              <p className="text-sm tracking-[0.3em] text-salvia-escuro uppercase">{LABEL_LOCAL[l.tipo]}</p>
-              <h3 className="mt-2 text-3xl">{l.nome}</h3>
-              <p className="mt-2">
-                {formatDataExtenso(l.data)} · {l.horario.replace(':', 'h')}
+      <Secao id="locais" titulo="Cerimônia e festa" tom="verde" largo>
+        <div className="grid gap-16 md:grid-cols-2 md:gap-0 md:divide-x md:divide-linho/20">
+          {site.locais.map((l, i) => (
+            <article key={l.tipo} aria-label={LABEL_LOCAL[l.tipo]} className={i === 0 ? 'md:pr-16' : 'md:pl-16'}>
+              <p className="font-display text-6xl leading-none text-vela sm:text-7xl">{l.horario.replace(':', 'h')}</p>
+              <h3 className="mt-6 text-3xl text-linho">{l.nome}</h3>
+              <p className="mt-2 text-linho/80">
+                {LABEL_LOCAL[l.tipo]} · {formatDataExtenso(l.data)}
               </p>
               {ehConvite(l) && <DetalhesLocal l={l} />}
             </article>
           ))}
         </div>
-        {!convite && (
-          <p className="mt-6 text-center text-sm text-grafite-suave">
-            Endereços e mapas estão no link do convite que você recebeu.
-          </p>
-        )}
+        {!convite && <p className="mt-16 text-linho/80">Endereços e mapas estão no link do convite que você recebeu.</p>}
       </Secao>
 
       <Secao id="dress-code" titulo="Dress code">
-        <div data-reveal className="mx-auto max-w-2xl text-center">
-          <p className="whitespace-pre-line">{site.dressCode.texto}</p>
-          {site.dressCode.paleta.length > 0 && (
-            <ul aria-label="Paleta sugerida" className="mt-6 flex justify-center gap-3">
-              {site.dressCode.paleta.map((cor) => (
-                <li key={cor}>
-                  <span aria-label={cor} title={cor} className="block h-12 w-12 rounded-full border border-dourado-claro shadow-suave" style={{ backgroundColor: cor }} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <p className="max-w-[40ch] font-caslon text-2xl leading-relaxed whitespace-pre-line text-verde">{site.dressCode.texto}</p>
+        {site.dressCode.paleta.length > 0 && (
+          <ul aria-label="Paleta sugerida" className="mt-10 flex flex-wrap gap-4">
+            {site.dressCode.paleta.map((cor) => (
+              <li key={cor}>
+                <span aria-label={cor} title={cor} className="block h-24 w-16 rounded-card shadow-suave" style={{ backgroundColor: cor }} />
+              </li>
+            ))}
+          </ul>
+        )}
       </Secao>
 
       {convite && (
-        <Secao id="rsvp" titulo="Confirmar presença">
-          {slots.rsvp ?? <p className="text-center text-grafite-suave">A confirmação de presença abre em breve.</p>}
+        <Secao id="rsvp" titulo="Confirmar presença" tom="papel">
+          {slots.rsvp ?? <p className="text-verde-suave">A confirmação de presença abre em breve.</p>}
         </Secao>
       )}
 
-      <Secao id="presentes" titulo="Lista de presentes">
-        {slots.presentes ?? <p className="text-center text-grafite-suave">A lista de presentes chega em breve.</p>}
+      <Secao id="presentes" titulo="Lista de presentes" largo>
+        {slots.presentes ?? <p className="text-verde-suave">A lista de presentes chega em breve.</p>}
       </Secao>
 
       {site.galeria.length > 0 && <Galeria fotos={site.galeria} />}
 
       {convite && (
-        <Secao id="mural" titulo="Mural de recados">
-          {slots.mural ?? <p className="text-center text-grafite-suave">O mural de recados abre em breve.</p>}
+        <Secao id="mural" titulo="Mural de recados" tom="papel">
+          {slots.mural ?? <p className="text-verde-suave">O mural de recados abre em breve.</p>}
         </Secao>
       )}
 
       {site.faq.length > 0 && (
         <Secao id="faq" titulo="Dúvidas">
-          <div className="mx-auto max-w-2xl space-y-3">
+          <div className="border-t border-folha-escuro">
             {site.faq.map((f) => (
-              <details key={f.id} data-reveal className="rounded-card border border-dourado-claro bg-white p-4">
-                <summary className="cursor-pointer text-xl">{f.pergunta}</summary>
-                <p className="mt-2 whitespace-pre-line">{f.resposta}</p>
+              <details key={f.id} className="group border-b border-folha-escuro">
+                <summary className="flex list-none items-center justify-between gap-6 py-6 font-caslon text-xl text-verde [&::-webkit-details-marker]:hidden">
+                  {f.pergunta}
+                  <span aria-hidden="true" className="relative h-4 w-4 shrink-0">
+                    <span className="absolute inset-x-0 top-1/2 h-px bg-verde" />
+                    <span className="absolute inset-y-0 left-1/2 w-px bg-verde transition-transform duration-300 group-open:rotate-90" />
+                  </span>
+                </summary>
+                <p className="max-w-[65ch] pb-8 whitespace-pre-line text-verde-suave">{f.resposta}</p>
               </details>
             ))}
           </div>
         </Secao>
       )}
 
-      <footer className="py-12 text-center">
-        <p className="font-script text-4xl text-rosa-antigo-escuro">
-          {site.casal.nomeNoiva} &amp; {site.casal.nomeNoivo}
+      <footer className="bg-verde px-gutter py-24 text-center text-linho">
+        <p className="font-display text-5xl sm:text-6xl">
+          {site.casal.nomeNoiva} <span className="font-caslon text-4xl text-vela italic">&amp;</span> {site.casal.nomeNoivo}
         </p>
+        <p className="versalete mt-6 text-linho/80">{formatDataCurta(site.casal.dataCasamento).replaceAll('/', ' · ')}</p>
       </footer>
     </main>
   );
 }
 
-function Secao({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+const TONS = {
+  linho: 'bg-linho',
+  papel: 'bg-papel',
+  verde: 'sobre-verde bg-verde text-linho',
+} as const;
+
+function Secao({
+  id,
+  titulo,
+  tom = 'linho',
+  largo = false,
+  children,
+}: {
+  id: string;
+  titulo: string;
+  tom?: keyof typeof TONS;
+  largo?: boolean;
+  children: ReactNode;
+}) {
+  const h2 = (
+    <h2 id={`${id}-titulo`} className={`text-4xl sm:text-5xl ${tom === 'verde' ? 'text-linho' : ''}`}>
+      {titulo}
+    </h2>
+  );
   return (
-    <section id={id} aria-labelledby={`${id}-titulo`} className="scroll-mt-12 px-gutter py-section odd:bg-marfim-escuro/40">
-      <h2 id={`${id}-titulo`} data-reveal className="mb-10 text-center font-script text-5xl text-rosa-antigo-escuro sm:text-6xl">
-        {titulo}
-      </h2>
-      {children}
+    <section id={id} aria-labelledby={`${id}-titulo`} className={`scroll-mt-14 px-gutter py-24 md:py-section ${TONS[tom]}`}>
+      {largo ? (
+        <div className="mx-auto max-w-6xl">
+          {h2}
+          <div className="mt-14 md:mt-20">{children}</div>
+        </div>
+      ) : (
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-4">
+            <div className="lg:sticky lg:top-28">{h2}</div>
+          </div>
+          <div className="min-w-0 lg:col-span-8">{children}</div>
+        </div>
+      )}
     </section>
   );
 }
 
 function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: { nome: string; mensagem: string | null } }) {
+  const capa = site.galeria[0];
+  const linha = 'block overflow-hidden pb-[0.12em]';
+  const sobe = 'block animate-[subir_1s_var(--ease-saida)_both]';
   return (
-    <header className="flex min-h-[85svh] flex-col items-center justify-center px-gutter py-section text-center">
-      {saudacao && <p className="mb-4 text-lg text-salvia-escuro">Olá, {saudacao.nome}!</p>}
-      <p className="text-sm tracking-[0.3em] text-salvia-escuro uppercase">Vamos nos casar</p>
-      <h1 className="mt-6 font-script text-6xl leading-tight text-rosa-antigo-escuro sm:text-8xl">
-        {site.casal.nomeNoiva} &amp; {site.casal.nomeNoivo}
-      </h1>
-      <div aria-hidden="true" className="mx-auto mt-6 h-px w-24 bg-dourado" />
-      <p className="mt-6 text-2xl sm:text-3xl">
-        <time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time>
-      </p>
-      <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais[0]?.horario} />
-      {saudacao?.mensagem && <p className="mx-auto mt-8 max-w-xl whitespace-pre-line italic">{saudacao.mensagem}</p>}
+    <header className="px-gutter pt-16 pb-24 md:pt-24 md:pb-section">
+      <div className={`mx-auto grid max-w-6xl items-center gap-16 ${capa ? 'lg:grid-cols-12' : ''}`}>
+        <div className={capa ? 'lg:col-span-7' : ''}>
+          <h1 className="text-[clamp(3.5rem,14vw,6rem)] leading-[0.98]">
+            <span className={linha}>
+              <span className={sobe}>{site.casal.nomeNoiva}</span>
+            </span>{' '}
+            <span className={linha}>
+              <span className={`${sobe} [animation-delay:120ms]`}>
+                <span className="font-caslon text-[0.7em] text-musgo italic">&amp;</span> {site.casal.nomeNoivo}
+              </span>
+            </span>
+          </h1>
+
+          <div className="mt-10 animate-[surgir_0.9s_var(--ease-saida)_0.35s_both] border-t border-folha-escuro pt-8">
+            <p className="font-caslon text-2xl text-verde sm:text-3xl">
+              <time dateTime={site.casal.dataCasamento}>{formatDataExtenso(site.casal.dataCasamento)}</time>
+            </p>
+            <p className="mt-1 text-lg text-verde-suave">Vamos nos casar</p>
+            <Contagem dataCasamento={site.casal.dataCasamento} horario={site.locais[0]?.horario} />
+          </div>
+
+          {saudacao && (
+            <div className="cartao-mesa mt-12 max-w-xl animate-[surgir_0.9s_var(--ease-saida)_0.55s_both] px-8 py-10 sm:px-12">
+              <p className="font-caslon text-2xl text-verde sm:text-3xl">Olá, {saudacao.nome}!</p>
+              {saudacao.mensagem && <p className="mt-4 font-caslon text-lg whitespace-pre-line text-verde-suave italic">{saudacao.mensagem}</p>}
+            </div>
+          )}
+        </div>
+
+        {capa && (
+          <figure className="animate-[surgir_1.1s_var(--ease-saida)_0.25s_both] bg-papel p-3 shadow-suave lg:col-span-5">
+            <img src={capa.fotoUrl} alt={capa.legenda || 'Foto do casal'} className="aspect-[4/5] w-full object-cover" />
+          </figure>
+        )}
+      </div>
     </header>
   );
 }
@@ -193,7 +263,7 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
     return () => clearInterval(id);
   }, []);
   const t = tempoRestante(alvo, agora);
-  if (t.chegou) return <p className="mt-8 text-2xl text-salvia-escuro">É hoje!</p>;
+  if (t.chegou) return <p className="mt-8 font-display text-5xl text-verde">É hoje!</p>;
   const partes: [number, string][] = [
     [t.dias, 'dias'],
     [t.horas, 'horas'],
@@ -201,11 +271,11 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
     [t.segundos, 'seg'],
   ];
   return (
-    <div role="timer" aria-label="Contagem regressiva" className="mt-8 flex gap-4 sm:gap-8">
+    <div role="timer" aria-label="Contagem regressiva" className="mt-8 flex gap-8 sm:gap-12">
       {partes.map(([n, rotulo]) => (
-        <div key={rotulo} className="min-w-14 text-center">
-          <span className="block text-4xl tabular-nums sm:text-5xl">{n}</span>
-          <span className="text-sm tracking-widest text-grafite-suave uppercase">{rotulo}</span>
+        <div key={rotulo}>
+          <span className="block font-display text-4xl leading-none text-verde sm:text-5xl">{n}</span>
+          <span className="mt-2 block text-sm text-verde-suave">{rotulo}</span>
         </div>
       ))}
     </div>
@@ -215,15 +285,15 @@ export function Contagem({ dataCasamento, horario }: { dataCasamento: string; ho
 function DetalhesLocal({ l }: { l: LocalConvite }) {
   const links = linksMapa(l);
   return (
-    <div className="mt-4">
-      {l.endereco && <p className="text-grafite-suave">{l.endereco}</p>}
+    <div className="mt-6">
+      {l.endereco && <p className="text-lg text-linho">{l.endereco}</p>}
       {l.latitude !== null && l.longitude !== null && <MapaLocal latitude={l.latitude} longitude={l.longitude} nome={l.nome} />}
       {links && (
-        <div className="mt-4 flex justify-center gap-3">
-          <a href={links.google} target="_blank" rel="noreferrer" className="rounded-pill bg-rosa-antigo-escuro px-4 py-2 text-marfim">
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href={links.google} target="_blank" rel="noreferrer" className="botao">
             Google Maps
           </a>
-          <a href={links.waze} target="_blank" rel="noreferrer" className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
+          <a href={links.waze} target="_blank" rel="noreferrer" className="botao-contorno">
             Waze
           </a>
         </div>
@@ -242,21 +312,26 @@ function Galeria({ fotos }: { fotos: { id: number; fotoUrl: string; legenda: str
     return () => document.removeEventListener('keydown', onKey);
   }, [aberta]);
   return (
-    <Secao id="galeria" titulo="Galeria">
-      <ul className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3">
+    <Secao id="galeria" titulo="Galeria" largo>
+      <ul className="columns-2 gap-4 md:columns-3 md:gap-6">
         {fotos.map((f) => (
-          <li key={f.id} data-reveal>
-            <button type="button" onClick={() => setAberta(f.id)} className="block w-full overflow-hidden rounded-card">
-              <img src={f.fotoUrl} alt={f.legenda || 'Foto do casal'} loading="lazy" className="aspect-square w-full object-cover transition-transform hover:scale-105" />
+          <li key={f.id} data-reveal className="mb-4 break-inside-avoid md:mb-6">
+            <button type="button" onClick={() => setAberta(f.id)} className="group block w-full overflow-hidden">
+              <img
+                src={f.fotoUrl}
+                alt={f.legenda || 'Foto do casal'}
+                loading="lazy"
+                className="w-full transition-transform duration-700 ease-[var(--ease-saida)] group-hover:scale-[1.03]"
+              />
             </button>
           </li>
         ))}
       </ul>
       {atual && (
-        <div role="dialog" aria-modal="true" aria-label={atual.legenda || 'Foto'} className="fixed inset-0 z-50 flex items-center justify-center bg-grafite/80 p-4" onClick={() => setAberta(null)}>
-          <figure className="max-h-full max-w-4xl">
-            <img src={atual.fotoUrl} alt={atual.legenda || 'Foto do casal'} className="max-h-[80svh] rounded-card object-contain" />
-            {atual.legenda && <figcaption className="mt-2 text-center text-marfim">{atual.legenda}</figcaption>}
+        <div role="dialog" aria-modal="true" aria-label={atual.legenda || 'Foto'} className="fixed inset-0 z-50 flex items-center justify-center bg-tinta/90 p-4 sm:p-10" onClick={() => setAberta(null)}>
+          <figure className="max-h-full max-w-4xl bg-papel p-3">
+            <img src={atual.fotoUrl} alt={atual.legenda || 'Foto do casal'} className="max-h-[78svh] object-contain" />
+            {atual.legenda && <figcaption className="px-1 pt-3 pb-1 font-caslon text-verde italic">{atual.legenda}</figcaption>}
           </figure>
         </div>
       )}

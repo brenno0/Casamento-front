@@ -29,13 +29,13 @@ export function TarefasPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">Tarefas</h1>
-          <p className="mt-2 text-grafite-suave">Arraste os cartões entre as colunas para atualizar o andamento.</p>
+          <p className="mt-2 text-verde-suave">Arraste os cartões entre as colunas para atualizar o andamento.</p>
         </div>
         <button
           type="button"
           disabled={!primeiraColuna}
           onClick={() => primeiraColuna && setModal({ tipo: 'criar', colunaId: primeiraColuna.id })}
-          className="rounded-pill bg-rosa-antigo-escuro px-6 py-2 text-marfim transition-opacity disabled:opacity-60"
+          className="rounded-botao bg-verde px-6 py-2 text-linho transition-opacity disabled:opacity-60"
         >
           Nova tarefa
         </button>
@@ -49,10 +49,10 @@ export function TarefasPage() {
             aria-pressed={filtro === f.valor}
             onClick={() => setFiltro(f.valor)}
             className={[
-              'rounded-pill border px-4 py-1 transition-colors',
+              'rounded-botao border px-4 py-1 transition-colors',
               filtro === f.valor
-                ? 'border-rosa-antigo-escuro bg-rosa-antigo-claro text-rosa-antigo-escuro'
-                : 'border-dourado-claro text-grafite-suave hover:bg-marfim-escuro',
+                ? 'border-verde bg-vela-claro text-verde'
+                : 'border-folha text-verde-suave hover:bg-linho-escuro',
             ].join(' ')}
           >
             {f.label}
@@ -61,23 +61,23 @@ export function TarefasPage() {
       </div>
 
       {filtro !== 'todas' && (
-        <p className="mt-3 text-sm text-grafite-suave">
+        <p className="mt-3 text-sm text-verde-suave">
           Visão filtrada: para reordenar ou mover cartões, volte para “Todas”.
         </p>
       )}
       {mover.isError && (
-        <p className="mt-3 text-rosa-antigo-escuro" role="alert">
+        <p className="mt-3 text-erro" role="alert">
           Não foi possível mover a tarefa. O quadro voltou ao estado salvo.
         </p>
       )}
 
       {isPending && (
-        <p className="mt-6 text-grafite-suave" role="status">
+        <p className="mt-6 text-verde-suave" role="status">
           Carregando…
         </p>
       )}
       {isError && !quadro && (
-        <p className="mt-6 text-rosa-antigo-escuro" role="alert">
+        <p className="mt-6 text-erro" role="alert">
           Não foi possível carregar as tarefas.
         </p>
       )}
@@ -131,10 +131,10 @@ function NovaColuna() {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="w-64 shrink-0 rounded-card border border-dashed border-dourado-claro p-3"
+      className="w-64 shrink-0 rounded-card border border-dashed border-folha p-3"
     >
       <label className="block">
-        <span className="text-sm text-grafite-suave">Nova coluna</span>
+        <span className="text-sm text-verde-suave">Nova coluna</span>
         <input
           maxLength={40}
           value={nome}
@@ -142,18 +142,18 @@ function NovaColuna() {
             setNome(e.target.value);
             criar.reset();
           }}
-          className="mt-1 block w-full rounded-card border border-dourado-claro bg-white px-2 py-1"
+          className="mt-1 block w-full rounded-card border border-folha bg-white px-2 py-1"
         />
       </label>
       <button
         type="submit"
         disabled={nome.trim() === '' || criar.isPending}
-        className="mt-2 rounded-pill bg-salvia-escuro px-4 py-1 text-sm text-marfim disabled:opacity-60"
+        className="mt-2 rounded-botao bg-musgo px-4 py-1 text-sm text-linho disabled:opacity-60"
       >
         Adicionar coluna
       </button>
       {criar.isError && (
-        <p role="alert" className="mt-1 text-sm text-rosa-antigo-escuro">
+        <p role="alert" className="mt-1 text-sm text-erro">
           Não foi possível criar a coluna.
         </p>
       )}
