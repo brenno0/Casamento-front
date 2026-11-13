@@ -11,6 +11,7 @@ import { ConvidadosPage } from './features/convidados/ConvidadosPage';
 import { FinanceiroPage } from './features/financeiro/FinanceiroPage';
 import { FornecedorDetalhePage } from './features/fornecedores/FornecedorDetalhePage';
 import { FornecedoresPage } from './features/fornecedores/FornecedoresPage';
+import { RetornoPage } from './features/presentes/RetornoPage';
 import { PresentesAdminPage } from './features/presentes-admin/PresentesAdminPage';
 import { SiteAdminPage } from './features/site-admin/SiteAdminPage';
 import { TarefasPage } from './features/tarefas/TarefasPage';
@@ -19,6 +20,7 @@ export const routes: RouteObject[] = [
   { path: '/', element: <HomePage /> },
   { path: '/c/:token', element: <ConvitePage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/presente/retorno', element: <RetornoPage /> },
   {
     element: <RequireSessao />,
     children: [

@@ -1,6 +1,8 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
 import { formatarCentavos } from '../../lib/dinheiro';
+import { useTaxas } from './checkout';
+import { PresentearModal } from './PresentearModal';
 import { enviarFotoConvidado, useJaComprei, useVitrine, type Camada, type ItemVitrine } from './usePresentes';
 
 /**
@@ -17,7 +19,9 @@ export function Vitrine({
   acaoPresentear?: (item: ItemVitrine) => ReactNode;
 }) {
   const { data, isPending, isError } = useVitrine(token);
+  const taxas = useTaxas();
   const [comprando, setComprando] = useState<ItemVitrine | null>(null);
+  const [presenteando, setPresenteando] = useState<ItemVitrine | null>(null);
 
   if (isPending) return <p role="status" className="text-center">Carregando…</p>;
   if (isError || !data) {
@@ -58,6 +62,11 @@ export function Vitrine({
                 ) : (
                   <>
                     {acaoPresentear?.(item)}
+                    {taxas.data?.disponivel && (
+                      <button type="button" onClick={() => setPresenteando(item)} className="rounded-pill bg-rosa-antigo-escuro px-4 py-2 text-marfim">
+                        {item.fracionavel ? 'Dar uma cota' : 'Presentear'}
+                      </button>
+                    )}
                     {!item.fracionavel && item.linkLoja && (
                       <a href={item.linkLoja} target="_blank" rel="noreferrer noopener" className="rounded-pill border border-rosa-antigo-escuro px-4 py-2 text-rosa-antigo-escuro">
                         Comprar na loja
@@ -75,6 +84,9 @@ export function Vitrine({
           </li>
         ))}
       </ul>
+      {presenteando && taxas.data && (
+        <PresentearModal item={presenteando} token={token} nomePadrao={nomePadrao} taxas={taxas.data} onClose={() => setPresenteando(null)} />
+      )}
       {comprando && <JaCompreiModal item={comprando} token={token} nomePadrao={nomePadrao} onClose={() => setComprando(null)} />}
     </div>
   );
