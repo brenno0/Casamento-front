@@ -1,34 +1,28 @@
-{$SITE_DOMAIN} {
+# Servidor interno do front (porta 80, sem TLS).
+# O HTTPS e o roteamento de /api/* ficam no Caddy do stack da VPS (/opt/stack/Caddyfile).
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv
 	encode zstd gzip
 
 	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		X-Frame-Options "DENY"
 		-Server
 	}
 
-	# API e webhook do Mercado Pago vão para o back (mesma origem: cookie de sessão sem CORS).
-	handle /api/* {
-		request_body {
-			max_size 20MB
-		}
-		reverse_proxy back:3333
-	}
-
 	# Assets com hash no nome: cache longo.
-	handle /assets/* {
-		root * /srv
-		header Cache-Control "public, max-age=31536000, immutable"
-		file_server
-	}
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
 
-	# SPA: qualquer outra rota cai no index.html (sem cache, para pegar deploys novos).
-	handle {
-		root * /srv
-		try_files {path} /index.html
-		header /index.html Cache-Control "no-cache"
-		file_server
-	}
+	# SPA: qualquer rota cai no index.html (sem cache, para pegar deploys novos).
+	@spa not path /assets/*
+	header @spa Cache-Control "no-cache"
+	try_files {path} /index.html
+	file_server
 }
