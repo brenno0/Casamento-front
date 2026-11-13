@@ -44,6 +44,7 @@ export function Vitrine({
             <article aria-label={item.nome} className={`flex h-full flex-col rounded-card border border-dourado-claro bg-white p-4 shadow-suave ${item.esgotado ? 'opacity-70' : ''}`}>
               {item.fotoUrl && <img src={item.fotoUrl} alt="" loading="lazy" className="aspect-[4/3] w-full rounded-card object-cover" />}
               <h3 className="mt-3 text-2xl">{item.nome}</h3>
+              {item.viagem && <p className="text-sm text-salvia-escuro">Para a viagem: {item.viagem.nome}</p>}
               {item.descricao && <p className="mt-1 text-grafite-suave">{item.descricao}</p>}
               <p className="mt-2 text-lg">{formatarCentavos(item.precoCentavos)}</p>
               {item.fracionavel && (

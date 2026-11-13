@@ -4,9 +4,9 @@ import type { ItemVitrine } from './usePresentes';
 
 function itens(): ItemVitrine[] {
   return [
-    { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 30000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, linkLoja: 'https://loja.com/tacas' },
-    { id: 2, nome: 'Liquidificador', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 0, progresso: 0, esgotado: true, linkLoja: null },
-    { id: 3, nome: 'Passeio de barco', descricao: 'Na lua de mel', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, linkLoja: null },
+    { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 30000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, linkLoja: 'https://loja.com/tacas', viagem: null },
+    { id: 2, nome: 'Liquidificador', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 0, progresso: 0, esgotado: true, linkLoja: null, viagem: null },
+    { id: 3, nome: 'Passeio de barco', descricao: 'Na lua de mel', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, linkLoja: null, viagem: { nome: 'Lua de mel' } },
   ];
 }
 

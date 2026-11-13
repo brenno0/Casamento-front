@@ -5,8 +5,8 @@ import { calcularCobranca, navegador } from './checkout';
 import type { ItemVitrine } from './usePresentes';
 
 const ITENS: ItemVitrine[] = [
-  { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, linkLoja: null },
-  { id: 3, nome: 'Passeio de barco', descricao: '', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, linkLoja: null },
+  { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, linkLoja: null, viagem: null },
+  { id: 3, nome: 'Passeio de barco', descricao: '', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, linkLoja: null, viagem: null },
 ];
 
 function api(opts: { disponivel?: boolean; erroCheckout?: string } = {}) {

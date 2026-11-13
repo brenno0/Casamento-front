@@ -7,6 +7,7 @@ import { urlArquivo } from '../../lib/upload';
 import { FINANCEIRO_QUERY_KEY } from '../financeiro/useFinanceiro';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { moverNaLista } from '../site-admin/useSiteAdmin';
+import { useViagens } from '../viagens/useViagens';
 
 export interface ItemPainel {
   id: number;
@@ -21,6 +22,7 @@ export interface ItemPainel {
   linkLoja: string | null;
   ordem: number;
   ativo: boolean;
+  viagemId: number | null;
   restante: number;
   progresso: number;
   esgotado: boolean;
@@ -149,7 +151,9 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
     linkLoja: item?.linkLoja ?? '',
     ativo: item?.ativo ?? true,
     fotoArquivoId: item?.fotoArquivoId ?? null,
+    viagemId: item?.viagemId ?? null,
   });
+  const viagens = useViagens();
   const preco = parseCentavos(d.preco);
   const cota = parseCentavos(d.cota);
   const qtd = Number(d.quantidade);
@@ -169,6 +173,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
         linkLoja: d.linkLoja.trim() || null,
         ativo: d.ativo,
         fotoArquivoId: d.fotoArquivoId,
+        viagemId: d.viagemId,
       },
       { onSuccess: onClose },
     );
@@ -213,6 +218,15 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
           <label className="block">
             <span className="text-sm text-grafite-suave">Link da loja (opcional)</span>
             <input type="url" value={d.linkLoja} onChange={(e) => set('linkLoja', e.target.value)} className={inputClass} />
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="text-sm text-grafite-suave">Para uma viagem (opcional)</span>
+            <select value={d.viagemId ?? ''} onChange={(e) => set('viagemId', e.target.value === '' ? null : Number(e.target.value))} className={inputClass}>
+              <option value="">Nenhuma</option>
+              {viagens.data?.map((v) => (
+                <option key={v.id} value={v.id}>{v.nome}</option>
+              ))}
+            </select>
           </label>
           <div className="sm:col-span-2">
             <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />

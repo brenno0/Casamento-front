@@ -13,6 +13,7 @@ export interface ItemVitrine {
   progresso: number;
   esgotado: boolean;
   linkLoja: string | null;
+  viagem: { nome: string } | null;
 }
 
 /** Camada da vitrine: `null` = pública; string = token do convite. */

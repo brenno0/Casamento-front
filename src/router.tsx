@@ -11,6 +11,8 @@ import { ConvidadosPage } from './features/convidados/ConvidadosPage';
 import { FinanceiroPage } from './features/financeiro/FinanceiroPage';
 import { FornecedorDetalhePage } from './features/fornecedores/FornecedorDetalhePage';
 import { FornecedoresPage } from './features/fornecedores/FornecedoresPage';
+import { ViagemPage } from './features/viagens/ViagemPage';
+import { ViagensPage } from './features/viagens/ViagensPage';
 import { MuralAdminPage } from './features/mural/MuralAdminPage';
 import { RetornoPage } from './features/presentes/RetornoPage';
 import { PresentesAdminPage } from './features/presentes-admin/PresentesAdminPage';
@@ -38,6 +40,8 @@ export const routes: RouteObject[] = [
           { path: 'site', element: <SiteAdminPage /> },
           { path: 'presentes', element: <PresentesAdminPage /> },
           { path: 'mural', element: <MuralAdminPage /> },
+          { path: 'viagens', element: <ViagensPage /> },
+          { path: 'viagens/:id', element: <ViagemPage /> },
           { path: 'fornecedores/:id', element: <FornecedorDetalhePage /> },
           { path: ':modulo', element: <PainelModuloPage /> },
           { path: '*', element: <NotFoundPage embedded /> },
