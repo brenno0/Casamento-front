@@ -82,12 +82,20 @@ export function mockFetch({ logado = false, falhar = [], rotas }: MockFetchOptio
     if (falhar.includes(path)) return erro(500, 'INTERNAL_ERROR');
     if (path === '/api/publico/casal' && method === 'GET') return json(estado.casal);
     if (path === '/api/publico/site' && method === 'GET') return json(siteFake(estado));
+    {
+      const extraPublico = path.startsWith('/api/publico/')
+        ? rotas?.({ method, path: path.slice('/api'.length), search, body: typeof init.body === 'string' ? JSON.parse(init.body) : undefined })
+        : undefined;
+      if (extraPublico) return extraPublico;
+    }
+    if (path === '/api/publico/presentes' && method === 'GET') return json([]);
     if (path === `/api/convite/${TOKEN_FAKE}/site` && method === 'GET') return json(siteConviteFake(estado));
     if (path.startsWith('/api/convite/') && path.endsWith('/site')) return erro(404, 'CONVITE_NOT_FOUND');
     if (path.startsWith('/api/convite/')) {
       const extra = rotas?.({ method, path: path.slice('/api'.length), search, body: typeof init.body === 'string' ? JSON.parse(init.body) : undefined });
       if (extra) return extra;
     }
+    if (path === `/api/convite/${TOKEN_FAKE}/presentes` && method === 'GET') return json([]);
 
     if (path === '/api/auth/login' && method === 'POST') {
       if (body.email === CONTA_FAKE.email && body.senha === SENHA_FAKE) {

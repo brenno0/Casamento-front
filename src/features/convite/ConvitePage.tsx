@@ -4,6 +4,7 @@ import { ApiError } from '../../lib/api';
 import { Carregando } from '../site/HomePage';
 import { SitePage } from '../site/SitePage';
 import { useSiteConvite, useSitePublico } from '../site/useSite';
+import { Vitrine } from '../presentes/Vitrine';
 import { Envelope } from './Envelope';
 import { envelopeJaAberto } from './envelopeStorage';
 import { RsvpSection } from './RsvpSection';
@@ -24,7 +25,14 @@ export function ConvitePage() {
       <>
         {!aberto && <Envelope token={token} nomeGrupo={convite.data.grupo.nome} onAberto={() => setAberto(true)} />}
         <div aria-hidden={!aberto || undefined}>
-          <SitePage camada="convite" site={convite.data} slots={{ rsvp: <RsvpSection token={token} /> }} />
+          <SitePage
+            camada="convite"
+            site={convite.data}
+            slots={{
+              rsvp: <RsvpSection token={token} />,
+              presentes: <Vitrine token={token} nomePadrao={convite.data.grupo.nome} />,
+            }}
+          />
         </div>
       </>
     );
@@ -34,6 +42,7 @@ export function ConvitePage() {
       <SitePage
         camada="publico"
         site={publico.data}
+        slots={{ presentes: <Vitrine token={null} /> }}
         aviso={
           <p role="status" className="bg-rosa-antigo-claro px-gutter py-2 text-center text-sm text-rosa-antigo-escuro">
             Não encontramos este convite. Confira o link que você recebeu; abaixo está o site aberto.
