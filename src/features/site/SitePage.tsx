@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { formatDataCurta, formatDataExtenso } from '../../lib/date';
 import { useAnimacoesSite } from './animacoes';
 import { CAPITULOS, COMO_CHEGAR, DUVIDAS, FOTO_CAPA, GALERIA_FIXA, IGREJA_AQUARELA } from './conteudo';
+import { Icone, type NomeIcone } from './Icones';
 import { MapaLocal } from './MapaLocal';
 import { Navegacao } from './Navegacao';
 import {
@@ -56,6 +57,10 @@ export function SitePage(props: Props) {
     ['como-chegar', 'Como chegar', true],
   ];
 
+  // Seções visíveis numeradas como num convite: I, II, III...
+  const numeros = new Map(secoes.filter(([, , mostrar]) => mostrar).map(([id], i) => [id, ROMANOS[i] ?? String(i + 1)]));
+  const n = (id: string) => numeros.get(id);
+
   return (
     <main ref={raiz} id="topo" className="bg-linho text-tinta">
       <Navegacao
@@ -69,10 +74,17 @@ export function SitePage(props: Props) {
       <Hero site={site} saudacao={convite ? (props.site as SiteConvite).grupo : undefined} />
 
       {historia.length > 0 && (
-        <Secao id="historia" titulo="Nossa história" largo>
-          <ol className="space-y-24 md:space-y-32">
+        <Secao id="historia" titulo="Nossa história" numero={n('historia')} icone="anel" largo>
+          <ol data-linha-do-tempo className="relative space-y-24 pl-8 md:space-y-32 md:pl-14">
+            {/* Fio da história: desenha-se com a rolagem, com um ponto em cada capítulo. */}
+            <span data-linha aria-hidden="true" className="absolute top-3 bottom-3 left-[5px] w-px origin-top bg-folha-escuro md:left-[7px]" />
             {historia.map((h, i) => (
-              <li key={h.id} className={`grid items-center gap-8 md:gap-16 ${h.fotoUrl ? 'md:grid-cols-12' : ''}`}>
+              <li key={h.id} className={`relative grid items-center gap-8 md:gap-16 ${h.fotoUrl ? 'md:grid-cols-12' : ''}`}>
+                <span
+                  data-ponto
+                  aria-hidden="true"
+                  className="absolute top-2 -left-8 h-[11px] w-[11px] md:top-1/2 md:-translate-y-1/2 rounded-full border border-verde bg-vela md:-left-14 md:h-[15px] md:w-[15px]"
+                />
                 {h.fotoUrl && (
                   <div data-parallax className={`w-full max-w-xs justify-self-center md:col-span-4 ${i % 2 ? 'md:order-2 md:col-start-9' : ''}`}>
                     <figure data-reveal className={`bg-papel p-3 shadow-suave ${i % 2 ? 'rotate-[1.5deg]' : '-rotate-[1.5deg]'}`}>
@@ -95,33 +107,46 @@ export function SitePage(props: Props) {
         <img src={IGREJA_AQUARELA} alt="" loading="lazy" data-pintar className="aquarela mx-auto block w-full max-w-5xl" />
       </figure>
 
-      <Secao id="locais" titulo="Cerimônia e festa" tom="verde" largo>
-        <div className="grid gap-16 md:grid-cols-2 md:gap-0 md:divide-x md:divide-linho/20">
-          {site.locais.map((l, i) => (
-            <article key={l.tipo} data-reveal aria-label={LABEL_LOCAL[l.tipo]} className={i === 0 ? 'md:pr-16' : 'md:pl-16'}>
-              <p data-contar={Number(l.horario.split(':')[0])} className="font-display text-6xl leading-none text-vela tabular-nums sm:text-7xl">
-                {l.horario.replace(':', 'h')}
-              </p>
-              <h3 className="mt-6 text-3xl text-linho">{l.nome}</h3>
-              <p className="mt-2 text-linho/80">
-                {LABEL_LOCAL[l.tipo]} · {formatDataExtenso(l.data)}
-              </p>
-              {ehConvite(l) && <DetalhesLocal l={l} />}
-            </article>
-          ))}
-        </div>
-        {!convite && (
-          <p className="mt-16 text-linho/80">
-            O mapa está no{' '}
-            <a href="#como-chegar" className="underline">
-              fim da página
-            </a>
-            .
+      <Secao id="locais" titulo="Cerimônia e festa" numero={n('locais')} icone="tacas" tom="verde" largo>
+        <div data-reveal className="cartao-mesa cardapio mx-auto max-w-2xl px-8 py-14 text-center text-tinta sm:px-16 sm:py-16">
+          <p className="font-display text-2xl text-verde">
+            {site.casal.nomeNoiva.charAt(0)} <span className="font-caslon text-lg text-musgo italic">&amp;</span> {site.casal.nomeNoivo.charAt(0)}
           </p>
-        )}
+          <p className="versalete mt-3 text-verde-suave">{formatDataExtenso(site.casal.dataCasamento)}</p>
+          <div className="mt-10 space-y-10">
+            {site.locais.map((l, i) => (
+              <article key={l.tipo} aria-label={LABEL_LOCAL[l.tipo]}>
+                {i > 0 && (
+                  <p aria-hidden="true" className="mb-10 flex items-center justify-center gap-4 text-musgo">
+                    <span className="h-px w-16 bg-folha-escuro" />
+                    <span className="font-caslon text-xl italic">&amp;</span>
+                    <span className="h-px w-16 bg-folha-escuro" />
+                  </p>
+                )}
+                <p className="versalete flex items-center justify-center gap-2 text-musgo">
+                  <Icone nome="relogio" className="h-4 w-4" />
+                  {LABEL_LOCAL[l.tipo]}
+                </p>
+                <p data-contar={Number(l.horario.split(':')[0])} className="mt-3 font-display text-6xl leading-none text-verde tabular-nums">
+                  {l.horario.replace(':', 'h')}
+                </p>
+                <h3 className="mt-4 text-2xl">{l.nome}</h3>
+                {ehConvite(l) && <DetalhesLocal l={l} />}
+              </article>
+            ))}
+          </div>
+          {!convite && (
+            <p className="mt-12 flex items-center justify-center gap-2 text-verde-suave">
+              <Icone nome="alfinete" className="h-4 w-4" />
+              <a href="#como-chegar" className="underline">
+                Mapa e rotas no fim da página
+              </a>
+            </p>
+          )}
+        </div>
       </Secao>
 
-      <Secao id="dress-code" titulo="Dress code">
+      <Secao id="dress-code" titulo="Dress code" numero={n('dress-code')} icone="cabide">
         <p data-reveal className="max-w-[40ch] font-caslon text-2xl leading-relaxed whitespace-pre-line text-verde">{site.dressCode.texto}</p>
         {site.dressCode.paleta.length > 0 && (
           <ul data-paleta aria-label="Paleta sugerida" className="mt-10 flex flex-wrap gap-4">
@@ -135,24 +160,30 @@ export function SitePage(props: Props) {
       </Secao>
 
       {convite && (
-        <Secao id="rsvp" titulo="Confirmar presença" tom="papel">
+        <Secao id="rsvp" titulo="Confirmar presença" numero={n('rsvp')} icone="envelope" tom="papel">
+          {convite && (
+            <div data-reveal className="cartao-mesa mb-12 max-w-sm px-8 py-7 text-center">
+              <p className="versalete text-musgo">Lugar reservado para</p>
+              <p className="mt-2 font-caslon text-2xl text-verde">{(props.site as SiteConvite).grupo.nome}</p>
+            </div>
+          )}
           {slots.rsvp ?? <p className="text-verde-suave">A confirmação de presença abre em breve.</p>}
         </Secao>
       )}
 
-      <Secao id="presentes" titulo="Lista de presentes" largo>
+      <Secao id="presentes" titulo="Lista de presentes" numero={n('presentes')} icone="presente" largo>
         {slots.presentes ?? <p className="text-verde-suave">A lista de presentes chega em breve.</p>}
       </Secao>
 
-      <Galeria fotos={galeria} />
+      <Galeria fotos={galeria} numero={n('galeria')} />
 
       {convite && (
-        <Secao id="mural" titulo="Mural de recados" tom="papel">
+        <Secao id="mural" titulo="Mural de recados" numero={n('mural')} icone="pena" tom="papel">
           {slots.mural ?? <p className="text-verde-suave">O mural de recados abre em breve.</p>}
         </Secao>
       )}
 
-      <Secao id="faq" titulo="Dúvidas">
+      <Secao id="faq" titulo="Dúvidas" numero={n('faq')} icone="balao">
         <div data-cascata className="border-t border-folha-escuro">
           {DUVIDAS.map((f) => (
             <details key={f.id} className="group border-b border-folha-escuro">
@@ -169,7 +200,7 @@ export function SitePage(props: Props) {
         </div>
       </Secao>
 
-      <ComoChegar />
+      <ComoChegar numero={n('como-chegar')} />
 
       <footer data-rodape className="overflow-hidden bg-verde px-gutter py-24 text-center text-linho">
         <p className="font-display text-5xl sm:text-6xl">
@@ -195,32 +226,47 @@ const TONS = {
   verde: 'sobre-verde bg-verde text-linho',
 } as const;
 
+const ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
 function Secao({
   id,
   titulo,
+  numero,
+  icone,
   tom = 'linho',
   largo = false,
   children,
 }: {
   id: string;
   titulo: string;
+  numero?: string;
+  icone?: NomeIcone;
   tom?: keyof typeof TONS;
   largo?: boolean;
   children: ReactNode;
 }) {
   const h2 = (
-    <h2 id={`${id}-titulo`} aria-label={titulo} data-titulo className={`text-4xl sm:text-5xl ${tom === 'verde' ? 'text-linho' : ''}`}>
-      {titulo.split(' ').map((palavra, i) => (
-        <span key={i}>
-          {i > 0 && ' '}
-          <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-            <span data-palavra className="inline-block">
-              {palavra}
+    <div>
+      {(numero || icone) && (
+        <p data-reveal aria-hidden="true" className={`versalete mb-5 flex items-center gap-3 ${tom === 'verde' ? 'text-vela' : 'text-musgo'}`}>
+          {numero}
+          <span className="h-px w-10 bg-current opacity-60" />
+          {icone && <Icone nome={icone} className="h-5 w-5" />}
+        </p>
+      )}
+      <h2 id={`${id}-titulo`} aria-label={titulo} data-titulo className={`text-4xl sm:text-5xl ${tom === 'verde' ? 'text-linho' : ''}`}>
+        {titulo.split(' ').map((palavra, i) => (
+          <span key={i}>
+            {i > 0 && ' '}
+            <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
+              <span data-palavra className="inline-block">
+                {palavra}
+              </span>
             </span>
           </span>
-        </span>
-      ))}
-    </h2>
+        ))}
+      </h2>
+    </div>
   );
   return (
     <section id={id} aria-labelledby={`${id}-titulo`} className={`scroll-mt-14 px-gutter py-24 md:py-section ${TONS[tom]}`}>
@@ -333,10 +379,10 @@ function DetalhesLocal({ l }: { l: LocalConvite }) {
   const links = linksMapa(l);
   return (
     <div className="mt-6">
-      {l.endereco && <p className="text-lg text-linho">{l.endereco}</p>}
+      {l.endereco && <p className="text-lg text-verde-suave">{l.endereco}</p>}
       {l.latitude !== null && l.longitude !== null && <MapaLocal latitude={l.latitude} longitude={l.longitude} nome={l.nome} />}
       {links && (
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href={links.google} target="_blank" rel="noreferrer" className="botao">
             Google Maps
           </a>
@@ -352,7 +398,7 @@ function DetalhesLocal({ l }: { l: LocalConvite }) {
 /** Inclinação de cada foto no varal, em graus. */
 const GIROS = [-3, 2, -1.5, 3, -2.5, 1.5];
 
-function Galeria({ fotos }: { fotos: { id: number; fotoUrl: string; legenda: string }[] }) {
+function Galeria({ fotos, numero }: { fotos: { id: number; fotoUrl: string; legenda: string }[]; numero?: string }) {
   const [aberta, setAberta] = useState<number | null>(null);
   const atual = fotos.find((f) => f.id === aberta);
   const varal = useRef<HTMLUListElement>(null);
@@ -367,7 +413,7 @@ function Galeria({ fotos }: { fotos: { id: number; fotoUrl: string; legenda: str
     return () => document.removeEventListener('keydown', onKey);
   }, [aberta]);
   return (
-    <Secao id="galeria" titulo="Galeria" largo>
+    <Secao id="galeria" titulo="Galeria" numero={numero} icone="camera" largo>
       <div className="relative -mx-gutter">
         {/* O varal: um fio levemente curvado atravessando a seção. */}
         <svg aria-hidden="true" viewBox="0 0 1000 40" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 top-3 h-10 w-full text-folha-escuro">
@@ -411,7 +457,7 @@ function Galeria({ fotos }: { fotos: { id: number; fotoUrl: string; legenda: str
 }
 
 /** Mapa no fim da página: Google Maps do local escolhido e atalhos de rota. */
-function ComoChegar() {
+function ComoChegar({ numero }: { numero?: string }) {
   const locais = COMO_CHEGAR.filter((l): l is typeof l & { endereco: string } => l.endereco !== null);
   const pendentes = COMO_CHEGAR.filter((l) => l.endereco === null);
   const [ativo, setAtivo] = useState(0);
@@ -419,7 +465,7 @@ function ComoChegar() {
   if (!local) return null;
   const q = encodeURIComponent(local.endereco);
   return (
-    <Secao id="como-chegar" titulo="Como chegar" tom="papel" largo>
+    <Secao id="como-chegar" titulo="Como chegar" numero={numero} icone="alfinete" tom="papel" largo>
       {locais.length > 1 && (
         <div role="tablist" aria-label="Locais" className="mb-8 flex gap-3">
           {locais.map((l, i) => (

@@ -72,6 +72,20 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
         gsap.from(el, { opacity: 0, y: 36, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
       });
 
+      // Fio da história se desenha com a rolagem; cada ponto salta ao ser alcançado (AnimeJS).
+      todos('[data-linha-do-tempo]').forEach((lista) => {
+        const linha = lista.querySelector('[data-linha]');
+        if (linha) {
+          gsap.fromTo(linha, { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: { trigger: lista, start: 'top 70%', end: 'bottom 60%', scrub: 0.6 } });
+        }
+        lista.querySelectorAll<HTMLElement>('[data-ponto]').forEach((ponto) => {
+          gsap.set(ponto, { opacity: 0 });
+          aoEntrar(ponto, () => {
+            animes.push(animate(ponto, { opacity: [0, 1], scale: [0, 1], duration: 1000, ease: 'outElastic(1, .5)' }));
+          }, 'top 65%');
+        });
+      });
+
       todos('[data-parallax]').forEach((el) => {
         gsap.fromTo(el, { yPercent: 10 }, { yPercent: -10, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
