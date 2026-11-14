@@ -7,9 +7,9 @@
 
 @theme {
   /* Paleta */
-  --color-linho: #f6f7f3;
-  --color-linho-escuro: #e9ede5;
-  --color-papel: #ffffff;
+  --color-linho: #f7f3ea;
+  --color-linho-escuro: #efe8d8;
+  --color-papel: #fffdf8;
   --color-tinta: #17241c;
   --color-verde: #1f3d2e;
   --color-verde-suave: #4d6255;
@@ -19,12 +19,16 @@
   --color-folha-escuro: #a9b9a8;
   --color-vela: #f0d277;
   --color-vela-claro: #faf0cc;
+  --color-ocre: #c9963f;
+  --color-terracota: #b8674f;
   --color-erro: #a3352b;
 
   /* Tipografia */
   --font-display: 'Libre Caslon Display', 'Libre Caslon Text', 'Big Caslon', Georgia, serif;
   --font-caslon: 'Libre Caslon Text', 'Big Caslon', Georgia, serif;
   --font-sans: 'Figtree', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  /* Nomes do casal na abertura. */
+  --font-nomes: 'BriselyRegular', var(--font-display);
 
   /* Espaçamentos */
   --spacing-gutter: 1.5rem;
@@ -41,22 +45,18 @@
   --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@font-face {
+  font-family: 'BriselyRegular';
+  src:
+    url('/fonts/BriselyRegular.woff') format('woff'),
+    url('/fonts/BriselyRegular.ttf') format('truetype');
+  font-display: swap;
+}
+
 @layer base {
   html {
     color-scheme: light;
     scrollbar-color: var(--color-folha-escuro) var(--color-linho);
-  }
-
-  /* Grão de papel bem leve sobre tudo. */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    pointer-events: none;
-    opacity: 0.05;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   }
 
   body {
@@ -195,94 +195,59 @@
     mask-composite: intersect;
   }
 
-  /* Galeria em varal: polaroides presas por prendedor, levemente tortas, que balançam. */
-  .polaroide {
-    position: relative;
-    transform: rotate(calc(var(--giro, 0deg) + var(--balanco, 0deg)));
-    transform-origin: 50% 0;
-    transition: transform 500ms var(--ease-saida);
+  /* Papel de aquarela escaneado, como está no arquivo. A versão clara ganha um véu branco para alternar com a outra. */
+  .textura-papel {
+    background-image: url('/images/aquarela/papel-aquarela.webp');
+    background-size: 1024px;
   }
-  .polaroide:hover,
-  .polaroide:focus-within {
-    animation: balancar 1.2s var(--ease-saida);
-    z-index: 1;
+
+  .textura-papel-clara {
+    background-image: linear-gradient(rgb(255 255 255 / 0.45)), url('/images/aquarela/papel-aquarela.webp');
+    background-size: auto, 1024px;
   }
-  .prendedor {
+
+  /* Borda de papel rasgado: a seção sobe sobre a anterior com a sua própria cor, em vez de um corte reto. */
+  .borda-rasgada::before {
+    content: '';
     position: absolute;
-    top: -0.75rem;
-    left: 50%;
-    z-index: 1;
-    width: 0.875rem;
+    inset: auto 0 calc(100% - 1px);
     height: 2.25rem;
-    translate: -50% 0;
-    border-radius: 2px;
-    background: linear-gradient(to right, #c9a46a, #e2c38f 50%, #c9a46a);
-    box-shadow: 0 1px 2px rgb(23 36 28 / 0.25);
+    pointer-events: none;
+    background: inherit;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='36' preserveAspectRatio='none'%3E%3Cfilter id='r' x='0' y='-50%25' width='100%25' height='200%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .08' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='26' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Crect x='-40' y='20' width='980' height='60' filter='url(%23r)'/%3E%3C/svg%3E")
+      repeat-x bottom / 900px 100%;
+  }
+
+  /* Clarão cor de papel atrás do texto: a pintura recua ali e o texto se destaca. */
+  .nomes-sobre-aquarela {
+    isolation: isolate;
+    text-shadow:
+      0 0 0.12em var(--color-linho),
+      0 0 0.3em var(--color-linho);
+  }
+
+  .nomes-sobre-aquarela::before {
+    content: '';
+    position: absolute;
+    inset: -2.5rem -3rem;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(from var(--color-linho) r g b / 0.7) 30%, rgb(from var(--color-linho) r g b / 0.5) 60%, transparent);
+  }
+
+  /* Escrita à mão: `--escrito` é até onde a tinta já chegou, com a borda inclinada como a letra. */
+  .escrita {
+    mask-image: linear-gradient(100deg, black var(--escrito, 200%), transparent calc(var(--escrito, 200%) + 10%));
   }
 
   /*
-   * Envelope da abertura. Caixa 3:4; o envelope ocupa a base (47% da altura),
-   * a foto (88% da largura) começa dentro dele e sobe até o topo.
+   * A pintura ganha cor por regiões largas que se sobrepõem: cada variável (0 a 1) é a opacidade da região.
+   * Sem animação, tudo vale 1 e a pintura aparece inteira.
    */
-  .envelope {
-    --papel-envelope: #efe8d8;
-    --papel-envelope-escuro: #e2d8c2;
-    perspective: 1400px;
-    /* Some o que estiver abaixo do envelope: a foto escondida dentro dele. */
-    clip-path: inset(-50% -50% 0 -50%);
-  }
-  .envelope-fundo,
-  .envelope-bolso,
-  .envelope-aba {
-    position: absolute;
-    inset-inline: 0;
-  }
-  .envelope-fundo {
-    bottom: 0;
-    height: 47%;
-    background: var(--papel-envelope-escuro);
-    border-radius: 2px;
-    z-index: 1;
-  }
-  .envelope-bolso {
-    bottom: 0;
-    height: 47%;
-    z-index: 20;
-    background:
-      linear-gradient(to top right, transparent 49.5%, rgb(23 36 28 / 0.06) 50%, transparent 50.5%),
-      linear-gradient(to top left, transparent 49.5%, rgb(23 36 28 / 0.06) 50%, transparent 50.5%),
-      var(--papel-envelope);
-    clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
-    filter: drop-shadow(0 -1px 0 rgb(23 36 28 / 0.08));
-  }
-  .envelope-selo {
-    position: absolute;
-    top: 46%;
-    left: 50%;
-    translate: -50% -15%;
-    font-family: var(--font-display);
-    font-size: 1.125rem;
-    color: var(--color-musgo);
-    white-space: nowrap;
-  }
-  .envelope-aba {
-    top: 53%;
-    height: 24%;
-    z-index: 30;
-    background: linear-gradient(to bottom, var(--papel-envelope-escuro), var(--papel-envelope));
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
-    transform-origin: 50% 0;
-    /* Estado final: aberta, atrás da foto. `animacoes.ts` anima a partir do fechado. */
-    transform: rotateX(180deg);
-    z-index: 5;
-  }
-  .envelope-foto {
-    position: absolute;
-    top: 0;
-    left: 6%;
-    width: 88%;
-    z-index: 40;
-    transform: rotate(-2deg);
+  .aquarela-regioes {
+    mask-image:
+      linear-gradient(to right, transparent 40%, rgb(0 0 0 / var(--direita, 1)) 75%),
+      linear-gradient(to right, transparent 15%, rgb(0 0 0 / var(--meio, 1)) 40%, rgb(0 0 0 / var(--meio, 1)) 60%, transparent 85%),
+      linear-gradient(to left, transparent 40%, rgb(0 0 0 / var(--esquerda, 1)) 75%);
   }
 
   /* Cartão de papel sobre o verde: botões voltam às cores do papel. */
@@ -359,18 +324,3 @@
   }
 }
 
-/* Polaroide balançando no varal. */
-@keyframes balancar {
-  0% {
-    transform: rotate(var(--giro, 0deg));
-  }
-  30% {
-    transform: rotate(calc(var(--giro, 0deg) * -1.4));
-  }
-  60% {
-    transform: rotate(calc(var(--giro, 0deg) * 0.8));
-  }
-  100% {
-    transform: rotate(var(--giro, 0deg));
-  }
-}

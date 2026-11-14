@@ -5,7 +5,10 @@ const foto = (arquivo: string) => `/images/casal/${arquivo}`;
 
 export const FOTO_CAPA = { fotoUrl: foto('capa.jpg'), legenda: 'Nayane e Brenno' };
 
-export const IGREJA_AQUARELA = foto('igreja.jpg');
+/** Aquarelas da identidade (vinhetas, ramos, envelope), servidas de `public/images/aquarela`. */
+export const aquarela = (arquivo: string) => `/images/aquarela/${arquivo}`;
+
+export const IGREJA_AQUARELA = aquarela('igreja.webp');
 
 /**
  * Capítulos da história, na ordem do painel: primeiro encontro, primeira viagem, o pedido.

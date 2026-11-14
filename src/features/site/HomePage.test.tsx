@@ -9,7 +9,7 @@ describe('site público', () => {
     renderRoute('/');
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Nayane & Brenno' })).toBeInTheDocument();
-    expect(screen.getAllByText('17 de julho de 2027')[0]).toHaveAttribute('datetime', '2027-07-17');
+    expect(screen.getByText('17.JULHO.2027')).toHaveAttribute('datetime', '2027-07-17');
     expect(screen.getByRole('heading', { name: 'O primeiro encontro' })).toBeInTheDocument();
     const cerimonia = screen.getByRole('article', { name: 'Cerimônia' });
     expect(within(cerimonia).getByText('Igreja Matriz')).toBeInTheDocument();

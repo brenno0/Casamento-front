@@ -12,9 +12,10 @@ import { prefereMenosMovimento } from '../../lib/motion';
  * aqui só se anima a partir dele, então sem JS ou com menos movimento tudo aparece no lugar.
  *
  * Marcadores lidos dentro de `ref`:
- * - `[data-hero]`, `[data-hero-nomes]`, `[data-hero-linha]`, `[data-hero-regua]`, `[data-hero-info]`,
+ * - `[data-hero]`, `[data-hero-nomes]`, `[data-hero-escrita]` (`--escrito` em `.escrita`), `[data-hero-info]`,
  *   `[data-hero-saudacao]`: abertura e a saída dela ao rolar.
- * - `.envelope`, `.envelope-aba`, `.envelope-foto`: a foto saindo do envelope (e inclinando com o mouse).
+ * - `[data-hero-igreja]`: a aquarela ganha cor por regiões (variáveis de `.aquarela-regioes`).
+ * - `[data-envelope]` com `[data-envelope-video]`, `[data-envelope-cartao]` e `[data-envelope-bolso]`: o envelope se abre e a foto sobe.
  * - `[data-titulo] [data-palavra]`: títulos de seção, letra por letra.
  * - `[data-linhas]`: parágrafos que sobem linha por linha.
  * - `[data-reveal]`: sobe e aparece ao rolar. `[data-parallax]`: desliza com a rolagem.
@@ -23,7 +24,7 @@ import { prefereMenosMovimento } from '../../lib/motion';
  * - `[data-pintar]`: a aquarela se pinta de baixo para cima com a rolagem.
  * - `[data-cardapio]`: o cartão é pousado sobre a mesa. `[data-filete]`: filetes que se desenham.
  * - `[data-contar]`: horário que conta até o valor (`data-contar="16"`).
- * - `[data-varal]`: varal que anda de lado com a rolagem (desktop) e balança com a velocidade.
+ * - `[data-varal]` com `[data-moldura]`: fotos que andam de lado com a rolagem (desktop).
  * - `[data-paleta]`: amostras de cor saltam.
  * - `[data-alfinete]`: alfinete do mapa cai e quica. `[data-cascata]`: filhos entram em cascata.
  * - `[data-rodape]`: nomes do rodapé, letra por letra. `[data-progresso]`: barra de leitura.
@@ -66,59 +67,64 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
       }
 
       // ── Abertura ─────────────────────────────────────────────────────────────
-      const linhasHero = todos('[data-hero-linha]');
-      const letrasHero = linhasHero.length ? SplitText.create(linhasHero, { type: 'chars' }).chars : [];
+      // Em ordem: a igreja começa a ser pintada, os nomes são escritos por cima dela, depois entram a data e a contagem, abaixo.
+      const ATRASO_ABERTURA = 0.3;
+      const INICIO_NOMES = 2.2;
+      const INICIO_DATA = 5;
+      gsap.set(todos('[data-hero-escrita]'), { '--escrito': '-12%' });
       gsap
-        .timeline({ defaults: { ease: 'expo.out' }, delay: 0.25 })
-        .from(letrasHero, { yPercent: 120, rotateX: -90, rotate: 6, transformOrigin: '50% 100%', duration: 1.4, stagger: 0.035 })
-        .from(todos('[data-hero-regua]'), { scaleX: 0, transformOrigin: '0 50%', duration: 1.4 }, '-=1')
-        .from(todos('[data-hero-info] > *'), { y: 28, opacity: 0, duration: 1, stagger: 0.09 }, '-=1.1')
-        .from(todos('[data-hero-saudacao]'), { y: 40, opacity: 0, rotate: -2, duration: 1.2 }, '-=0.7');
+        .timeline({ defaults: { ease: 'expo.out' }, delay: ATRASO_ABERTURA })
+        .to(todos('[data-hero-escrita]'), { '--escrito': '112%', duration: 1.6, ease: 'sine.inOut', stagger: 1.2 }, INICIO_NOMES)
+        .from(todos('[data-hero-info] > *'), { y: 20, opacity: 0, duration: 1, stagger: 0.09 }, INICIO_DATA)
+        .from(todos('[data-hero-saudacao]'), { y: 40, opacity: 0, rotate: -2, duration: 1.2 }, INICIO_DATA + 0.4);
 
-      const envelope = um('.envelope');
-      const aba = um('.envelope-aba');
-      const foto = um('.envelope-foto');
-      if (envelope && aba && foto) {
+      // A igreja ganha cor por regiões, só com opacidade: direita, um pouco do meio, esquerda, e o meio se completa.
+      const igreja = um('[data-hero-igreja]');
+      if (igreja) {
+        // Escondida desde já, enquanto espera a sua vez.
+        gsap.set(igreja, { '--direita': 0, '--meio': 0, '--esquerda': 0 });
         gsap
-          .timeline({ delay: 0.45 })
-          .from(envelope, { y: 120, rotate: 6, opacity: 0, duration: 1.2, ease: 'expo.out' })
-          .fromTo(aba, { rotateX: 0, zIndex: 30 }, { rotateX: 180, duration: 0.8, ease: 'power3.inOut' }, '-=0.3')
-          .set(aba, { zIndex: 5 })
-          .fromTo(foto, { yPercent: 68, rotate: 0, zIndex: 10 }, { yPercent: -16, rotate: -5, duration: 1.2, ease: 'power3.inOut' }, '-=0.15')
-          .set(foto, { zIndex: 40 })
-          .to(foto, { yPercent: 0, rotate: -2, duration: 1.4, ease: 'elastic.out(1, 0.55)' });
-
-        // Inclina com o mouse, como um cartão na mão.
-        if (temMouse) {
-          gsap.set(envelope, { transformPerspective: 900 });
-          const rx = gsap.quickTo(envelope, 'rotateX', { duration: 0.8, ease: 'power3.out' });
-          const ry = gsap.quickTo(envelope, 'rotateY', { duration: 0.8, ease: 'power3.out' });
-          const mover = (e: PointerEvent) => {
-            const r = envelope.getBoundingClientRect();
-            ry(((e.clientX - r.left) / r.width - 0.5) * 14);
-            rx(-((e.clientY - r.top) / r.height - 0.5) * 10);
-          };
-          const sair = () => {
-            rx(0);
-            ry(0);
-          };
-          envelope.addEventListener('pointermove', mover);
-          envelope.addEventListener('pointerleave', sair);
-          restaurar.push(() => {
-            envelope.removeEventListener('pointermove', mover);
-            envelope.removeEventListener('pointerleave', sair);
-          });
-        }
+          .timeline({ delay: ATRASO_ABERTURA, defaults: { ease: 'sine.inOut' } })
+          .to(igreja, { '--direita': 1, duration: 1.8 })
+          .to(igreja, { '--meio': 0.35, duration: 1.2 }, 1.3)
+          .to(igreja, { '--esquerda': 1, duration: 1.8 }, 2.2)
+          .to(igreja, { '--meio': 1, duration: 1.8 }, 3.6);
       }
 
-      // A abertura sai de cena ao rolar: nomes sobem e esmaecem, envelope desce e gira.
+      // O envelope se abre em vídeo e, com a aba levantada, a foto sobe de dentro dele.
+      const envelope = um('[data-envelope]');
+      const video = raiz.querySelector<HTMLVideoElement>('[data-envelope-video]');
+      const cartao = um('[data-envelope-cartao]');
+      const bolso = um('[data-envelope-bolso]');
+      if (envelope && video && cartao && bolso) {
+        const aberto = video.poster;
+        video.poster = video.dataset.fechado ?? aberto;
+        // Bolso e cartão só entram com a aba já levantada; antes, cobririam o envelope fechado.
+        const subir = gsap
+          .timeline({ paused: true })
+          .fromTo([bolso, cartao], { opacity: 0 }, { opacity: 1, duration: 0.2 }, 3.3)
+          .fromTo(cartao, { yPercent: 92 }, { yPercent: 0, duration: 1.9, ease: 'power3.out' }, 3.5);
+        aoEntrar(
+          envelope,
+          () => {
+            // Sem reprodução automática, a foto sobe do mesmo jeito.
+            void video.play().catch(() => undefined);
+            subir.restart();
+          },
+          'top 65%',
+        );
+        restaurar.push(() => {
+          video.pause();
+          video.poster = aberto;
+        });
+      }
+
+      // A abertura sai de cena ao rolar: os nomes sobem e esmaecem.
       const hero = um('[data-hero]');
       if (hero) {
         const saida = { trigger: hero, start: 'top top', end: 'bottom top', scrub: true };
         const nomes = um('[data-hero-nomes]');
         if (nomes) gsap.to(nomes, { yPercent: -35, opacity: 0.15, ease: 'none', scrollTrigger: saida });
-        const envolto = um('[data-hero-envelope]');
-        if (envolto) gsap.to(envolto, { y: 160, rotate: 5, scale: 0.92, ease: 'none', scrollTrigger: saida });
       }
 
       // ── Textos ───────────────────────────────────────────────────────────────
@@ -266,38 +272,21 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
         });
       });
 
-      // ── Galeria: o varal anda de lado com a rolagem e balança com a velocidade ──
+      // ── Galeria: as molduras andam de lado com a rolagem ──
       todos('[data-varal]').forEach((lista) => {
         const secao = lista.closest('section');
         if (!secao) return;
-        const prendedores = lista.querySelectorAll<HTMLElement>('.prendedor');
-        const fotos = lista.querySelectorAll<HTMLElement>('[data-polaroide]');
-        gsap.set([...prendedores, ...fotos], { opacity: 0 });
+        const fotos = lista.querySelectorAll<HTMLElement>('[data-moldura]');
+        gsap.set(fotos, { opacity: 0 });
         aoEntrar(lista, () => {
-          animes.push(animate(prendedores, { opacity: [0, 1], translateY: [-20, 0], delay: stagger(70), duration: 600, ease: 'outQuad' }));
-          fotos.forEach((f, n) => {
-            animes.push(
-              animate(f, {
-                opacity: [0, 1],
-                translateY: [-160, 0],
-                rotate: [n % 2 ? 24 : -24, 0],
-                delay: 250 + n * 120,
-                duration: 1800,
-                ease: 'outElastic(1, .4)',
-              }),
-            );
-          });
+          animes.push(animate(fotos, { opacity: [0, 1], translateY: [90, 0], delay: stagger(110), duration: 1300, ease: 'outExpo' }));
         });
-
-        gsap.set(lista, { '--balanco': '0deg' });
-        const balanco = gsap.quickTo(lista, '--balanco', { duration: 0.9, ease: 'power3.out', unit: 'deg' } as Parameters<typeof gsap.quickTo>[2]);
-        const vento = (v: number) => balanco(gsap.utils.clamp(-10, 10, v / -180));
 
         mm.add('(min-width: 768px)', () => {
           // O varal deixa de rolar sozinho: a rolagem da página é que o move.
           secao.dataset.varalAnimado = '';
           lista.scrollLeft = 0;
-          // Até a última polaroide encostar na margem direita, sem sobra.
+          // Até a última foto encostar na margem direita, sem sobra.
           const distancia = () => {
             const ultima = lista.lastElementChild as HTMLElement | null;
             const janela = lista.parentElement?.clientWidth ?? lista.clientWidth;
@@ -315,15 +304,11 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
               pin: true,
               scrub: 0.8,
               invalidateOnRefresh: true,
-              onUpdate: (self) => vento(self.getVelocity()),
             },
           });
           return () => {
             delete secao.dataset.varalAnimado;
           };
-        });
-        mm.add('(max-width: 767px)', () => {
-          ScrollTrigger.create({ trigger: secao, start: 'top bottom', end: 'bottom top', onUpdate: (self) => vento(self.getVelocity()) });
         });
       });
 
