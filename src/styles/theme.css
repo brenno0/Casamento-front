@@ -299,18 +299,21 @@
     @apply bg-verde text-linho;
   }
 
-  /* Varal movido pela rolagem (desktop): sem rolagem própria nem setas. */
-  [data-varal-animado] [data-varal] {
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-  [data-varal-animado] [data-setas] {
-    display: none;
-  }
-
   .campo {
     @apply mt-2 block w-full rounded-card border border-folha-escuro bg-papel px-4 py-3 text-tinta;
   }
+}
+
+/*
+ * Varal movido pela rolagem (desktop): sem rolagem própria nem setas.
+ * Fora das camadas para vencer os utilitários (`overflow-x-auto`, `flex`) do próprio elemento.
+ */
+[data-varal-animado] [data-varal] {
+  overflow: visible;
+  scroll-snap-type: none;
+}
+[data-varal-animado] [data-setas] {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

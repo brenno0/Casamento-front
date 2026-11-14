@@ -208,14 +208,14 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
         gsap.fromTo(
           card,
           { rotateX: 55, y: 160, scale: 0.85, opacity: 0, transformPerspective: 1200, transformOrigin: '50% 100%' },
-          { rotateX: 0, y: 0, scale: 1, opacity: 1, ease: 'none', scrollTrigger: { trigger: card, start: 'top 105%', end: 'top 45%', scrub: 0.8 } },
+          { rotateX: 0, y: 0, scale: 1, opacity: 1, ease: 'none', scrollTrigger: { trigger: card, start: 'top 125%', end: 'top 72%', scrub: 0.8 } },
         );
         gsap.from(card.querySelectorAll('[data-filete]'), {
           scaleX: 0,
           duration: 1.2,
           ease: 'expo.inOut',
           stagger: 0.1,
-          scrollTrigger: { trigger: card, start: 'top 55%', once: true },
+          scrollTrigger: { trigger: card, start: 'top 78%', once: true },
         });
       });
 
