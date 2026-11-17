@@ -287,72 +287,74 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
           </button>
         </form>
       ) : (
-        <div className="flex items-center gap-2">
-          <h2 className="flex-1 truncate text-xl">
+        <div>
+          <h2 className="truncate text-xl" title={coluna.nome}>
             {coluna.nome} <span className="text-base text-verde-suave">({total})</span>
           </h2>
-          <button
-            type="button"
-            aria-label={`Renomear coluna ${coluna.nome}`}
-            onClick={() => {
-              setNome(coluna.nome);
-              setEditando(true);
-              excluir.reset();
-            }}
-            className="rounded-botao px-2 py-0.5 text-sm text-verde-suave hover:bg-linho-escuro"
-          >
-            Renomear
-          </button>
-          <button
-            type="button"
-            aria-label={`Coluna ${coluna.nome} conta como concluída`}
-            aria-pressed={coluna.concluida}
-            title="Tarefas nesta coluna contam como concluídas"
-            disabled={renomear.isPending}
-            onClick={() => {
-              excluir.reset();
-              renomear.mutate({ id: coluna.id, concluida: !coluna.concluida });
-            }}
-            className={`rounded-botao px-2 py-0.5 text-sm hover:bg-linho-escuro disabled:opacity-60 ${
-              coluna.concluida ? 'bg-folha-claro text-tinta' : 'text-verde-suave'
-            }`}
-          >
-            {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
-          </button>
-          {confirmandoExclusao ? (
-            <>
-              <button
-                type="button"
-                disabled={excluir.isPending}
-                onClick={() =>
-                  excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
-                }
-                className="rounded-botao bg-verde px-2 py-0.5 text-sm text-linho disabled:opacity-60"
-              >
-                Confirmar exclusão
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmandoExclusao(false)}
-                className="rounded-botao px-2 py-0.5 text-sm text-verde-suave"
-              >
-                Cancelar
-              </button>
-            </>
-          ) : (
+          <div className="-ml-2 mt-1 flex flex-wrap items-center gap-1">
             <button
               type="button"
-              aria-label={`Excluir coluna ${coluna.nome}`}
+              aria-label={`Renomear coluna ${coluna.nome}`}
               onClick={() => {
-                renomear.reset();
+                setNome(coluna.nome);
+                setEditando(true);
                 excluir.reset();
-                setConfirmandoExclusao(true);
               }}
-              className="rounded-botao px-2 py-0.5 text-sm text-verde hover:bg-vela-claro"
+              className="rounded-botao px-2 py-0.5 text-sm text-verde-suave hover:bg-linho-escuro"
             >
-              Excluir
+              Renomear
             </button>
-          )}
+            <button
+              type="button"
+              aria-label={`Coluna ${coluna.nome} conta como concluída`}
+              aria-pressed={coluna.concluida}
+              title="Tarefas nesta coluna contam como concluídas"
+              disabled={renomear.isPending}
+              onClick={() => {
+                excluir.reset();
+                renomear.mutate({ id: coluna.id, concluida: !coluna.concluida });
+              }}
+              className={`rounded-botao px-2 py-0.5 text-sm hover:bg-linho-escuro disabled:opacity-60 ${
+                coluna.concluida ? 'bg-folha-claro text-tinta' : 'text-verde-suave'
+              }`}
+            >
+              {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
+            </button>
+            {confirmandoExclusao ? (
+              <>
+                <button
+                  type="button"
+                  disabled={excluir.isPending}
+                  onClick={() =>
+                    excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
+                  }
+                  className="rounded-botao bg-verde px-2 py-0.5 text-sm text-linho disabled:opacity-60"
+                >
+                  Confirmar exclusão
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmandoExclusao(false)}
+                  className="rounded-botao px-2 py-0.5 text-sm text-verde-suave"
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                aria-label={`Excluir coluna ${coluna.nome}`}
+                onClick={() => {
+                  renomear.reset();
+                  excluir.reset();
+                  setConfirmandoExclusao(true);
+                }}
+                className="rounded-botao px-2 py-0.5 text-sm text-verde hover:bg-vela-claro"
+              >
+                Excluir
+              </button>
+            )}
+          </div>
         </div>
       )}
       {renomear.isError && (
