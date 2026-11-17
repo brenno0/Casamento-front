@@ -100,20 +100,37 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
         const aberto = video.poster;
         video.poster = video.dataset.fechado ?? aberto;
         // Bolso e cartão só entram com a aba já levantada; antes, cobririam o envelope fechado.
+        const ABA_LEVANTADA = 3.3;
         const subir = gsap
           .timeline({ paused: true })
-          .fromTo([bolso, cartao], { opacity: 0 }, { opacity: 1, duration: 0.2 }, 3.3)
-          .fromTo(cartao, { yPercent: 92 }, { yPercent: 0, duration: 1.9, ease: 'power3.out' }, 3.5);
+          .fromTo([bolso, cartao], { opacity: 0 }, { opacity: 1, duration: 0.2 }, ABA_LEVANTADA)
+          .fromTo(cartao, { yPercent: 92 }, { yPercent: 0, duration: 1.9, ease: 'power3.out' }, ABA_LEVANTADA + 0.2);
+        // O relógio da foto é o do vídeo: só corre quando o vídeo de fato começa a tocar.
+        // Se o vídeo não tocar a tempo (bloqueio, codec, rede), o envelope já aparece aberto e a foto sobe.
+        let espera: gsap.core.Tween | undefined;
+        const semVideo = () => {
+          espera?.kill();
+          video.removeEventListener('playing', comVideo);
+          video.pause();
+          video.poster = aberto;
+          subir.play(ABA_LEVANTADA);
+        };
+        const comVideo = () => {
+          espera?.kill();
+          subir.play(video.currentTime);
+        };
         aoEntrar(
           envelope,
           () => {
-            // Sem reprodução automática, a foto sobe do mesmo jeito.
-            void video.play().catch(() => undefined);
-            subir.restart();
+            video.addEventListener('playing', comVideo, { once: true });
+            espera = gsap.delayedCall(2.5, semVideo);
+            void video.play().catch(semVideo);
           },
           'top 65%',
         );
         restaurar.push(() => {
+          espera?.kill();
+          video.removeEventListener('playing', comVideo);
           video.pause();
           video.poster = aberto;
         });
