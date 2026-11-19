@@ -26,7 +26,7 @@ export function RoteiroPage() {
           <h1 className="text-4xl">Roteiro do dia</h1>
           <p className="text-verde-suave">{formatDataExtenso(data.data)}</p>
         </div>
-        <button type="button" onClick={() => setEditando('nova')} className="rounded-botao bg-verde px-5 py-2 text-linho">
+        <button type="button" onClick={() => setEditando('nova')} className="acao">
           Nova etapa
         </button>
       </div>
@@ -39,14 +39,14 @@ export function RoteiroPage() {
             <li
               key={e.id}
               aria-current={ehAgora ? 'step' : undefined}
-              className={`relative mb-8 rounded-card p-4 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-white shadow-suave' : ''}`}
+              className={`relative mb-8 rounded-card p-4 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-papel shadow-suave' : ''}`}
             >
               <span aria-hidden="true" className={`absolute top-6 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-verde' : 'bg-folha-escuro'}`} />
               <p className="text-3xl tabular-nums">
                 {e.horario}
                 {e.horarioFim && <span className="text-xl text-verde-suave"> – {e.horarioFim}</span>}
-                {ehAgora && <span className="ml-3 rounded-botao bg-verde px-3 py-0.5 align-middle text-sm text-linho">Agora</span>}
-                {ehProxima && <span className="ml-3 rounded-botao bg-musgo px-3 py-0.5 align-middle text-sm text-linho">Próxima</span>}
+                {ehAgora && <span className="selo ml-3 bg-verde align-middle text-linho">Agora</span>}
+                {ehProxima && <span className="selo ml-3 bg-vela-claro align-middle text-verde">Próxima</span>}
               </p>
               <h2 className="text-2xl">
                 <button type="button" onClick={() => setEditando(e)} className="text-left hover:text-verde">
@@ -118,24 +118,24 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-6 shadow-suave">
+    <div className="dialogo-fundo" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="dialogo">
         <h2 className="text-2xl">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block">
-            <span className="text-sm text-verde-suave">Início</span>
+            <span className="rotulo">Início</span>
             <input type="time" value={d.horario} onChange={(e) => setD({ ...d, horario: e.target.value })} className={inputClass} />
           </label>
           <label className="block">
-            <span className="text-sm text-verde-suave">Fim (opcional)</span>
+            <span className="rotulo">Fim (opcional)</span>
             <input type="time" value={d.horarioFim} onChange={(e) => setD({ ...d, horarioFim: e.target.value })} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-verde-suave">Título</span>
+            <span className="rotulo">Título</span>
             <input maxLength={100} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-verde-suave">Local</span>
+            <span className="rotulo">Local</span>
             <select value={d.localId ?? ''} onChange={(e) => setD({ ...d, localId: e.target.value ? Number(e.target.value) : null })} className={inputClass}>
               <option value="">Nenhum</option>
               {site.data?.locais.map((l) => (
@@ -144,14 +144,14 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
             </select>
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-sm text-verde-suave">Descrição</span>
+            <span className="rotulo">Descrição</span>
             <textarea rows={2} maxLength={1000} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
           </label>
           <fieldset className="sm:col-span-2">
-            <legend className="text-sm text-verde-suave">Envolvidos</legend>
+            <legend className="rotulo">Envolvidos</legend>
             <ul className="mt-1 flex flex-wrap gap-2">
               {envolvidos.map((en, i) => (
-                <li key={i} className="rounded-botao bg-white px-3 py-1 text-sm">
+                <li key={i} className="rounded-botao bg-papel px-3 py-1 text-sm">
                   {rotulo(en)}
                   <button type="button" aria-label={`Remover ${rotulo(en)}`} onClick={() => setEnvolvidos(envolvidos.filter((_, j) => j !== i))} className="ml-1">
                     ×
@@ -192,15 +192,15 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
           {salvar.isError && <p role="alert" className="text-erro sm:col-span-2">Não foi possível salvar.</p>}
           <div className="flex justify-between gap-2 sm:col-span-2">
             {etapa ? (
-              <button type="button" onClick={() => excluir.mutate(undefined, { onSuccess: onClose })} className="text-erro underline">
+              <button type="button" onClick={() => excluir.mutate(undefined, { onSuccess: onClose })} className="acao-perigo">
                 Excluir etapa
               </button>
             ) : (
               <span />
             )}
             <div className="flex gap-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-verde-suave">Cancelar</button>
-              <button type="submit" disabled={!d.horario || !d.titulo.trim() || !fimOk || salvar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+              <button type="button" onClick={onClose} className="acao-discreta">Cancelar</button>
+              <button type="submit" disabled={!d.horario || !d.titulo.trim() || !fimOk || salvar.isPending} className="acao">
                 Salvar
               </button>
             </div>

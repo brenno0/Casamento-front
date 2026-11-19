@@ -1,34 +1,73 @@
+import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { NotFoundPage } from '../../components/NotFoundPage';
+import { formatDataCurta } from '../../lib/date';
+import { formatarCentavos } from '../../lib/dinheiro';
+import { useResumo } from '../convidados/useConvidados';
+import { useDashboard } from '../financeiro/useFinanceiro';
+import { estaAtrasada, useQuadro } from '../tarefas/useTarefas';
 import { MODULOS_PAINEL } from './modulos';
 
-const RESUMO_MODULO: Record<string, string> = {
-  tarefas: 'O quadro com tudo o que falta fazer, e quem faz.',
-  fornecedores: 'Contatos, orçamentos e em que pé está cada um.',
-  financeiro: 'Previsto, contratado e pago, com os próximos vencimentos.',
-  viagens: 'Roteiro, reservas e mala de cada viagem.',
-  convidados: 'Grupos, convites enviados e confirmações de presença.',
-  presentes: 'A lista que os convidados veem e o que já chegou.',
-  mural: 'Os recados deixados pelos convidados.',
-  site: 'História, locais, dress code, galeria e dúvidas do site.',
-  roteiro: 'O passo a passo do dia do casamento.',
-};
+const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
+
+function Indicador({ to, titulo, valor, children }: { to: string; titulo: string; valor: ReactNode; children?: ReactNode }) {
+  return (
+    <Link to={to} className="cartao-painel block transition-colors hover:border-folha-escuro">
+      <h2 className="font-sans text-sm font-medium text-verde-suave">{titulo}</h2>
+      <p className="mt-2 font-display text-4xl text-verde">{valor}</p>
+      {children && <p className="mt-2 text-sm text-verde-suave">{children}</p>}
+    </Link>
+  );
+}
+
+function IndicadorConvidados() {
+  const { data } = useResumo();
+  if (!data) return null;
+  return (
+    <Indicador to="/painel/convidados" titulo="Confirmados" valor={`${data.porRsvp.vai} de ${data.pessoas}`}>
+      {data.porRsvp.sem_resposta} sem resposta
+    </Indicador>
+  );
+}
+
+function IndicadorTarefas() {
+  const { data } = useQuadro('todas');
+  if (!data) return null;
+  const abertas = data.colunas.filter((c) => !c.concluida).flatMap((c) => c.tarefas.map((t) => ({ t, c })));
+  const atrasadas = abertas.filter(({ t, c }) => estaAtrasada(t, c, data.hoje)).length;
+  return (
+    <Indicador to="/painel/tarefas" titulo="Tarefas abertas" valor={abertas.length}>
+      {atrasadas > 0 ? <span className="font-semibold text-erro">{plural(atrasadas, 'atrasada', 'atrasadas')}</span> : 'Nenhuma atrasada'}
+    </Indicador>
+  );
+}
+
+function IndicadorFinanceiro() {
+  const { data } = useDashboard();
+  if (!data) return null;
+  const proxima = data.proximosVencimentos[0];
+  return (
+    <Indicador to="/painel/financeiro" titulo="Pago" valor={formatarCentavos(data.totais.pagoCentavos)}>
+      {data.atrasadas.length > 0 ? (
+        <span className="font-semibold text-erro">{plural(data.atrasadas.length, 'parcela atrasada', 'parcelas atrasadas')}</span>
+      ) : proxima ? (
+        `Próximo vencimento ${formatDataCurta(proxima.vencimento)}`
+      ) : (
+        `de ${formatarCentavos(data.totais.contratadoCentavos)} contratados`
+      )}
+    </Indicador>
+  );
+}
 
 export function PainelHomePage() {
   return (
     <section>
       <h1 className="text-4xl sm:text-5xl">Visão geral</h1>
-      <p className="mt-3 text-lg text-verde-suave">Tudo do casamento em um só lugar. Por onde vocês querem começar?</p>
-      <ul className="mt-12 grid border-t border-folha-escuro sm:grid-cols-2 sm:gap-x-12">
-        {MODULOS_PAINEL.map((m) => (
-          <li key={m.slug} className="border-b border-folha-escuro">
-            <Link to={`/painel/${m.slug}`} className="group block py-6">
-              <span className="font-caslon text-2xl text-verde decoration-1 underline-offset-4 group-hover:underline">{m.label}</span>
-              {RESUMO_MODULO[m.slug] && <span className="mt-1 block text-verde-suave">{RESUMO_MODULO[m.slug]}</span>}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <IndicadorConvidados />
+        <IndicadorTarefas />
+        <IndicadorFinanceiro />
+      </div>
     </section>
   );
 }

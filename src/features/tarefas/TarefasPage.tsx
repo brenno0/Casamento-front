@@ -27,15 +27,12 @@ export function TarefasPage() {
   return (
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl">Tarefas</h1>
-          <p className="mt-2 text-verde-suave">Arraste os cartões entre as colunas para atualizar o andamento.</p>
-        </div>
+        <h1 className="text-4xl">Tarefas</h1>
         <button
           type="button"
           disabled={!primeiraColuna}
           onClick={() => primeiraColuna && setModal({ tipo: 'criar', colunaId: primeiraColuna.id })}
-          className="rounded-botao bg-verde px-6 py-2 text-linho transition-opacity disabled:opacity-60"
+          className="acao"
         >
           Nova tarefa
         </button>
@@ -134,7 +131,7 @@ function NovaColuna() {
       className="w-64 shrink-0 rounded-card border border-dashed border-folha p-3"
     >
       <label className="block">
-        <span className="text-sm text-verde-suave">Nova coluna</span>
+        <span className="rotulo">Nova coluna</span>
         <input
           maxLength={40}
           value={nome}
@@ -142,13 +139,13 @@ function NovaColuna() {
             setNome(e.target.value);
             criar.reset();
           }}
-          className="mt-1 block w-full rounded-card border border-folha bg-white px-2 py-1"
+          className="entrada min-h-9 px-2 py-1"
         />
       </label>
       <button
         type="submit"
         disabled={nome.trim() === '' || criar.isPending}
-        className="mt-2 rounded-botao bg-musgo px-4 py-1 text-sm text-linho disabled:opacity-60"
+        className="acao-secundaria mt-2 min-h-9 px-4 py-1 text-sm"
       >
         Adicionar coluna
       </button>

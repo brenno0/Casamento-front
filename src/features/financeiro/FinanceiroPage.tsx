@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import { FileUpload } from '../../components/FileUpload';
 import { ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
@@ -33,8 +33,7 @@ export function FinanceiroPage() {
   return (
     <section>
       <h1 className="text-4xl">Financeiro</h1>
-      <p className="mt-2 text-verde-suave">Só o dinheiro de vocês: previsto, contratado e pago.</p>
-      <div role="tablist" aria-label="Seções do financeiro" className="mt-6 flex gap-2">
+      <div role="tablist" aria-label="Seções do financeiro" className="abas mt-6">
         {(
           [
             ['resumo', 'Resumo'],
@@ -48,11 +47,7 @@ export function FinanceiroPage() {
             type="button"
             aria-selected={aba === valor}
             onClick={() => setAba(valor)}
-            className={`rounded-botao border px-4 py-1 ${
-              aba === valor
-                ? 'border-verde bg-vela-claro text-verde'
-                : 'border-folha text-verde-suave'
-            }`}
+            className="aba"
           >
             {label}
           </button>
@@ -93,9 +88,9 @@ function Resumo() {
 
 function Cartao({ titulo, valor, destaque }: { titulo: string; valor: number; destaque?: string }) {
   return (
-    <div className={`rounded-card border border-folha bg-white p-4 shadow-suave ${destaque ?? ''}`}>
+    <div className={`cartao-painel ${destaque ?? ''}`}>
       <p className="text-sm text-verde-suave">{titulo}</p>
-      <p className="mt-1 text-2xl">{formatarCentavos(valor)}</p>
+      <p className="mt-1 font-display text-3xl text-verde">{formatarCentavos(valor)}</p>
     </div>
   );
 }
@@ -112,7 +107,7 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
       </div>
 
       {d.atrasadas.length > 0 && (
-        <section aria-labelledby="atrasadas" className="rounded-card border border-verde bg-vela-claro p-4">
+        <section aria-labelledby="atrasadas" className="rounded-card border border-erro/30 bg-erro/5 p-5">
           <h2 id="atrasadas" className="text-2xl text-erro">
             Parcelas atrasadas
           </h2>
@@ -138,25 +133,30 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
         <ul className="mt-3 space-y-4">
           {d.categorias.map((c) => (
             <li key={c.id}>
-              <div className="flex flex-wrap justify-between gap-2">
-                <span>{c.nome}</span>
-                <span className="text-sm text-verde-suave">
-                  previsto {formatarCentavos(c.previstoCentavos)} · contratado {formatarCentavos(c.contratadoCentavos)} · pago{' '}
-                  {formatarCentavos(c.pagoCentavos)}
-                </span>
-              </div>
-              <div className="mt-1 space-y-1" aria-hidden="true">
-                <div className="h-1.5 rounded-botao bg-folha-escuro" style={{ width: pct(c.previstoCentavos) }} />
-                <div className="h-1.5 rounded-botao bg-vela" style={{ width: pct(c.contratadoCentavos) }} />
-                <div className="h-1.5 rounded-botao bg-verde" style={{ width: pct(c.pagoCentavos) }} />
-              </div>
+              <p className="font-medium">{c.nome}</p>
+              <dl className="mt-2 grid grid-cols-[6.5rem_1fr_auto] items-center gap-x-3 gap-y-1.5 text-sm">
+                {(
+                  [
+                    ['Previsto', c.previstoCentavos, 'bg-folha-escuro'],
+                    ['Contratado', c.contratadoCentavos, 'bg-vela'],
+                    ['Pago', c.pagoCentavos, 'bg-verde'],
+                  ] as const
+                ).map(([rotulo, valor, cor]) => (
+                  <Fragment key={rotulo}>
+                    <dt className="text-verde-suave">{rotulo}</dt>
+                    <dd aria-hidden="true" className="h-2 rounded-botao bg-linho-escuro">
+                      <div className={`h-2 rounded-botao ${cor}`} style={{ width: pct(valor) }} />
+                    </dd>
+                    <dd className="text-right tabular-nums">{formatarCentavos(valor)}</dd>
+                  </Fragment>
+                ))}
+              </dl>
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-xs text-verde-suave">Barras: previsto (cinza-esverdeado), contratado (amarelo), pago (verde).</p>
       </section>
 
-      <section aria-labelledby="entradas" className="rounded-card border border-musgo bg-white p-4">
+      <section aria-labelledby="entradas" className="cartao-painel border-musgo">
         <h2 id="entradas" className="text-2xl">
           Entradas
         </h2>
@@ -176,7 +176,7 @@ function ListaParcelas({ itens }: { itens: ParcelaResumo[] }) {
         <li key={p.id} className="flex flex-wrap justify-between gap-2 py-2">
           <span>
             {formatDataCurta(p.vencimento)} · {p.contratoDescricao}{' '}
-            <span className="text-sm text-verde-suave">({p.categoriaNome})</span>
+            <span className="rotulo">({p.categoriaNome})</span>
           </span>
           <strong>{formatarCentavos(p.valorCentavos)}</strong>
         </li>
@@ -209,7 +209,7 @@ function Categorias() {
       </ul>
       <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-2" aria-label="Nova categoria">
         <label className="block">
-          <span className="text-sm text-verde-suave">Nova categoria</span>
+          <span className="rotulo">Nova categoria</span>
           <input
             maxLength={60}
             value={nome}
@@ -220,7 +220,7 @@ function Categorias() {
             className={inputClass}
           />
         </label>
-        <button type="submit" disabled={!nome.trim() || criar.isPending} className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!nome.trim() || criar.isPending} className="acao">
           Adicionar
         </button>
         {criar.isError && (
@@ -242,10 +242,10 @@ function LinhaCategoria({ c }: { c: Categoria }) {
   const valor = parseCentavos(previsto);
 
   return (
-    <li className="flex flex-wrap items-end gap-3 rounded-card border border-folha bg-white p-3">
+    <li className="flex flex-wrap items-end gap-3 cartao-painel p-3">
       <span className="min-w-40 flex-1">{c.nome}</span>
       <label className="block">
-        <span className="text-sm text-verde-suave">Previsto (R$) de {c.nome}</span>
+        <span className="rotulo">Previsto (R$) de {c.nome}</span>
         <input
           inputMode="decimal"
           value={previsto}
@@ -260,7 +260,7 @@ function LinhaCategoria({ c }: { c: Categoria }) {
         type="button"
         disabled={valor === null || valor === c.previstoCentavos || atualizar.isPending}
         onClick={() => valor !== null && atualizar.mutate({ id: c.id, previstoCentavos: valor })}
-        className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60"
+        className="acao"
       >
         Salvar
       </button>
@@ -268,7 +268,7 @@ function LinhaCategoria({ c }: { c: Categoria }) {
         type="button"
         aria-label={`Excluir categoria ${c.nome}`}
         onClick={() => excluir.mutate(c.id)}
-        className="px-2 py-2 text-sm text-verde underline"
+        className="px-2 py-2 text-sm acao-link"
       >
         Excluir
       </button>
@@ -339,13 +339,13 @@ function NovoContrato({ categorias }: { categorias: Categoria[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} aria-label="Novo contrato" className="grid gap-3 rounded-card border border-folha bg-white p-4 sm:grid-cols-5">
+    <form onSubmit={onSubmit} aria-label="Novo contrato" className="grid gap-3 cartao-painel sm:grid-cols-5">
       <label className="block sm:col-span-2">
-        <span className="text-sm text-verde-suave">Descrição</span>
+        <span className="rotulo">Descrição</span>
         <input maxLength={140} value={descricao} onChange={(e) => setDescricao(e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Categoria</span>
+        <span className="rotulo">Categoria</span>
         <select value={categoriaId} onChange={(e) => setCategoriaId(Number(e.target.value))} className={inputClass}>
           {categorias.map((c) => (
             <option key={c.id} value={c.id}>
@@ -355,7 +355,7 @@ function NovoContrato({ categorias }: { categorias: Categoria[] }) {
         </select>
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Fornecedor</span>
+        <span className="rotulo">Fornecedor</span>
         <select
           value={fornecedorId ?? ''}
           onChange={(e) => setFornecedorId(e.target.value === '' ? null : Number(e.target.value))}
@@ -370,11 +370,11 @@ function NovoContrato({ categorias }: { categorias: Categoria[] }) {
         </select>
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Valor contratado (R$)</span>
+        <span className="rotulo">Valor contratado (R$)</span>
         <input inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} className={inputClass} />
       </label>
       <div className="sm:col-span-5">
-        <button type="submit" disabled={!valido || criar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!valido || criar.isPending} className="acao">
           Adicionar contrato
         </button>
         {criar.isError && (
@@ -402,7 +402,7 @@ function CartaoContrato({ c }: { c: Contrato }) {
   }
 
   return (
-    <article aria-label={`Contrato ${c.descricao}`} className="rounded-card border border-folha bg-white p-4 shadow-suave">
+    <article aria-label={`Contrato ${c.descricao}`} className="cartao-painel">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-xl">{c.descricao}</h2>
@@ -427,14 +427,14 @@ function CartaoContrato({ c }: { c: Contrato }) {
         <form onSubmit={onGerar} className="mt-3 flex flex-wrap items-end gap-2" aria-label={`Gerar parcelas de ${c.descricao}`}>
           <p className="w-full text-sm text-verde-suave">Falta parcelar {formatarCentavos(restante)}.</p>
           <label className="block">
-            <span className="text-sm text-verde-suave">Parcelas</span>
+            <span className="rotulo">Parcelas</span>
             <input type="number" min={1} max={60} value={quantidade} onChange={(e) => setQuantidade(e.target.value)} className={inputClass} />
           </label>
           <label className="block">
-            <span className="text-sm text-verde-suave">Primeiro vencimento</span>
+            <span className="rotulo">Primeiro vencimento</span>
             <input type="date" value={primeiro} onChange={(e) => setPrimeiro(e.target.value)} className={inputClass} />
           </label>
-          <button type="submit" disabled={!primeiro || gerar.isPending} className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+          <button type="submit" disabled={!primeiro || gerar.isPending} className="acao">
             Gerar parcelas
           </button>
           {gerar.isError && (
@@ -444,7 +444,7 @@ function CartaoContrato({ c }: { c: Contrato }) {
           )}
         </form>
       )}
-      <button type="button" onClick={() => excluir.mutate(c.id)} className="mt-3 text-sm text-erro underline">
+      <button type="button" onClick={() => excluir.mutate(c.id)} className="mt-3 text-sm acao-perigo">
         Excluir contrato
       </button>
     </article>
@@ -467,9 +467,9 @@ function LinhaParcela({ p }: { p: Parcela }) {
         {p.status === 'pago' ? (
           <span className="rounded-botao bg-folha-claro px-2 text-sm">Pago em {formatDataCurta(p.pagoEm!)}</span>
         ) : p.atrasada ? (
-          <span className="rounded-botao bg-verde px-2 text-sm text-linho">Atrasada</span>
+          <span className="selo bg-erro/10 text-erro">Atrasada</span>
         ) : (
-          <span className="rounded-botao bg-linho-escuro px-2 text-sm">Pendente</span>
+          <span className="selo bg-linho-escuro text-verde-suave">Pendente</span>
         )}
         {p.comprovanteArquivoId && (
           <a href={urlArquivo(p.comprovanteArquivoId)} target="_blank" rel="noreferrer" className="text-sm underline">
@@ -477,22 +477,22 @@ function LinhaParcela({ p }: { p: Parcela }) {
           </a>
         )}
         {p.status === 'pendente' ? (
-          <button type="button" onClick={() => setPagando(true)} className="text-sm text-verde underline">
+          <button type="button" onClick={() => setPagando(true)} className="text-sm acao-link">
             Registrar pagamento
           </button>
         ) : (
-          <button type="button" onClick={() => desfazer.mutate(p.id)} className="text-sm text-verde-suave underline">
+          <button type="button" onClick={() => desfazer.mutate(p.id)} className="text-sm acao-link text-verde-suave">
             Desfazer pagamento
           </button>
         )}
-        <button type="button" aria-label="Excluir parcela" onClick={() => excluir.mutate(p.id)} className="text-sm text-verde-suave underline">
+        <button type="button" aria-label="Excluir parcela" onClick={() => excluir.mutate(p.id)} className="text-sm acao-link text-verde-suave">
           Excluir
         </button>
       </div>
       {pagando && p.status === 'pendente' && (
         <div className="mt-2 flex flex-wrap items-end gap-3 rounded-card bg-linho p-3">
           <label className="block">
-            <span className="text-sm text-verde-suave">Pago em</span>
+            <span className="rotulo">Pago em</span>
             <input type="date" value={pagoEm} onChange={(e) => setPagoEm(e.target.value)} className={inputClass} />
           </label>
           <FileUpload label="Comprovante (opcional)" onEnviado={(a) => setComprovante(a.id)} />
@@ -502,7 +502,7 @@ function LinhaParcela({ p }: { p: Parcela }) {
             onClick={() =>
               pagar.mutate({ id: p.id, pagoEm, comprovanteArquivoId: comprovante }, { onSuccess: () => setPagando(false) })
             }
-            className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60"
+            className="acao"
           >
             Confirmar pagamento
           </button>

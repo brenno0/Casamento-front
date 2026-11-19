@@ -4,6 +4,7 @@
  * Fontes (index.html): Libre Caslon Display/Text (títulos) e Figtree (texto e interface).
  */
 @import 'tailwindcss';
+@import './painel.css';
 
 @theme {
   /* Paleta */

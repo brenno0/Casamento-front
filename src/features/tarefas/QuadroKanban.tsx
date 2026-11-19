@@ -200,7 +200,7 @@ function ColunaKanban({
   return (
     <section
       aria-label={coluna.nome}
-      className="flex w-72 shrink-0 flex-col rounded-card border border-folha bg-white/70"
+      className="flex w-72 shrink-0 flex-col rounded-card bg-linho-escuro/60"
     >
       <CabecalhoColuna coluna={coluna} total={tarefas.length} />
       <SortableContext items={tarefas.map((t) => idTarefa(t.id))} strategy={verticalListSortingStrategy}>
@@ -265,12 +265,12 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               setNome(e.target.value);
               renomear.reset();
             }}
-            className="min-w-0 flex-1 rounded-card border border-folha bg-white px-2 py-1"
+            className="entrada mt-0 min-h-9 min-w-0 flex-1 px-2 py-1"
           />
           <button
             type="submit"
             disabled={nome.trim() === '' || renomear.isPending}
-            className="rounded-botao bg-verde px-3 py-1 text-sm text-linho disabled:opacity-60"
+            className="acao min-h-8 px-3 py-1 text-sm"
           >
             Salvar
           </button>
@@ -328,7 +328,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                   onClick={() =>
                     excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
                   }
-                  className="rounded-botao bg-verde px-2 py-0.5 text-sm text-linho disabled:opacity-60"
+                  className="acao min-h-8 px-3 py-0.5 text-sm"
                 >
                   Confirmar exclusão
                 </button>
@@ -441,7 +441,7 @@ function CartaoConteudo({
 }) {
   return (
     <article
-      className={`flex gap-2 rounded-card border border-linho-escuro bg-white p-3 transition-shadow hover:shadow-suave ${className}`}
+      className={`flex gap-2 rounded-card border border-folha bg-papel p-3 transition-colors hover:border-folha-escuro ${className}`}
     >
       <div className="min-w-0 flex-1">
         <button
@@ -464,7 +464,7 @@ function CartaoConteudo({
             <span className="rounded-botao bg-folha px-2 text-tinta">{tarefa.fornecedorNome}</span>
           )}
           {atrasada && (
-            <span className="rounded-botao bg-verde px-2 text-linho">Atrasada</span>
+            <span className="selo bg-erro/10 text-erro">Atrasada</span>
           )}
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useAtualizarCasal, useCasalPainel } from './useCasalPainel';
 const NOME_MAX = 80;
 
 const inputClass =
-  'mt-1 block w-full rounded-card border border-folha bg-white px-4 py-2 text-tinta focus:border-folha-escuro';
+  'entrada';
 
 export function ConfiguracoesPage() {
   const { data, isPending, isError } = useCasalPainel();
@@ -61,7 +61,7 @@ function NomesForm({
   return (
     <form className="mt-6 max-w-md space-y-4" onSubmit={onSubmit} noValidate>
       <label className="block">
-        <span className="text-sm text-verde-suave">Nome da noiva</span>
+        <span className="rotulo">Nome da noiva</span>
         <input
           name="nomeNoiva"
           required
@@ -75,7 +75,7 @@ function NomesForm({
         />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Nome do noivo</span>
+        <span className="rotulo">Nome do noivo</span>
         <input
           name="nomeNoivo"
           required
@@ -110,7 +110,7 @@ function NomesForm({
       <button
         type="submit"
         disabled={invalido || atualizar.isPending}
-        className="rounded-botao bg-verde px-6 py-2 text-linho transition-opacity disabled:opacity-60"
+        className="acao"
       >
         {atualizar.isPending ? 'Salvando…' : 'Salvar'}
       </button>

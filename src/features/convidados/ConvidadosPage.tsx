@@ -55,10 +55,10 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
           <p className="mt-2 text-verde-suave">Cada grupo recebe um convite.</p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => setModal({ tipo: 'grupo' })} className="rounded-botao border border-verde px-5 py-2 text-verde">
+          <button type="button" onClick={() => setModal({ tipo: 'grupo' })} className="acao-secundaria">
             Novo grupo
           </button>
-          <button type="button" onClick={() => setModal({ tipo: 'convidado' })} className="rounded-botao bg-verde px-5 py-2 text-linho">
+          <button type="button" onClick={() => setModal({ tipo: 'convidado' })} className="acao">
             Novo convidado
           </button>
         </div>
@@ -68,7 +68,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
 
       <div className="mt-6 grid gap-3 sm:grid-cols-5">
         <label className="block sm:col-span-5 lg:col-span-1">
-          <span className="text-sm text-verde-suave">Buscar</span>
+          <span className="rotulo">Buscar</span>
           <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Nome do grupo ou convidado" className={inputClass} />
         </label>
         <Filtro label="Lado" valor={filtros.lado} opcoes={LABEL_LADO} onChange={(v) => setFiltros({ ...filtros, lado: v as Lado | '' })} />
@@ -78,7 +78,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       </div>
       <label className="mt-3 flex items-center gap-2">
         <input type="checkbox" checked={naoConfirmados} onChange={(e) => setNaoConfirmados(e.target.checked)} />
-        <span>Só grupos com alguém sem resposta (para lembrar)</span>
+        <span>Só grupos com alguém sem resposta</span>
       </label>
 
       {grupos.isPending && (
@@ -141,7 +141,7 @@ function Filtro<T extends string>({
 }) {
   return (
     <label className="block">
-      <span className="text-sm text-verde-suave">{label}</span>
+      <span className="rotulo">{label}</span>
       <select value={valor} onChange={(e) => onChange(e.target.value)} className={inputClass}>
         <option value="">Todos</option>
         {(Object.entries(opcoes) as [T, string][]).map(([v, l]) => (
@@ -170,7 +170,7 @@ function ResumoCartoes() {
   return (
     <dl aria-label="Resumo" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
       {itens.map(([rotulo, n]) => (
-        <div key={rotulo} className="rounded-card border border-folha bg-white p-3 text-center">
+        <div key={rotulo} className="cartao-painel p-3 text-center">
           <dt className="text-sm text-verde-suave">{rotulo}</dt>
           <dd className="text-2xl">{n}</dd>
         </div>
@@ -201,10 +201,10 @@ function CartaoGrupo({
   acoes?: ReactNode;
 }) {
   return (
-    <article aria-label={`Grupo ${g.nome}`} className="rounded-card border border-folha bg-white p-4 shadow-suave">
+    <article aria-label={`Grupo ${g.nome}`} className="cartao-painel">
       <div className="flex items-start justify-between gap-2">
         <h2 className="text-xl">{g.nome}</h2>
-        <button type="button" onClick={onEditar} className="text-sm text-verde-suave underline">
+        <button type="button" onClick={onEditar} className="text-sm acao-link text-verde-suave">
           Editar grupo
         </button>
       </div>
@@ -217,7 +217,7 @@ function CartaoGrupo({
               <button type="button" onClick={() => onEditarConvidado(c)} className="text-left hover:text-verde">
                 {c.nome}
               </button>
-              {c.tipo === 'crianca' && <span className="rounded-botao bg-linho-escuro px-2 text-xs">Criança</span>}
+              {c.tipo === 'crianca' && <span className="selo bg-linho-escuro text-verde-suave">Criança</span>}
               {c.funcao && <span className="rounded-botao bg-folha px-2 text-xs">{LABEL_FUNCAO[c.funcao]}</span>}
               <span className="text-xs text-verde-suave">{LABEL_LADO[c.lado]}</span>
               <span
@@ -235,7 +235,7 @@ function CartaoGrupo({
         </ul>
       )}
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={onNovoConvidado} className="text-sm text-verde underline">
+        <button type="button" onClick={onNovoConvidado} className="text-sm acao-link">
           + Convidado neste grupo
         </button>
         <CopiarLink token={g.token} nome={g.nome} />
@@ -257,7 +257,7 @@ function CopiarLink({ token, nome }: { token: string; nome: string }) {
   }
   return (
     <span className="text-sm">
-      <button type="button" aria-label={`Copiar link do convite de ${nome}`} onClick={() => void copiar()} className="text-verde-suave underline">
+      <button type="button" aria-label={`Copiar link do convite de ${nome}`} onClick={() => void copiar()} className="acao-link text-verde-suave">
         Copiar link
       </button>
       {copiado === 'ok' && <span role="status" className="ml-1 text-musgo">copiado!</span>}
@@ -274,12 +274,12 @@ function Dialogo({ titulo, onClose, ocupado, children }: { titulo: string; onClo
   const id = useId();
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center"
+      className="dialogo-fundo"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !ocupado) onClose();
       }}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby={id} className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-linho p-6 shadow-suave">
+      <div role="dialog" aria-modal="true" aria-labelledby={id} className="dialogo">
         <h2 id={id} className="text-2xl">
           {titulo}
         </h2>
@@ -313,16 +313,16 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
     <Dialogo titulo={grupo ? 'Editar grupo' : 'Novo grupo'} onClose={onClose} ocupado={ocupado}>
       <form onSubmit={onSubmit} className="mt-4 space-y-4" noValidate>
         <label className="block">
-          <span className="text-sm text-verde-suave">Nome do grupo</span>
+          <span className="rotulo">Nome do grupo</span>
           <input autoFocus maxLength={80} value={nome} onChange={(e) => setNome(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Mensagem personalizada</span>
+          <span className="rotulo">Mensagem personalizada</span>
           <textarea rows={3} maxLength={1000} value={mensagem} onChange={(e) => setMensagem(e.target.value)} className={inputClass} />
         </label>
         {grupo && (
           <label className="block">
-            <span className="text-sm text-verde-suave">Contato no WhatsApp</span>
+            <span className="rotulo">Contato no WhatsApp</span>
             <select
               value={contato ?? ''}
               onChange={(e) => setContato(e.target.value === '' ? null : Number(e.target.value))}
@@ -355,11 +355,11 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
         <div className="flex flex-wrap justify-between gap-2">
           {grupo ? (
             confirmando ? (
-              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(grupo.id, { onSuccess: onClose })} className="rounded-botao bg-verde px-4 py-2 text-linho">
+              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(grupo.id, { onSuccess: onClose })} className="acao">
                 Confirmar exclusão
               </button>
             ) : (
-              <button type="button" onClick={() => setConfirmando(true)} className="text-verde underline">
+              <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
                 Excluir grupo
               </button>
             )
@@ -367,10 +367,10 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
             <span />
           )}
           <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-verde-suave">
+            <button type="button" onClick={onClose} className="acao-discreta">
               Cancelar
             </button>
-            <button type="submit" disabled={!nome.trim() || ocupado} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+            <button type="submit" disabled={!nome.trim() || ocupado} className="acao">
               Salvar
             </button>
           </div>
@@ -436,11 +436,11 @@ function ConvidadoModal({
     <Dialogo titulo={convidado ? 'Editar convidado' : 'Novo convidado'} onClose={onClose} ocupado={ocupado}>
       <form onSubmit={onSubmit} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">Nome</span>
+          <span className="rotulo">Nome</span>
           <input autoFocus maxLength={80} value={d.nome} onChange={(e) => campo('nome', e.target.value)} className={inputClass} />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">Grupo</span>
+          <span className="rotulo">Grupo</span>
           <select value={d.grupoId} onChange={(e) => campo('grupoId', Number(e.target.value))} className={inputClass}>
             {!convidado && <option value={0}>Novo grupo só com esta pessoa</option>}
             {grupos.map((g) => (
@@ -451,7 +451,7 @@ function ConvidadoModal({
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Tipo</span>
+          <span className="rotulo">Tipo</span>
           <select value={d.tipo} onChange={(e) => campo('tipo', e.target.value as Tipo)} className={inputClass}>
             {Object.entries(LABEL_TIPO).map(([v, l]) => (
               <option key={v} value={v}>
@@ -461,7 +461,7 @@ function ConvidadoModal({
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Lado</span>
+          <span className="rotulo">Lado</span>
           <select value={d.lado} onChange={(e) => campo('lado', e.target.value as Lado)} className={inputClass}>
             {Object.entries(LABEL_LADO).map(([v, l]) => (
               <option key={v} value={v}>
@@ -471,7 +471,7 @@ function ConvidadoModal({
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Função</span>
+          <span className="rotulo">Função</span>
           <select value={d.funcao} onChange={(e) => campo('funcao', e.target.value as Funcao | '')} className={inputClass}>
             <option value="">Nenhuma</option>
             {Object.entries(LABEL_FUNCAO).map(([v, l]) => (
@@ -482,11 +482,11 @@ function ConvidadoModal({
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Telefone (WhatsApp)</span>
+          <span className="rotulo">Telefone (WhatsApp)</span>
           <input type="tel" value={d.telefone} onChange={(e) => campo('telefone', e.target.value)} className={inputClass} />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">E-mail</span>
+          <span className="rotulo">E-mail</span>
           <input type="email" value={d.email} onChange={(e) => campo('email', e.target.value)} className={inputClass} />
         </label>
         <label className="flex items-center gap-2 sm:col-span-2">
@@ -495,7 +495,7 @@ function ConvidadoModal({
         </label>
         {d.acompanhantePermitido && (
           <label className="block sm:col-span-2">
-            <span className="text-sm text-verde-suave">Nome do acompanhante (o convidado pode preencher)</span>
+            <span className="rotulo">Nome do acompanhante (o convidado pode preencher)</span>
             <input maxLength={80} value={d.acompanhanteNome} onChange={(e) => campo('acompanhanteNome', e.target.value)} className={inputClass} />
           </label>
         )}
@@ -509,11 +509,11 @@ function ConvidadoModal({
         <div className="flex flex-wrap justify-between gap-2 sm:col-span-2">
           {convidado ? (
             confirmando ? (
-              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(convidado.id, { onSuccess: onClose })} className="rounded-botao bg-verde px-4 py-2 text-linho">
+              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(convidado.id, { onSuccess: onClose })} className="acao">
                 Confirmar exclusão
               </button>
             ) : (
-              <button type="button" onClick={() => setConfirmando(true)} className="text-verde underline">
+              <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
                 Excluir convidado
               </button>
             )
@@ -521,10 +521,10 @@ function ConvidadoModal({
             <span />
           )}
           <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-verde-suave">
+            <button type="button" onClick={onClose} className="acao-discreta">
               Cancelar
             </button>
-            <button type="submit" disabled={!d.nome.trim() || ocupado} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+            <button type="submit" disabled={!d.nome.trim() || ocupado} className="acao">
               Salvar
             </button>
           </div>
