@@ -53,7 +53,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
   return (
     <section className="space-y-8">
       <div>
-        <Link to="/painel/fornecedores" className="text-sm text-verde-suave underline">
+        <Link to="/painel/fornecedores" className="text-sm acao-link text-verde-suave">
           ← Fornecedores
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -90,19 +90,19 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
         atualizar={salvarDados}
       />
 
-      <section aria-labelledby="contrato-titulo" className="rounded-card border border-folha bg-white p-4">
+      <section aria-labelledby="contrato-titulo" className="cartao-painel">
         <h2 id="contrato-titulo" className="text-2xl">
           Contrato
         </h2>
         {f.contrato ? (
           <p className="mt-2">
-            <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="text-verde underline">
+            <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="acao-link">
               {f.contrato.nomeOriginal}
             </a>
             <button
               type="button"
               onClick={() => atualizar.mutate({ contratoArquivoId: null })}
-              className="ml-3 text-sm text-verde-suave underline"
+              className="ml-3 text-sm acao-link text-verde-suave"
             >
               Remover
             </button>
@@ -148,7 +148,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
               type="button"
               disabled={excluir.isPending}
               onClick={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
-              className="rounded-botao bg-verde px-4 py-1 text-linho"
+              className="acao min-h-9 px-4 py-1"
             >
               Confirmar exclusão
             </button>
@@ -157,7 +157,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
             </button>
           </div>
         ) : (
-          <button type="button" onClick={() => setConfirmando(true)} className="text-verde underline">
+          <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
             Excluir fornecedor
           </button>
         )}
@@ -209,27 +209,27 @@ function DadosForm({
   return (
     <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2" noValidate aria-label="Dados do fornecedor">
       <label className="block">
-        <span className="text-sm text-verde-suave">Nome</span>
+        <span className="rotulo">Nome</span>
         <input maxLength={120} value={dados.nome} onChange={(e) => campo('nome', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Categoria</span>
+        <span className="rotulo">Categoria</span>
         <input maxLength={60} value={dados.categoria} onChange={(e) => campo('categoria', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Telefone</span>
+        <span className="rotulo">Telefone</span>
         <input type="tel" value={dados.telefone} onChange={(e) => campo('telefone', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">E-mail</span>
+        <span className="rotulo">E-mail</span>
         <input type="email" value={dados.email} onChange={(e) => campo('email', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Site ou Instagram</span>
+        <span className="rotulo">Site ou Instagram</span>
         <input value={dados.site} onChange={(e) => campo('site', e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Responsável</span>
+        <span className="rotulo">Responsável</span>
         <select
           value={dados.responsavel}
           onChange={(e) => campo('responsavel', e.target.value as ResponsavelFornecedor)}
@@ -243,14 +243,14 @@ function DadosForm({
         </select>
       </label>
       <label className="block sm:col-span-2">
-        <span className="text-sm text-verde-suave">Observações</span>
+        <span className="rotulo">Observações</span>
         <textarea rows={3} value={dados.observacoes} onChange={(e) => campo('observacoes', e.target.value)} className={inputClass} />
       </label>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button
           type="submit"
           disabled={!dados.nome.trim() || !dados.categoria.trim() || atualizar.isPending}
-          className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60"
+          className="acao"
         >
           Salvar dados
         </button>
@@ -333,7 +333,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
                         type="button"
                         aria-label={`Excluir orçamento ${o.descricao}`}
                         onClick={() => excluir.mutate(o.id)}
-                        className="text-sm text-verde underline"
+                        className="text-sm acao-link"
                       >
                         Excluir
                       </button>
@@ -348,15 +348,15 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
 
       <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-4" noValidate aria-label="Novo orçamento">
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">Descrição</span>
+          <span className="rotulo">Descrição</span>
           <input maxLength={500} value={descricao} onChange={(e) => setDescricao(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Valor (R$)</span>
+          <span className="rotulo">Valor (R$)</span>
           <input inputMode="decimal" placeholder="0,00" value={valor} onChange={(e) => setValor(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Data</span>
+          <span className="rotulo">Data</span>
           <input type="date" value={data} onChange={(e) => setData(e.target.value)} className={inputClass} />
         </label>
         <div className="sm:col-span-3">
@@ -367,7 +367,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
           <button
             type="submit"
             disabled={!valido || criar.isPending}
-            className="w-full rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60"
+            className="acao w-full"
           >
             Adicionar
           </button>

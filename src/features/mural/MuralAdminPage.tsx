@@ -34,7 +34,7 @@ export function MuralAdminPage() {
   return (
     <section>
       <h1 className="text-4xl">Mural de recados</h1>
-      <p className="mt-2 text-verde-suave">Os recados publicam na hora para quem tem link de convite. Vocês podem excluir qualquer um.</p>
+      <p className="mt-2 text-verde-suave">Os recados publicam na hora para quem tem link de convite.</p>
       {mural.isPending && <p role="status" className="mt-6">Carregando…</p>}
       {mural.isError && (
         <p role="alert" className="mt-6 text-erro">
@@ -44,7 +44,7 @@ export function MuralAdminPage() {
       {mural.isSuccess && recados.length === 0 && <p className="mt-6 text-verde-suave">Nenhum recado ainda.</p>}
       <ul className="mt-6 space-y-3">
         {recados.map((r) => (
-          <li key={r.id} aria-label={`Recado de ${r.autorNome}`} className="rounded-card border border-folha bg-white p-4">
+          <li key={r.id} aria-label={`Recado de ${r.autorNome}`} className="cartao-painel">
             <p className="whitespace-pre-line">{r.texto}</p>
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-verde-suave">
               <span>
@@ -52,7 +52,7 @@ export function MuralAdminPage() {
               </span>
               {confirmando === r.id ? (
                 <>
-                  <button type="button" disabled={excluir.isPending} onClick={() => excluir.mutate(r.id)} className="rounded-botao bg-verde px-3 py-1 text-linho">
+                  <button type="button" disabled={excluir.isPending} onClick={() => excluir.mutate(r.id)} className="acao min-h-9 px-3 py-1">
                     Confirmar exclusão
                   </button>
                   <button type="button" onClick={() => setConfirmando(null)}>
@@ -60,7 +60,7 @@ export function MuralAdminPage() {
                   </button>
                 </>
               ) : (
-                <button type="button" onClick={() => setConfirmando(r.id)} className="text-verde underline">
+                <button type="button" onClick={() => setConfirmando(r.id)} className="acao-link">
                   Excluir
                 </button>
               )}
@@ -69,7 +69,7 @@ export function MuralAdminPage() {
         ))}
       </ul>
       {mural.hasNextPage && (
-        <button type="button" onClick={() => void mural.fetchNextPage()} className="mt-4 rounded-botao border border-folha-escuro px-4 py-2">
+        <button type="button" onClick={() => void mural.fetchNextPage()} className="acao-secundaria mt-4">
           Carregar mais
         </button>
       )}

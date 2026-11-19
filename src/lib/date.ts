@@ -30,3 +30,9 @@ export function formatDataCurta(isoDate: string): string {
   const [, ano, mes, dia] = match;
   return `${dia}/${mes}/${ano}`;
 }
+
+/** Dias corridos de `de` até `ate` (ambos `YYYY-MM-DD`); negativo se `ate` já passou. */
+export function diasEntre(de: string, ate: string): number {
+  const utc = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
+  return Math.round((utc(ate) - utc(de)) / 86_400_000);
+}

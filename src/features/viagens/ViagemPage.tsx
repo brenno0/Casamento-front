@@ -39,7 +39,7 @@ export function ViagemPage() {
 
   return (
     <section>
-      <Link to="/painel/viagens" className="text-sm text-verde-suave underline">
+      <Link to="/painel/viagens" className="text-sm acao-link text-verde-suave">
         ← Viagens
       </Link>
       <h1 className="mt-2 text-4xl">{data.nome}</h1>
@@ -47,7 +47,7 @@ export function ViagemPage() {
         {data.destino && `${data.destino} · `}
         {formatDataCurta(data.dataInicio)} a {formatDataCurta(data.dataFim)}
       </p>
-      <div role="tablist" aria-label="Partes da viagem" className="mt-6 flex gap-2">
+      <div role="tablist" aria-label="Partes da viagem" className="abas mt-6">
         {(
           [
             ['roteiro', 'Roteiro'],
@@ -55,7 +55,7 @@ export function ViagemPage() {
             ['mala', 'Mala'],
           ] as const
         ).map(([v, l]) => (
-          <button key={v} role="tab" type="button" aria-selected={aba === v} onClick={() => setAba(v)} className={`rounded-botao border px-4 py-1 ${aba === v ? 'border-verde bg-vela-claro text-verde' : 'border-folha text-verde-suave'}`}>
+          <button key={v} role="tab" type="button" aria-selected={aba === v} onClick={() => setAba(v)} className="aba">
             {l}
           </button>
         ))}
@@ -70,12 +70,12 @@ export function ViagemPage() {
           <button
             type="button"
             onClick={() => excluir.mutate(undefined, { onSuccess: () => void navigate('/painel/viagens') })}
-            className="rounded-botao bg-verde px-4 py-1 text-linho"
+            className="acao min-h-9 px-4 py-1"
           >
             Confirmar exclusão (reservas e gastos espelhados também saem)
           </button>
         ) : (
-          <button type="button" onClick={() => setConfirmando(true)} className="text-verde underline">
+          <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
             Excluir viagem
           </button>
         )}
@@ -103,7 +103,7 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
                 <li key={r.id} className="mb-3">
                   <span className="font-semibold">{r.horario ?? '—'}</span> {r.titulo}
                   {r.local && <span className="text-verde-suave"> · {r.local}</span>}
-                  <button type="button" aria-label={`Excluir ${r.titulo}`} onClick={() => excluir.mutate(r.id)} className="ml-2 text-sm text-erro underline">
+                  <button type="button" aria-label={`Excluir ${r.titulo}`} onClick={() => excluir.mutate(r.id)} className="ml-2 text-sm acao-perigo">
                     excluir
                   </button>
                 </li>
@@ -118,26 +118,26 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
           if (!d.titulo.trim()) return;
           salvar.mutate({ data: d.data, horario: d.horario || null, titulo: d.titulo.trim(), local: d.local.trim() }, { onSuccess: () => setD({ ...d, titulo: '', local: '', horario: '' }) });
         }}
-        className="grid gap-3 rounded-card border border-folha bg-white p-4 sm:grid-cols-4"
+        className="grid gap-3 cartao-painel sm:grid-cols-4"
       >
         <label className="block">
-          <span className="text-sm text-verde-suave">Dia</span>
+          <span className="rotulo">Dia</span>
           <input type="date" min={v.dataInicio} max={v.dataFim} value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Horário</span>
+          <span className="rotulo">Horário</span>
           <input type="time" value={d.horario} onChange={(e) => setD({ ...d, horario: e.target.value })} className={inputClass} />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">O quê</span>
+          <span className="rotulo">O quê</span>
           <input maxLength={120} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
         </label>
         <label className="block sm:col-span-3">
-          <span className="text-sm text-verde-suave">Local</span>
+          <span className="rotulo">Local</span>
           <input maxLength={200} value={d.local} onChange={(e) => setD({ ...d, local: e.target.value })} className={inputClass} />
         </label>
         <div className="flex items-end">
-          <button type="submit" disabled={!d.titulo.trim() || salvar.isPending} className="w-full rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+          <button type="submit" disabled={!d.titulo.trim() || salvar.isPending} className="acao w-full">
             Adicionar
           </button>
         </div>
@@ -183,10 +183,10 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
             { onSuccess: () => setD({ ...d, descricao: '', codigo: '', valor: '' }) },
           );
         }}
-        className="grid gap-3 rounded-card border border-folha bg-white p-4 sm:grid-cols-3"
+        className="grid gap-3 cartao-painel sm:grid-cols-3"
       >
         <label className="block">
-          <span className="text-sm text-verde-suave">Tipo</span>
+          <span className="rotulo">Tipo</span>
           <select value={d.tipo} onChange={(e) => setD({ ...d, tipo: e.target.value as TipoReserva })} className={inputClass}>
             {Object.entries(LABEL_TIPO_RESERVA).map(([k, l]) => (
               <option key={k} value={k}>{l}</option>
@@ -194,23 +194,23 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
           </select>
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">Descrição</span>
+          <span className="rotulo">Descrição</span>
           <input maxLength={140} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Código</span>
+          <span className="rotulo">Código</span>
           <input maxLength={80} value={d.codigo} onChange={(e) => setD({ ...d, codigo: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Data</span>
+          <span className="rotulo">Data</span>
           <input type="date" value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Valor (R$, opcional)</span>
+          <span className="rotulo">Valor (R$, opcional)</span>
           <input inputMode="decimal" value={d.valor} onChange={(e) => setD({ ...d, valor: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Lançar no financeiro em</span>
+          <span className="rotulo">Lançar no financeiro em</span>
           <select value={d.categoria} onChange={(e) => setD({ ...d, categoria: e.target.value })} className={inputClass}>
             <option value="">Não lançar</option>
             {categorias.data?.map((c) => (
@@ -226,7 +226,7 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
           <FileUpload label="Voucher" onEnviado={(a) => setVoucher(a.id)} />
         </div>
         <div className="sm:col-span-3">
-          <button type="submit" disabled={!d.descricao.trim() || criar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+          <button type="submit" disabled={!d.descricao.trim() || criar.isPending} className="acao">
             Adicionar reserva
           </button>
           {criar.isError && <span role="alert" className="ml-3 text-erro">Não foi possível salvar.</span>}
@@ -240,8 +240,8 @@ function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
   const atualizar = useEditarViagem(viagemId, (d: object) => api.put<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`, d));
   const excluir = useEditarViagem(viagemId, () => api.del<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`));
   return (
-    <article aria-label={`Reserva ${r.descricao}`} className="rounded-card border border-folha bg-white p-4 shadow-suave">
-      <p className="text-sm tracking-widest text-musgo uppercase">{LABEL_TIPO_RESERVA[r.tipo]} · {formatDataCurta(r.data)}</p>
+    <article aria-label={`Reserva ${r.descricao}`} className="cartao-painel">
+      <p className="text-sm text-verde-suave">{LABEL_TIPO_RESERVA[r.tipo]} · {formatDataCurta(r.data)}</p>
       <h3 className="text-xl">{r.descricao}</h3>
       {r.codigo && <p className="mt-1 font-mono text-3xl tracking-wider">{r.codigo}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
@@ -249,14 +249,14 @@ function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
         <span className={`rounded-botao px-2 ${r.statusPagamento === 'pago' ? 'bg-folha-claro' : 'bg-linho-escuro'}`}>{r.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}</span>
         {r.contratoId !== null && <span className="text-verde-suave">no financeiro</span>}
         {r.voucherArquivoId && (
-          <a href={urlArquivo(r.voucherArquivoId)} target="_blank" rel="noreferrer" className="rounded-botao bg-verde px-3 py-1 text-linho">
+          <a href={urlArquivo(r.voucherArquivoId)} target="_blank" rel="noreferrer" className="acao min-h-9 px-3 py-1">
             Abrir voucher
           </a>
         )}
         <button type="button" onClick={() => atualizar.mutate({ statusPagamento: r.statusPagamento === 'pago' ? 'pendente' : 'pago' })} className="underline">
           {r.statusPagamento === 'pago' ? 'Marcar pendente' : 'Marcar pago'}
         </button>
-        <button type="button" onClick={() => excluir.mutate(undefined)} className="text-erro underline">
+        <button type="button" onClick={() => excluir.mutate(undefined)} className="acao-perigo">
           Excluir
         </button>
       </div>
@@ -274,7 +274,7 @@ function Mala({ v }: { v: ViagemDetalhe }) {
     <div className="space-y-4">
       <ul aria-label="Progresso da mala" className="flex flex-wrap gap-3">
         {(Object.keys(LABEL_DONO) as Dono[]).map((dono) => (
-          <li key={dono} className="rounded-card bg-white px-4 py-2 shadow-suave">
+          <li key={dono} className="cartao-painel px-4 py-2">
             {LABEL_DONO[dono]}: {v.progressoMala[dono].naMala}/{v.progressoMala[dono].total}
           </li>
         ))}
@@ -305,22 +305,22 @@ function Mala({ v }: { v: ViagemDetalhe }) {
         className="flex flex-wrap items-end gap-2"
       >
         <label className="block">
-          <span className="text-sm text-verde-suave">Item</span>
+          <span className="rotulo">Item</span>
           <input maxLength={120} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Categoria</span>
+          <span className="rotulo">Categoria</span>
           <input maxLength={60} value={d.categoria} onChange={(e) => setD({ ...d, categoria: e.target.value })} placeholder="Roupas, Praia…" className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">De quem</span>
+          <span className="rotulo">De quem</span>
           <select value={d.dono} onChange={(e) => setD({ ...d, dono: e.target.value as Dono })} className={inputClass}>
             {Object.entries(LABEL_DONO).map(([k, l]) => (
               <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </label>
-        <button type="submit" disabled={!d.descricao.trim()} className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!d.descricao.trim()} className="acao">
           Adicionar
         </button>
       </form>

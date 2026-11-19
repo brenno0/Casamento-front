@@ -38,13 +38,13 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">Site</h1>
-          <p className="mt-2 text-verde-suave">O que os convidados veem. Endereços e mapas só aparecem pelo link do convite.</p>
+          <p className="mt-2 text-verde-suave">Endereços e mapas só aparecem pelo link do convite.</p>
         </div>
-        <a href="/" target="_blank" rel="noreferrer" className="rounded-botao border border-verde px-5 py-2 text-verde">
+        <a href="/" target="_blank" rel="noreferrer" className="acao-secundaria">
           Ver site
         </a>
       </div>
-      <div role="tablist" aria-label="Partes do site" className="mt-6 flex flex-wrap gap-2">
+      <div role="tablist" aria-label="Partes do site" className="abas mt-6">
         {abas.map(([v, l]) => (
           <button
             key={v}
@@ -52,7 +52,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
             type="button"
             aria-selected={aba === v}
             onClick={() => setAba(v)}
-            className={`rounded-botao border px-4 py-1 ${aba === v ? 'border-verde bg-vela-claro text-verde' : 'border-folha text-verde-suave'}`}
+            className="aba"
           >
             {l}
           </button>
@@ -121,30 +121,30 @@ function LocalForm({ l }: { l: SitePainel['locais'][number] }) {
   };
 
   return (
-    <form onSubmit={onSubmit} aria-label={`Local ${LABEL_LOCAL[l.tipo]}`} className="grid gap-3 rounded-card border border-folha bg-white p-4 sm:grid-cols-2">
+    <form onSubmit={onSubmit} aria-label={`Local ${LABEL_LOCAL[l.tipo]}`} className="grid gap-3 cartao-painel sm:grid-cols-2">
       <h2 className="text-2xl sm:col-span-2">{LABEL_LOCAL[l.tipo]}</h2>
       <label className="block sm:col-span-2">
-        <span className="text-sm text-verde-suave">Nome do lugar</span>
+        <span className="rotulo">Nome do lugar</span>
         <input value={d.nome} onChange={campo('nome')} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Data</span>
+        <span className="rotulo">Data</span>
         <input type="date" value={d.data} onChange={campo('data')} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Horário</span>
+        <span className="rotulo">Horário</span>
         <input type="time" value={d.horario} onChange={campo('horario')} className={inputClass} />
       </label>
       <label className="block sm:col-span-2">
-        <span className="text-sm text-verde-suave">Endereço (só no convite)</span>
+        <span className="rotulo">Endereço (só no convite)</span>
         <input value={d.endereco} onChange={campo('endereco')} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Latitude</span>
+        <span className="rotulo">Latitude</span>
         <input inputMode="decimal" value={d.latitude} onChange={campo('latitude')} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Longitude</span>
+        <span className="rotulo">Longitude</span>
         <input inputMode="decimal" value={d.longitude} onChange={campo('longitude')} className={inputClass} />
       </label>
       <p className="text-xs text-verde-suave sm:col-span-2">
@@ -153,7 +153,7 @@ function LocalForm({ l }: { l: SitePainel['locais'][number] }) {
       {!coordsOk && <Erro mostrar texto="Coordenadas inválidas." />}
       <Erro mostrar={salvar.isError} />
       <div className="flex items-center gap-3 sm:col-span-2">
-        <button type="submit" disabled={!coordsOk || !d.nome.trim() || salvar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!coordsOk || !d.nome.trim() || salvar.isPending} className="acao">
           Salvar
         </button>
         {salvar.isSuccess && <span role="status">Salvo.</span>}
@@ -202,30 +202,30 @@ function Historia({ s }: { s: SitePainel }) {
     <div className="space-y-6">
       <ul className="space-y-3">
         {s.historia.map((h, i) => (
-          <li key={h.id} className="flex flex-wrap items-center gap-3 rounded-card border border-folha bg-white p-3">
+          <li key={h.id} className="flex flex-wrap items-center gap-3 cartao-painel p-3">
             <BotoesOrdem ids={ids} i={i} recurso="historia" />
             {h.fotoUrl && <img src={h.fotoUrl} alt="" className="h-12 w-12 rounded object-cover" />}
             <span className="flex-1">
               {formatDataCurta(h.data)} · <strong>{h.titulo}</strong>
             </span>
             <FileUpload label="Trocar foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => atualizar.mutate({ id: h.id, fotoArquivoId: a.id })} />
-            <button type="button" aria-label={`Excluir ${h.titulo}`} onClick={() => excluir.mutate(h.id)} className="text-sm text-erro underline">
+            <button type="button" aria-label={`Excluir ${h.titulo}`} onClick={() => excluir.mutate(h.id)} className="text-sm acao-perigo">
               Excluir
             </button>
           </li>
         ))}
       </ul>
-      <form onSubmit={onSubmit} aria-label="Novo momento" className="grid gap-3 rounded-card border border-folha bg-white p-4 sm:grid-cols-3">
+      <form onSubmit={onSubmit} aria-label="Novo momento" className="grid gap-3 cartao-painel sm:grid-cols-3">
         <label className="block">
-          <span className="text-sm text-verde-suave">Data</span>
+          <span className="rotulo">Data</span>
           <input type="date" value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm text-verde-suave">Título</span>
+          <span className="rotulo">Título</span>
           <input maxLength={120} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
         </label>
         <label className="block sm:col-span-3">
-          <span className="text-sm text-verde-suave">Texto</span>
+          <span className="rotulo">Texto</span>
           <textarea rows={3} maxLength={2000} value={d.texto} onChange={(e) => setD({ ...d, texto: e.target.value })} className={inputClass} />
         </label>
         <div className="sm:col-span-2">
@@ -233,7 +233,7 @@ function Historia({ s }: { s: SitePainel }) {
           {foto && <p className="text-sm text-musgo">Foto pronta.</p>}
         </div>
         <div className="flex items-end">
-          <button type="submit" disabled={!d.data || !d.titulo.trim() || criar.isPending} className="w-full rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+          <button type="submit" disabled={!d.data || !d.titulo.trim() || criar.isPending} className="acao w-full">
             Adicionar momento
           </button>
         </div>
@@ -255,18 +255,18 @@ function DressCode({ s }: { s: SitePainel }) {
         e.preventDefault();
         salvar.mutate({ dressCode: texto.trim(), paleta, rsvpPrazo: prazo });
       }}
-      className="space-y-4 rounded-card border border-folha bg-white p-4"
+      className="space-y-4 cartao-painel"
     >
       <label className="block">
-        <span className="text-sm text-verde-suave">Texto do dress code</span>
+        <span className="rotulo">Texto do dress code</span>
         <textarea rows={3} maxLength={1000} value={texto} onChange={(e) => setTexto(e.target.value)} className={inputClass} />
       </label>
       <label className="block">
-        <span className="text-sm text-verde-suave">Prazo para confirmar presença (RSVP)</span>
+        <span className="rotulo">Prazo para confirmar presença (RSVP)</span>
         <input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} className={inputClass} />
       </label>
       <fieldset>
-        <legend className="text-sm text-verde-suave">Paleta sugerida (até 6 cores)</legend>
+        <legend className="rotulo">Paleta sugerida (até 6 cores)</legend>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {paleta.map((cor, i) => (
             <span key={i} className="flex items-center gap-1">
@@ -282,7 +282,7 @@ function DressCode({ s }: { s: SitePainel }) {
             </span>
           ))}
           {paleta.length < 6 && (
-            <button type="button" onClick={() => setPaleta([...paleta, '#c48b8b'])} className="rounded-botao border border-folha px-3 py-1 text-sm">
+            <button type="button" onClick={() => setPaleta([...paleta, '#c48b8b'])} className="acao-secundaria min-h-8 px-3 py-1 text-sm">
               + cor
             </button>
           )}
@@ -290,7 +290,7 @@ function DressCode({ s }: { s: SitePainel }) {
       </fieldset>
       <Erro mostrar={salvar.isError} />
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={salvar.isPending || !prazo} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={salvar.isPending || !prazo} className="acao">
           Salvar
         </button>
         {salvar.isSuccess && <span role="status">Salvo.</span>}
@@ -310,7 +310,7 @@ function Galeria({ s }: { s: SitePainel }) {
       <Erro mostrar={criar.isError} texto="Não foi possível adicionar a foto." />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {s.galeria.map((g, i) => (
-          <li key={g.id} className="rounded-card border border-folha bg-white p-2">
+          <li key={g.id} className="cartao-painel p-2">
             <img src={g.fotoUrl} alt={g.legenda} className="aspect-square w-full rounded object-cover" />
             <input
               aria-label="Legenda"
@@ -321,7 +321,7 @@ function Galeria({ s }: { s: SitePainel }) {
             />
             <div className="mt-1 flex justify-between">
               <BotoesOrdem ids={ids} i={i} recurso="galeria" />
-              <button type="button" onClick={() => excluir.mutate(g.id)} className="text-sm text-erro underline">
+              <button type="button" onClick={() => excluir.mutate(g.id)} className="text-sm acao-perigo">
                 Remover
               </button>
             </div>
@@ -342,13 +342,13 @@ function Faq({ s }: { s: SitePainel }) {
     <div className="space-y-4">
       <ul className="space-y-2">
         {s.faq.map((f, i) => (
-          <li key={f.id} className="flex items-start gap-3 rounded-card border border-folha bg-white p-3">
+          <li key={f.id} className="flex items-start gap-3 cartao-painel p-3">
             <BotoesOrdem ids={ids} i={i} recurso="faq" />
             <div className="flex-1">
               <p className="font-semibold">{f.pergunta}</p>
               <p className="text-verde-suave">{f.resposta}</p>
             </div>
-            <button type="button" aria-label={`Excluir pergunta ${f.pergunta}`} onClick={() => excluir.mutate(f.id)} className="text-sm text-erro underline">
+            <button type="button" aria-label={`Excluir pergunta ${f.pergunta}`} onClick={() => excluir.mutate(f.id)} className="text-sm acao-perigo">
               Excluir
             </button>
           </li>
@@ -369,18 +369,18 @@ function Faq({ s }: { s: SitePainel }) {
             },
           );
         }}
-        className="space-y-3 rounded-card border border-folha bg-white p-4"
+        className="space-y-3 cartao-painel"
       >
         <label className="block">
-          <span className="text-sm text-verde-suave">Pergunta</span>
+          <span className="rotulo">Pergunta</span>
           <input maxLength={300} value={pergunta} onChange={(e) => setPergunta(e.target.value)} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Resposta</span>
+          <span className="rotulo">Resposta</span>
           <textarea rows={2} maxLength={2000} value={resposta} onChange={(e) => setResposta(e.target.value)} className={inputClass} />
         </label>
         <Erro mostrar={criar.isError} />
-        <button type="submit" disabled={!pergunta.trim() || !resposta.trim() || criar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!pergunta.trim() || !resposta.trim() || criar.isPending} className="acao">
           Adicionar
         </button>
       </form>
@@ -400,7 +400,7 @@ function Mensagens({ s }: { s: SitePainel }) {
         e.preventDefault();
         salvar.mutate({ mensagemConvite: convite.trim(), mensagemLembrete: lembrete.trim() });
       }}
-      className="space-y-4 rounded-card border border-folha bg-white p-4"
+      className="space-y-4 cartao-painel"
     >
       <p className="text-sm text-verde-suave">
         Use {'{grupo}'}, {'{link}'} e {'{prazo}'}: eles são trocados pelo nome do grupo, o link do convite e o prazo do RSVP.
@@ -413,7 +413,7 @@ function Mensagens({ s }: { s: SitePainel }) {
       ).map(([rotulo, valor, set]) => (
         <div key={rotulo} className="grid gap-3 md:grid-cols-2">
           <label className="block">
-            <span className="text-sm text-verde-suave">Mensagem de {rotulo.toLowerCase()}</span>
+            <span className="rotulo">Mensagem de {rotulo.toLowerCase()}</span>
             <textarea
               rows={5}
               maxLength={1000}
@@ -426,7 +426,7 @@ function Mensagens({ s }: { s: SitePainel }) {
             />
           </label>
           <div>
-            <span className="text-sm text-verde-suave">Prévia</span>
+            <span className="rotulo">Prévia</span>
             <p aria-label={`Prévia do ${rotulo.toLowerCase()}`} className="mt-1 rounded-card bg-folha-claro p-3 whitespace-pre-line">
               {montarTexto(valor, exemplo)}
             </p>
@@ -435,7 +435,7 @@ function Mensagens({ s }: { s: SitePainel }) {
       ))}
       <Erro mostrar={salvar.isError} />
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={!convite.trim() || !lembrete.trim() || salvar.isPending} className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60">
+        <button type="submit" disabled={!convite.trim() || !lembrete.trim() || salvar.isPending} className="acao">
           Salvar
         </button>
         {salvar.isSuccess && <span role="status">Salvo.</span>}

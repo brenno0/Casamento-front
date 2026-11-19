@@ -1,0 +1,127 @@
+/*
+ * Peças do painel do casal: mesma paleta do site, num registro de ferramenta de trabalho.
+ * Só o painel usa estas classes; o site dos convidados continua com `.botao` e `.campo`.
+ */
+@layer components {
+  .acao {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-botao bg-verde px-5 py-2 font-semibold text-linho;
+    transition:
+      background-color 150ms ease-out,
+      transform 150ms ease-out;
+  }
+  .acao:hover:not(:disabled) {
+    background-color: var(--color-tinta);
+  }
+  .acao:active:not(:disabled),
+  .acao-secundaria:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .acao:disabled,
+  .acao-secundaria:disabled,
+  .acao-discreta:disabled {
+    opacity: 0.5;
+  }
+
+  .acao-secundaria {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-botao border border-folha-escuro bg-papel px-5 py-2 font-semibold text-verde;
+    transition:
+      border-color 150ms ease-out,
+      transform 150ms ease-out;
+  }
+  .acao-secundaria:hover:not(:disabled) {
+    border-color: var(--color-verde);
+  }
+
+  .acao-discreta {
+    @apply inline-flex min-h-10 items-center justify-center rounded-botao px-4 py-2 text-verde-suave;
+    transition:
+      background-color 150ms ease-out,
+      color 150ms ease-out;
+  }
+  .acao-discreta:hover:not(:disabled) {
+    @apply bg-linho-escuro text-verde;
+  }
+
+  .acao-link,
+  .acao-perigo {
+    @apply underline decoration-1 underline-offset-4;
+    transition: text-decoration-color 150ms ease-out;
+  }
+  .acao-link {
+    @apply text-verde decoration-folha-escuro;
+  }
+  .acao-link:hover {
+    text-decoration-color: var(--color-verde);
+  }
+  .acao-perigo {
+    @apply text-erro decoration-erro/40;
+  }
+  .acao-perigo:hover {
+    text-decoration-color: var(--color-erro);
+  }
+
+  .entrada {
+    @apply mt-1.5 block min-h-10 w-full rounded-card border border-folha-escuro/70 bg-papel px-3 py-2 text-tinta;
+  }
+  .entrada:hover:not(:focus) {
+    border-color: var(--color-folha-escuro);
+  }
+
+  .rotulo {
+    @apply text-sm font-medium text-verde-suave;
+  }
+
+  .cartao-painel {
+    @apply rounded-card border border-folha bg-papel p-5;
+    box-shadow: 0 1px 2px rgb(23 36 28 / 0.04);
+  }
+
+  .selo {
+    @apply inline-flex items-center rounded-botao px-2 py-0.5 text-xs font-semibold;
+  }
+
+  /* Abas sublinhadas: o traço desliza sob a aba escolhida. */
+  .abas {
+    @apply flex gap-6 overflow-x-auto border-b border-folha;
+  }
+  .aba {
+    @apply relative shrink-0 py-3 font-medium whitespace-nowrap text-verde-suave;
+    transition: color 150ms ease-out;
+  }
+  .aba::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    background: var(--color-verde);
+    transform: scaleX(0);
+    transition: transform 200ms var(--ease-saida);
+  }
+  .aba:hover,
+  .aba[aria-selected='true'] {
+    color: var(--color-verde);
+  }
+  .aba[aria-selected='true']::after {
+    transform: none;
+  }
+
+  .dialogo-fundo {
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center;
+    animation: esmaecer 150ms ease-out;
+  }
+  .dialogo {
+    @apply max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-papel p-6;
+    box-shadow: 0 24px 48px -16px rgb(23 36 28 / 0.35);
+    animation: surgir 200ms var(--ease-saida);
+  }
+
+  .entrada-pagina {
+    animation: surgir 200ms var(--ease-saida);
+  }
+}
+
+@keyframes esmaecer {
+  from {
+    opacity: 0;
+  }
+}

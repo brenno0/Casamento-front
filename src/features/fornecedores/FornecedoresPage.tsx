@@ -12,13 +12,13 @@ import {
 } from './useFornecedores';
 
 export const inputClass =
-  'mt-1 block w-full rounded-card border border-folha bg-white px-3 py-2 text-tinta focus:border-folha-escuro';
+  'entrada';
 
 const COR_STATUS: Record<StatusFornecedor, string> = {
   pesquisando: 'bg-linho-escuro text-tinta',
   orcado: 'bg-folha text-tinta',
   contratado: 'bg-folha-claro text-tinta',
-  descartado: 'bg-white text-verde-suave line-through',
+  descartado: 'bg-papel text-verde-suave line-through',
 };
 
 export function BadgeStatus({ status }: { status: StatusFornecedor }) {
@@ -37,14 +37,11 @@ export function FornecedoresPage() {
   return (
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl">Fornecedores</h1>
-          <p className="mt-2 text-verde-suave">Do primeiro contato ao contrato assinado.</p>
-        </div>
+        <h1 className="text-4xl">Fornecedores</h1>
         <button
           type="button"
           onClick={() => setCriando(true)}
-          className="rounded-botao bg-verde px-6 py-2 text-linho"
+          className="acao"
         >
           Novo fornecedor
         </button>
@@ -52,7 +49,7 @@ export function FornecedoresPage() {
 
       <div className="mt-6 flex flex-wrap gap-4">
         <label className="block">
-          <span className="text-sm text-verde-suave">Status</span>
+          <span className="rotulo">Status</span>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as StatusFornecedor | '')}
@@ -67,7 +64,7 @@ export function FornecedoresPage() {
           </select>
         </label>
         <label className="block">
-          <span className="text-sm text-verde-suave">Categoria</span>
+          <span className="rotulo">Categoria</span>
           <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className={inputClass}>
             <option value="">Todas</option>
             {CATEGORIAS_SUGERIDAS.map((c) => (
@@ -96,7 +93,7 @@ export function FornecedoresPage() {
             <li key={f.id}>
               <Link
                 to={`/painel/fornecedores/${f.id}`}
-                className="block rounded-card border border-folha bg-white p-4 shadow-suave transition-transform hover:-translate-y-0.5"
+                className="block cartao-painel transition-colors hover:border-folha-escuro"
               >
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="text-xl">{f.nome}</h2>
@@ -139,22 +136,22 @@ function NovoFornecedorModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center"
+      className="dialogo-fundo"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !criar.isPending) onClose();
       }}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="w-full max-w-md rounded-card bg-linho p-6 shadow-suave">
+      <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="dialogo max-w-md">
         <h2 id={tituloId} className="text-2xl">
           Novo fornecedor
         </h2>
         <form onSubmit={onSubmit} className="mt-4 space-y-4" noValidate>
           <label className="block">
-            <span className="text-sm text-verde-suave">Nome</span>
+            <span className="rotulo">Nome</span>
             <input autoFocus maxLength={120} value={nome} onChange={(e) => setNome(e.target.value)} className={inputClass} />
           </label>
           <label className="block">
-            <span className="text-sm text-verde-suave">Categoria</span>
+            <span className="rotulo">Categoria</span>
             <input
               list={listaId}
               maxLength={60}
@@ -176,13 +173,13 @@ function NovoFornecedorModal({ onClose }: { onClose: () => void }) {
             </p>
           )}
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="rounded-botao px-4 py-2 text-verde-suave">
+            <button type="button" onClick={onClose} className="acao-discreta">
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!nome.trim() || !categoria.trim() || criar.isPending}
-              className="rounded-botao bg-verde px-6 py-2 text-linho disabled:opacity-60"
+              className="acao"
             >
               Criar
             </button>

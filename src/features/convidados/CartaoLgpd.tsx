@@ -28,7 +28,7 @@ export function CartaoLgpd() {
   if (!data) return null;
 
   return (
-    <section aria-labelledby="lgpd-titulo" className="mt-10 rounded-card border border-folha bg-white p-4">
+    <section aria-labelledby="lgpd-titulo" className="mt-10 cartao-painel">
       <h2 id="lgpd-titulo" className="text-xl">
         Privacidade dos convidados (LGPD)
       </h2>
@@ -45,10 +45,10 @@ export function CartaoLgpd() {
           {aberto ? (
             <div className="mt-3 flex flex-wrap items-end gap-2">
               <label className="block">
-                <span className="text-sm text-verde-suave">Digite APAGAR para confirmar</span>
+                <span className="rotulo">Digite APAGAR para confirmar</span>
                 <input value={texto} onChange={(e) => setTexto(e.target.value)} className="mt-1 block rounded-card border border-folha px-3 py-2" />
               </label>
-              <button type="button" disabled={texto !== 'APAGAR' || limpar.isPending} onClick={() => limpar.mutate()} className="rounded-botao bg-verde px-4 py-2 text-linho disabled:opacity-60">
+              <button type="button" disabled={texto !== 'APAGAR' || limpar.isPending} onClick={() => limpar.mutate()} className="acao">
                 Apagar contatos agora
               </button>
               <button type="button" onClick={() => setAberto(false)} className="px-3 py-2 text-verde-suave">
@@ -56,7 +56,7 @@ export function CartaoLgpd() {
               </button>
             </div>
           ) : (
-            <button type="button" onClick={() => setAberto(true)} className="mt-3 text-sm text-verde underline">
+            <button type="button" onClick={() => setAberto(true)} className="mt-3 text-sm acao-link">
               Apagar contatos agora…
             </button>
           )}
