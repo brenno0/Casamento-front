@@ -47,7 +47,7 @@ export function PainelLayout() {
     <div className="painel min-h-svh bg-nevoa text-grafite md:flex">
       <aside className="md:sticky md:top-0 md:flex md:h-svh md:w-sidebar md:shrink-0 md:flex-col">
         <div className="px-5 pt-6 pb-3 md:pt-8 md:pb-2">
-          <p className="min-h-[1.2em] font-display text-2xl leading-tight">{titulo}</p>
+          <p className="min-h-[1.2em] font-display text-[1.75rem] leading-tight">{titulo}</p>
           {casal && (
             <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.8125rem] text-grafite-suave">
               {formatDataExtenso(casal.dataCasamento)}

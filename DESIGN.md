@@ -33,7 +33,7 @@ The private panel and its login drop the green for a light, romantic work tool: 
 
 Primary action is a graphite pill (`.acao`); colour stays in small tints on badges and bars.
 
-- Type: Inter at 15px (`.painel` swaps `--font-sans`); serif only for the page h1, dialog titles and the couple's names. KPI figures use `.numero` (sans 500, tight tracking) with the denominator greyed.
+- Type: Inter at 15px and Instrument Serif in place of Caslon (`.painel` swaps `--font-sans` and `--font-display`); serif only for the page h1, dialog titles and the couple's names. KPI figures use `.numero` (sans 500, tight tracking) with the denominator greyed.
 - Frame: the sidebar sits on the mist; the page is a white sheet with a 20px radius. Nav items carry a 16px line icon (`IconePainel`), grouped under small uppercase labels; the active item is a raised white chip.
 - Surfaces: `.cartao-painel` (18px radius, hairline, soft shadow); `.bandeja` holds a label row with icon over a white card (overview KPIs). People show as pastel initial avatars (`Avatar`).
 - Controls: `.segmentos`/`.abas` are one segmented control, the chosen option a raised white pill. Secondary actions are white pills with a hairline.
