@@ -86,6 +86,16 @@ function useMutacao<V, R>(fn: (vars: V) => Promise<R>) {
   });
 }
 
+export interface ResultadoImportacao {
+  gruposCriados: number;
+  convidadosCriados: number;
+  convidadosAtualizados: number;
+  inalterados: number;
+}
+
+export const useImportarConvidados = () =>
+  useMutacao((csv: string) => api.post<ResultadoImportacao>('/painel/convidados/importar', { csv }));
+
 export const useCriarGrupo = () =>
   useMutacao((dados: { nome: string; mensagem?: string | null }) => api.post<Grupo>('/painel/grupos', dados));
 export const useMarcarEnviado = () => useMutacao((id: number) => api.post<Grupo>(`/painel/grupos/${id}/envio`));

@@ -4,6 +4,7 @@ import { useAdiado } from '../../lib/useAdiado';
 import { linkConvite } from '../../lib/whatsapp';
 import { BotoesWhatsApp } from './BotoesWhatsApp';
 import { CartaoLgpd } from './CartaoLgpd';
+import { ImportarPlanilha } from './ImportarPlanilha';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import {
   LABEL_FUNCAO,
@@ -38,7 +39,8 @@ const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
 
 type Modal =
   | { tipo: 'grupo'; grupo?: Grupo }
-  | { tipo: 'convidado'; grupoId?: number; convidado?: Convidado };
+  | { tipo: 'convidado'; grupoId?: number; convidado?: Convidado }
+  | { tipo: 'importar' };
 
 /** Ações extras por grupo (link do convite, WhatsApp) entram por aqui nas próximas histórias. */
 export type AcoesGrupo = (g: Grupo) => ReactNode;
@@ -63,7 +65,10 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
           <h1 className="text-4xl">Convidados</h1>
           <p className="mt-2 text-grafite-suave">Cada grupo recebe um convite.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setModal({ tipo: 'importar' })} className="acao-secundaria">
+            Importar planilha
+          </button>
           <button type="button" onClick={() => setModal({ tipo: 'grupo' })} className="acao-secundaria">
             <IconePainel nome="mais" />
             Novo grupo
@@ -124,6 +129,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
 
       <CartaoLgpd />
 
+      {modal?.tipo === 'importar' && <ImportarPlanilha onClose={() => setModal(null)} />}
       {modal?.tipo === 'grupo' && <GrupoModal grupo={modal.grupo} onClose={() => setModal(null)} />}
       {modal?.tipo === 'convidado' && (
         <ConvidadoModal

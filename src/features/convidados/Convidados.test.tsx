@@ -144,6 +144,27 @@ describe('Convidados', () => {
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('Mova ou exclua os convidados');
   });
 
+  it('importa CSV e mostra o que entrou', async () => {
+    const { rotas } = api();
+    const fetchMock = mockFetch({
+      logado: true,
+      rotas: (r) =>
+        r.path === '/painel/convidados/importar' && r.method === 'POST'
+          ? json({ gruposCriados: 1, convidadosCriados: 2, convidadosAtualizados: 1, inalterados: 3 })
+          : rotas(r),
+    });
+    renderRoute('/painel/convidados');
+    await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(screen.getByRole('button', { name: 'Importar planilha' }));
+    const dialog = screen.getByRole('dialog', { name: 'Importar planilha' });
+    const csv = 'grupo;nome\r\nSamira;Samira\r\n';
+    fireEvent.change(within(dialog).getByLabelText('Arquivo CSV'), { target: { files: [new File([csv], 'c.csv', { type: 'text/csv' })] } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Importar' }));
+    expect(await within(dialog).findByRole('status')).toHaveTextContent('1 grupo novo, 2 convidados novos, 1 convidado completado.');
+    const post = fetchMock.mock.calls.find(([u]) => String(u).endsWith('/painel/convidados/importar'));
+    expect(JSON.parse(String(post![1]!.body))).toEqual({ csv });
+  });
+
   it('erro ao carregar mostra aviso', async () => {
     mockFetch({ logado: true, rotas: ({ path }) => (path === '/painel/grupos' ? erro(500, 'X') : undefined) });
     renderRoute('/painel/convidados');
