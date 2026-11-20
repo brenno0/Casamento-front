@@ -4,7 +4,10 @@ import { SITE_PUBLICO_QUERY_KEY, type LocalConvite, type TipoLocal } from '../si
 
 export interface SitePainel {
   locais: (LocalConvite & { id: number })[];
-  config: { dressCode: string; paleta: string[]; rsvpPrazo: string; mensagemConvite: string; mensagemLembrete: string };
+  config: {
+    fotoCapaArquivoId: number | null;
+    capaUrl: string | null;
+    dressCode: string; paleta: string[]; rsvpPrazo: string; mensagemConvite: string; mensagemLembrete: string };
   historia: { id: number; data: string; titulo: string; texto: string; fotoArquivoId: number | null; fotoUrl: string | null }[];
   galeria: { id: number; arquivoId: number; fotoUrl: string; legenda: string }[];
   faq: { id: number; pergunta: string; resposta: string }[];

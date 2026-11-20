@@ -8,7 +8,7 @@ function painelFake(): SitePainel {
       { id: 1, tipo: 'cerimonia', nome: 'Cerimônia', data: '2027-07-17', horario: '16:00', endereco: '', latitude: null, longitude: null },
       { id: 2, tipo: 'festa', nome: 'Festa', data: '2027-07-17', horario: '18:30', endereco: '', latitude: null, longitude: null },
     ],
-    config: { dressCode: 'Traje social.', paleta: ['#c9a9a6'], rsvpPrazo: '2027-06-17', mensagemConvite: 'Oi {grupo}: {link}', mensagemLembrete: 'Lembra {grupo}: {link} até {prazo}' },
+    config: { fotoCapaArquivoId: null, capaUrl: null, dressCode: 'Traje social.', paleta: ['#c9a9a6'], rsvpPrazo: '2027-06-17', mensagemConvite: 'Oi {grupo}: {link}', mensagemLembrete: 'Lembra {grupo}: {link} até {prazo}' },
     historia: [
       { id: 1, data: '2019-03-10', titulo: 'Nos conhecemos', texto: '', fotoArquivoId: null, fotoUrl: null },
       { id: 2, data: '2024-12-24', titulo: 'Pedido', texto: '', fotoArquivoId: null, fotoUrl: null },
@@ -32,6 +32,11 @@ function api() {
       site = { ...site, historia: ids.map((id) => site.historia.find((h) => h.id === id)!) };
       return json(site);
     }
+    const h = /^\/painel\/site\/historia\/(\d+)$/.exec(path);
+    if (h && method === 'PUT') {
+      site = { ...site, historia: site.historia.map((x) => (x.id === Number(h[1]) ? { ...x, ...(body as object) } : x)) };
+      return json(site);
+    }
     return undefined;
   };
 }
@@ -41,13 +46,28 @@ describe('Site no painel', () => {
     const fetchMock = mockFetch({ logado: true, rotas: api() });
     renderRoute('/painel/site');
     const form = await screen.findByRole('form', { name: 'Local Cerimônia' });
-    fireEvent.change(within(form).getByLabelText('Endereço (só no convite)'), { target: { value: 'Rua A, 10' } });
+    fireEvent.change(within(form).getByLabelText('Endereço'), { target: { value: 'Rua A, 10' } });
     fireEvent.change(within(form).getByLabelText('Latitude'), { target: { value: '-16,44' } });
     fireEvent.change(within(form).getByLabelText('Longitude'), { target: { value: '-39.06' } });
     fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
     await waitFor(() => {
       const put = fetchMock.mock.calls.find(([u]) => String(u).endsWith('/painel/site/locais/cerimonia'));
       expect(JSON.parse(String(put![1]!.body))).toMatchObject({ endereco: 'Rua A, 10', latitude: -16.44, longitude: -39.06 });
+    });
+  });
+
+  it('edita um capítulo da história com só mês e ano', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/site');
+    fireEvent.click(await screen.findByRole('tab', { name: 'Nossa história' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Editar' })[0]!);
+    const form = screen.getByRole('form', { name: 'Editar Nos conhecemos' });
+    fireEvent.click(within(form).getByLabelText('Só mês e ano'));
+    fireEvent.change(within(form).getByLabelText('Texto'), { target: { value: 'Num show.' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/site/historia/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toEqual({ data: '2019-03', titulo: 'Nos conhecemos', texto: 'Num show.' });
     });
   });
 

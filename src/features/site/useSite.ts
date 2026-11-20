@@ -16,8 +16,18 @@ export interface LocalConvite extends LocalPublico {
   longitude: number | null;
 }
 
+/** Endereço do mapa do fim da página. No site público só vem a cerimônia. */
+export interface LocalMapa {
+  tipo: TipoLocal;
+  endereco: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
 interface SiteBase {
   casal: { nomeNoiva: string; nomeNoivo: string; dataCasamento: string };
+  capaUrl: string | null;
+  comoChegar: LocalMapa[];
   historia: { id: number; data: string; titulo: string; texto: string; fotoUrl: string | null }[];
   dressCode: { texto: string; paleta: string[] };
   galeria: { id: number; fotoUrl: string; legenda: string }[];

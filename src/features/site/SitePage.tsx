@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { formatDataCurta, formatDataExtenso } from '../../lib/date';
 import { useAnimacoesSite } from './animacoes';
-import { aquarela, CAPITULOS, COMO_CHEGAR, DUVIDAS, FOTO_CAPA, GALERIA_FIXA, IGREJA_AQUARELA } from './conteudo';
+import { aquarela, IGREJA_AQUARELA } from './conteudo';
 import { Icone, type NomeIcone } from './Icones';
 import { MapaLocal } from './MapaLocal';
 import { Navegacao } from './Navegacao';
@@ -11,6 +11,7 @@ import {
   linksMapa,
   tempoRestante,
   type LocalConvite,
+  type LocalMapa,
   type LocalPublico,
   type SiteConvite,
   type SitePublico,
@@ -48,40 +49,17 @@ export function SitePage(props: Props) {
   const { galeria, historia, visiveis, numeros, cerimonia } = useMemo(() => {
     // Só a cerimônia aparece no site: nem todo convidado vai à festa.
     const cerimonia = site.locais.filter((l) => l.tipo === 'cerimonia');
-    // Fotos do casal vivem no código; a galeria do painel entra depois delas.
-    const galeria = [...GALERIA_FIXA, ...site.galeria];
-    // Sem capítulos no painel, a história vem inteira do código.
-    const historia =
-      site.historia.length > 0
-        ? site.historia.map((h, i) => {
-            const c = CAPITULOS[i];
-            return c
-              ? {
-                  ...h,
-                  fotoUrl: c.fotoUrl,
-                  titulo: c.titulo ?? h.titulo,
-                  data: c.data ?? h.data,
-                  texto: c.texto ?? h.texto,
-                }
-              : h;
-          })
-        : CAPITULOS.map((c, i) => ({
-            id: -(i + 1),
-            fotoUrl: c.fotoUrl,
-            titulo: c.titulo ?? '',
-            data: c.data ?? '',
-            texto: c.texto ?? '',
-          }));
+    const { galeria, historia } = site;
     const secoes: [string, string, boolean][] = [
       ['historia', 'Nossa história', historia.length > 0],
       ['locais', 'Cerimônia', cerimonia.length > 0],
       ['dress-code', 'Dress code', true],
       ['rsvp', 'Confirmar presença', convite],
       ['presentes', 'Presentes', true],
-      ['galeria', 'Galeria', true],
+      ['galeria', 'Galeria', galeria.length > 0],
       ['mural', 'Mural', convite],
-      ['faq', 'Dúvidas', true],
-      ['como-chegar', 'Como chegar', true],
+      ['faq', 'Dúvidas', site.faq.length > 0],
+      ['como-chegar', 'Como chegar', site.comoChegar.some((l) => l.endereco.trim() !== '')],
     ];
     const visiveis = secoes.filter(([, , mostrar]) => mostrar).map(([id, label]): [string, string] => [id, label]);
     // Seções visíveis numeradas como num convite: I, II, III...
@@ -105,7 +83,7 @@ export function SitePage(props: Props) {
       {historia.length > 0 && (
         <Secao id="historia" titulo="Nossa história" numero={n('historia')} icone="anel" largo>
           <div className="mb-24 md:mb-32">
-            <EnvelopeCapa />
+            <EnvelopeCapa fotoUrl={site.capaUrl} legenda={`${site.casal.nomeNoiva} e ${site.casal.nomeNoivo}`} />
           </div>
           <ol data-linha-do-tempo className="relative space-y-24 pl-8 md:space-y-32 md:pl-14">
             {/* Fio da história: desenha-se com a rolagem, com um ponto em cada capítulo. */}
@@ -215,7 +193,7 @@ export function SitePage(props: Props) {
         {slots.presentes ?? <p className="text-verde-suave">A lista de presentes chega em breve.</p>}
       </Secao>
 
-      <Galeria fotos={galeria} numero={n('galeria')} />
+      {galeria.length > 0 && <Galeria fotos={galeria} numero={n('galeria')} />}
 
       {convite && (
         <Secao id="mural" titulo="Mural de recados" numero={n('mural')} icone="pena">
@@ -223,9 +201,10 @@ export function SitePage(props: Props) {
         </Secao>
       )}
 
+{site.faq.length > 0 && (
       <Secao id="faq" titulo="Dúvidas" numero={n('faq')} vinheta="v-duvidas" espelhado>
         <div data-cascata className="border-t border-folha-escuro">
-          {DUVIDAS.map((f) => (
+          {site.faq.map((f) => (
             <details key={f.id} className="group border-b border-folha-escuro">
               <summary className="flex list-none items-center justify-between gap-6 py-6 font-caslon text-xl text-verde [&::-webkit-details-marker]:hidden">
                 {f.pergunta}
@@ -239,8 +218,9 @@ export function SitePage(props: Props) {
           ))}
         </div>
       </Secao>
+      )}
 
-      <ComoChegar numero={n('como-chegar')} />
+      <ComoChegar locais={site.comoChegar} numero={n('como-chegar')} />
 
       <footer data-rodape className="borda-rasgada textura-papel-clara relative overflow-x-clip bg-papel pt-24 text-center">
         <div className="relative mx-auto max-w-3xl px-gutter">
@@ -412,7 +392,7 @@ function Hero({ site, saudacao }: { site: SitePublico | SiteConvite; saudacao?: 
  * Camadas: vídeo ao fundo, cartão com a foto no meio, bolso da frente por cima.
  * Sem animação, o envelope já está aberto com a foto para fora.
  */
-function EnvelopeCapa() {
+function EnvelopeCapa({ fotoUrl, legenda }: { fotoUrl: string | null; legenda: string }) {
   return (
     <div data-envelope className="relative mx-auto aspect-[720/778] w-full max-w-md overflow-hidden">
       <video
@@ -426,9 +406,11 @@ function EnvelopeCapa() {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full mix-blend-multiply"
       />
-      <figure data-envelope-cartao className="absolute top-[5%] left-1/2 z-10 w-[60%] -translate-x-1/2 rounded-t-full bg-papel p-2.5 shadow-suave">
-        <img src={FOTO_CAPA.fotoUrl} alt={FOTO_CAPA.legenda} loading="lazy" decoding="async" className="aspect-[4/5] w-full rounded-t-full object-cover" />
-      </figure>
+      {fotoUrl && (
+        <figure data-envelope-cartao className="absolute top-[5%] left-1/2 z-10 w-[60%] -translate-x-1/2 rounded-t-full bg-papel p-2.5 shadow-suave">
+          <img src={fotoUrl} alt={legenda} loading="lazy" decoding="async" className="aspect-[4/5] w-full rounded-t-full object-cover" />
+        </figure>
+      )}
       <img data-envelope-bolso src={aquarela('envelope-bolso.webp')} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 h-full w-full" />
     </div>
   );
@@ -559,9 +541,9 @@ function Galeria({ fotos, numero }: { fotos: { id: number; fotoUrl: string; lege
 }
 
 /** Mapa no fim da página: Google Maps do local escolhido e atalhos de rota. */
-function ComoChegar({ numero }: { numero?: string }) {
-  const locais = COMO_CHEGAR.filter((l): l is typeof l & { endereco: string } => l.endereco !== null);
-  const pendentes = COMO_CHEGAR.filter((l) => l.endereco === null);
+function ComoChegar({ locais: todos, numero }: { locais: LocalMapa[]; numero?: string }) {
+  const locais = todos.filter((l) => l.endereco.trim() !== '');
+  const pendentes = todos.filter((l) => l.endereco.trim() === '');
   const [ativo, setAtivo] = useState(0);
   const local = locais[ativo] ?? locais[0];
   if (!local) return null;
@@ -579,7 +561,7 @@ function ComoChegar({ numero }: { numero?: string }) {
               onClick={() => setAtivo(i)}
               className={i === ativo ? 'botao' : 'botao-contorno'}
             >
-              {l.titulo}
+              {LABEL_LOCAL[l.tipo]}
             </button>
           ))}
         </div>
@@ -595,7 +577,7 @@ function ComoChegar({ numero }: { numero?: string }) {
           <div className="cartao-mesa p-3">
             <iframe
               key={local.tipo}
-              title={`Mapa: ${local.titulo}`}
+              title={`Mapa: ${LABEL_LOCAL[local.tipo]}`}
               src={`https://maps.google.com/maps?q=${q}&z=16&output=embed`}
               loading="eager"
               referrerPolicy="no-referrer-when-downgrade"
@@ -604,7 +586,7 @@ function ComoChegar({ numero }: { numero?: string }) {
           </div>
         </div>
         <div data-reveal className="md:col-span-4">
-          <p className="versalete text-musgo">{local.titulo}</p>
+          <p className="versalete text-musgo">{LABEL_LOCAL[local.tipo]}</p>
           <p className="mt-3 font-caslon text-2xl leading-snug text-verde">{local.endereco}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={`https://www.google.com/maps/search/?api=1&query=${q}`} target="_blank" rel="noreferrer" className="botao">
@@ -616,7 +598,7 @@ function ComoChegar({ numero }: { numero?: string }) {
           </div>
           {pendentes.map((l) => (
             <p key={l.tipo} className="mt-10 border-t border-folha pt-6 text-verde-suave">
-              {l.titulo}: local a confirmar.
+              {LABEL_LOCAL[l.tipo]}: local a confirmar.
             </p>
           ))}
         </div>

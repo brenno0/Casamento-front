@@ -18,10 +18,11 @@ import {
 import { IconePainel } from '../painel/IconePainel';
 import { Esqueleto } from '../painel/Esqueleto';
 
-type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
+type Aba = 'locais' | 'capa' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
 
 const ABAS: [Aba, string][] = [
   ['locais', 'Locais'],
+  ['capa', 'Capa'],
   ['historia', 'Nossa história'],
   ['dress', 'Dress code e RSVP'],
   ['galeria', 'Galeria'],
@@ -40,7 +41,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">Site</h1>
-          <p className="mt-2 text-grafite-suave">Endereços e mapas só aparecem pelo link do convite.</p>
+          <p className="mt-2 text-grafite-suave">O endereço da festa só aparece pelo link do convite.</p>
         </div>
         <a href="/" target="_blank" rel="noreferrer" className="acao-secundaria">
           Ver site
@@ -69,6 +70,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
           </p>
         )}
         {data && aba === 'locais' && <Locais s={data} />}
+        {data && aba === 'capa' && <Capa s={data} />}
         {data && aba === 'historia' && <Historia s={data} />}
         {data && aba === 'dress' && <DressCode key={JSON.stringify(data.config)} s={data} />}
         {data && aba === 'galeria' && <Galeria s={data} />}
@@ -139,7 +141,7 @@ function LocalForm({ l }: { l: SitePainel['locais'][number] }) {
         <input type="time" value={d.horario} onChange={campo('horario')} className={inputClass} />
       </label>
       <label className="block sm:col-span-2">
-        <span className="rotulo">Endereço (só no convite)</span>
+        <span className="rotulo">{l.tipo === 'festa' ? 'Endereço (só no convite)' : 'Endereço'}</span>
         <input value={d.endereco} onChange={campo('endereco')} className={inputClass} />
       </label>
       <label className="block">
@@ -181,8 +183,6 @@ function BotoesOrdem({ ids, i, recurso }: { ids: number[]; i: number; recurso: '
 
 function Historia({ s }: { s: SitePainel }) {
   const criar = useCriarItem('historia');
-  const excluir = useExcluirItem('historia');
-  const atualizar = useAtualizarItem('historia');
   const [d, setD] = useState({ data: '', titulo: '', texto: '' });
   const [foto, setFoto] = useState<number | null>(null);
   const ids = s.historia.map((h) => h.id);
@@ -205,24 +205,11 @@ function Historia({ s }: { s: SitePainel }) {
     <div className="space-y-6">
       <ul className="space-y-3">
         {s.historia.map((h, i) => (
-          <li key={h.id} className="flex flex-wrap items-center gap-3 cartao-painel p-3">
-            <BotoesOrdem ids={ids} i={i} recurso="historia" />
-            {h.fotoUrl && <img src={h.fotoUrl} alt="" className="h-12 w-12 rounded object-cover" />}
-            <span className="flex-1">
-              {formatDataCurta(h.data)} · <strong>{h.titulo}</strong>
-            </span>
-            <FileUpload label="Trocar foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => atualizar.mutate({ id: h.id, fotoArquivoId: a.id })} />
-            <button type="button" aria-label={`Excluir ${h.titulo}`} onClick={() => excluir.mutate(h.id)} className="text-sm acao-perigo">
-              Excluir
-            </button>
-          </li>
+          <ItemHistoria key={JSON.stringify(h)} h={h} ids={ids} i={i} />
         ))}
       </ul>
       <form onSubmit={onSubmit} aria-label="Novo momento" className="grid gap-3 cartao-painel sm:grid-cols-3">
-        <label className="block">
-          <span className="rotulo">Data</span>
-          <input type="date" value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
-        </label>
+        <CampoData valor={d.data} onChange={(data) => setD({ ...d, data })} />
         <label className="block sm:col-span-2">
           <span className="rotulo">Título</span>
           <input maxLength={120} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
@@ -240,8 +227,150 @@ function Historia({ s }: { s: SitePainel }) {
             Adicionar momento
           </button>
         </div>
-        <Erro mostrar={criar.isError || atualizar.isError} />
+        <Erro mostrar={criar.isError} />
       </form>
+    </div>
+  );
+}
+
+/** Data do capítulo: dia exato ou só mês e ano (quando ninguém lembra o dia). */
+function CampoData({ valor, onChange }: { valor: string; onChange: (v: string) => void }) {
+  const soMes = /^\d{4}-\d{2}$/.test(valor);
+  return (
+    <div>
+      <label className="block">
+        <span className="rotulo">Data</span>
+        <input type={soMes ? 'month' : 'date'} value={valor} onChange={(e) => onChange(e.target.value)} className={inputClass} />
+      </label>
+      <label className="mt-1.5 inline-flex items-center gap-2 text-xs text-grafite-suave">
+        <input type="checkbox" checked={soMes} onChange={(e) => onChange(e.target.checked ? valor.slice(0, 7) : valor ? `${valor}-01` : '')} />
+        Só mês e ano
+      </label>
+    </div>
+  );
+}
+
+const dataLegivel = (data: string) => {
+  const mes = /^(\d{4})-(\d{2})$/.exec(data);
+  return mes ? `${mes[2]}/${mes[1]}` : formatDataCurta(data);
+};
+
+function ItemHistoria({ h, ids, i }: { h: SitePainel['historia'][number]; ids: number[]; i: number }) {
+  const atualizar = useAtualizarItem('historia');
+  const excluir = useExcluirItem('historia');
+  const [editando, setEditando] = useState(false);
+  const [d, setD] = useState({ data: h.data, titulo: h.titulo, texto: h.texto });
+
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!d.data || !d.titulo.trim()) return;
+    atualizar.mutate({ id: h.id, data: d.data, titulo: d.titulo.trim(), texto: d.texto.trim() }, { onSuccess: () => setEditando(false) });
+  }
+
+  return (
+    <li className="cartao-painel p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <BotoesOrdem ids={ids} i={i} recurso="historia" />
+        {h.fotoUrl && <img src={h.fotoUrl} alt="" className="h-12 w-12 rounded object-cover" />}
+        <span className="flex-1">
+          {dataLegivel(h.data)} · <strong>{h.titulo}</strong>
+        </span>
+        <FileUpload label="Trocar foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => atualizar.mutate({ id: h.id, fotoArquivoId: a.id })} />
+        <button type="button" aria-expanded={editando} onClick={() => setEditando(!editando)} className="acao-secundaria min-h-8 px-3 text-sm">
+          {editando ? 'Fechar' : 'Editar'}
+        </button>
+        <button type="button" aria-label={`Excluir ${h.titulo}`} onClick={() => excluir.mutate(h.id)} className="text-sm acao-perigo">
+          Excluir
+        </button>
+      </div>
+      {editando && (
+        <form onSubmit={onSubmit} aria-label={`Editar ${h.titulo}`} className="mt-4 grid gap-3 sm:grid-cols-3">
+          <CampoData valor={d.data} onChange={(data) => setD({ ...d, data })} />
+          <label className="block sm:col-span-2">
+            <span className="rotulo">Título</span>
+            <input maxLength={120} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
+          </label>
+          <label className="block sm:col-span-3">
+            <span className="rotulo">Texto</span>
+            <textarea rows={8} maxLength={2000} value={d.texto} onChange={(e) => setD({ ...d, texto: e.target.value })} className={inputClass} />
+          </label>
+          <Erro mostrar={atualizar.isError} />
+          <div className="sm:col-span-3">
+            <button type="submit" disabled={!d.data || !d.titulo.trim() || atualizar.isPending} className="acao">
+              Salvar
+            </button>
+          </div>
+        </form>
+      )}
+    </li>
+  );
+}
+
+function ItemFaq({ f, ids, i }: { f: SitePainel['faq'][number]; ids: number[]; i: number }) {
+  const atualizar = useAtualizarItem('faq');
+  const excluir = useExcluirItem('faq');
+  const [editando, setEditando] = useState(false);
+  const [pergunta, setPergunta] = useState(f.pergunta);
+  const [resposta, setResposta] = useState(f.resposta);
+  const valido = pergunta.trim() !== '' && resposta.trim() !== '';
+
+  return (
+    <li className="cartao-painel p-3">
+      <div className="flex items-start gap-3">
+        <BotoesOrdem ids={ids} i={i} recurso="faq" />
+        <div className="flex-1">
+          <p className="font-semibold">{f.pergunta}</p>
+          {!editando && <p className="whitespace-pre-line text-grafite-suave">{f.resposta}</p>}
+        </div>
+        <button type="button" aria-expanded={editando} onClick={() => setEditando(!editando)} className="acao-secundaria min-h-8 px-3 text-sm">
+          {editando ? 'Fechar' : 'Editar'}
+        </button>
+        <button type="button" aria-label={`Excluir pergunta ${f.pergunta}`} onClick={() => excluir.mutate(f.id)} className="text-sm acao-perigo">
+          Excluir
+        </button>
+      </div>
+      {editando && (
+        <form
+          aria-label={`Editar pergunta ${f.pergunta}`}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valido) atualizar.mutate({ id: f.id, pergunta: pergunta.trim(), resposta: resposta.trim() }, { onSuccess: () => setEditando(false) });
+          }}
+          className="mt-4 space-y-3"
+        >
+          <label className="block">
+            <span className="rotulo">Pergunta</span>
+            <input maxLength={300} value={pergunta} onChange={(e) => setPergunta(e.target.value)} className={inputClass} />
+          </label>
+          <label className="block">
+            <span className="rotulo">Resposta</span>
+            <textarea rows={3} maxLength={2000} value={resposta} onChange={(e) => setResposta(e.target.value)} className={inputClass} />
+          </label>
+          <Erro mostrar={atualizar.isError} />
+          <button type="submit" disabled={!valido || atualizar.isPending} className="acao">
+            Salvar
+          </button>
+        </form>
+      )}
+    </li>
+  );
+}
+
+/** Foto do cartão que sai do envelope na abertura do site. */
+function Capa({ s }: { s: SitePainel }) {
+  const salvar = useAtualizarConfig();
+  return (
+    <div className="flex flex-wrap items-start gap-6 cartao-painel">
+      {s.config.capaUrl ? (
+        <img src={s.config.capaUrl} alt="Capa atual" className="aspect-[4/5] w-40 rounded-t-full object-cover" />
+      ) : (
+        <p className="text-grafite-suave">Sem foto de capa. O envelope abre vazio.</p>
+      )}
+      <div className="space-y-3">
+        <FileUpload label="Trocar foto de capa" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => salvar.mutate({ fotoCapaArquivoId: a.id })} />
+        <Erro mostrar={salvar.isError} />
+        {salvar.isSuccess && <p role="status">Salvo.</p>}
+      </div>
     </div>
   );
 }
@@ -337,7 +466,6 @@ function Galeria({ s }: { s: SitePainel }) {
 
 function Faq({ s }: { s: SitePainel }) {
   const criar = useCriarItem('faq');
-  const excluir = useExcluirItem('faq');
   const [pergunta, setPergunta] = useState('');
   const [resposta, setResposta] = useState('');
   const ids = s.faq.map((f) => f.id);
@@ -345,16 +473,7 @@ function Faq({ s }: { s: SitePainel }) {
     <div className="space-y-4">
       <ul className="space-y-2">
         {s.faq.map((f, i) => (
-          <li key={f.id} className="flex items-start gap-3 cartao-painel p-3">
-            <BotoesOrdem ids={ids} i={i} recurso="faq" />
-            <div className="flex-1">
-              <p className="font-semibold">{f.pergunta}</p>
-              <p className="text-grafite-suave">{f.resposta}</p>
-            </div>
-            <button type="button" aria-label={`Excluir pergunta ${f.pergunta}`} onClick={() => excluir.mutate(f.id)} className="text-sm acao-perigo">
-              Excluir
-            </button>
-          </li>
+          <ItemFaq key={JSON.stringify(f)} f={f} ids={ids} i={i} />
         ))}
       </ul>
       <form

@@ -16,6 +16,8 @@ export const TOKEN_FAKE = 'token-convite-valido-0123456789abcdef';
 export function siteFake(estado: { casal: typeof CASAL_FAKE }) {
   return {
     casal: estado.casal,
+    capaUrl: '/api/publico/fotos/1',
+    comoChegar: [{ tipo: 'cerimonia', endereco: 'Rua da Igreja, 10 - Porto Seguro', latitude: null, longitude: null }],
     historia: [{ id: 1, data: '2019-03-10', titulo: 'Nos conhecemos', texto: 'Num show.', fotoUrl: null }],
     locais: [
       { tipo: 'cerimonia', nome: 'Igreja Matriz', data: '2027-07-17', horario: '16:00' },
@@ -37,6 +39,10 @@ export function siteConviteFake(estado: { casal: typeof CASAL_FAKE }) {
       latitude: -16.44 + i / 100,
       longitude: -39.06,
     })),
+    comoChegar: [
+      { tipo: 'cerimonia', endereco: 'Rua da Igreja, 10 - Porto Seguro', latitude: -16.44, longitude: -39.06 },
+      { tipo: 'festa', endereco: 'Estrada do Jardim, 20', latitude: -16.43, longitude: -39.06 },
+    ],
     grupo: { nome: 'Família Souza', mensagem: 'Contamos com vocês!' },
   };
 }

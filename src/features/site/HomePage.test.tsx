@@ -10,10 +10,11 @@ describe('site público', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Nayane & Brenno' })).toBeInTheDocument();
     expect(screen.getByText('17.JULHO.2027')).toHaveAttribute('datetime', '2027-07-17');
-    expect(screen.getByRole('heading', { name: 'O primeiro encontro' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nos conhecemos' })).toBeInTheDocument();
     const cerimonia = screen.getByRole('article', { name: 'Cerimônia' });
     expect(within(cerimonia).getByText('Igreja Matriz')).toBeInTheDocument();
-    expect(screen.queryByText(/Rua da Igreja/)).not.toBeInTheDocument();
+    expect(within(cerimonia).queryByText(/Rua da Igreja/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Estrada do Jardim/)).not.toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /Mapa/ })).not.toBeInTheDocument();
     expect(within(cerimonia).queryByRole('link', { name: 'Google Maps' })).not.toBeInTheDocument();
     // O mapa do fim da página é público e aponta para a igreja.
@@ -21,7 +22,7 @@ describe('site público', () => {
     expect(screen.queryByRole('heading', { name: 'Confirmar presença' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Mural de recados' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Paleta sugerida')).toBeInTheDocument();
-    expect(screen.getByText('Preciso confirmar presença?')).toBeInTheDocument();
+    expect(screen.getByText('Pode levar criança?')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/publico/site', expect.objectContaining({ credentials: 'include' }));
   });
 
@@ -55,7 +56,7 @@ describe('site pelo convite', () => {
     renderRoute('/c/token-que-nao-existe-1234567890');
     expect(await screen.findByText(/Não encontramos este convite/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Nayane & Brenno' })).toBeInTheDocument();
-    expect(screen.queryByText(/Rua da Igreja/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Estrada do Jardim/)).not.toBeInTheDocument();
   });
 });
 
