@@ -35,6 +35,7 @@ import {
   type Tarefa,
 } from './useTarefas';
 import { Avatar } from '../painel/Avatar';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
 
 type Itens = Record<number, number[]>;
 
@@ -241,7 +242,6 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
   const [nome, setNome] = useState(coluna.nome);
   const renomear = useRenomearColuna();
   const excluir = useExcluirColuna();
-  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -289,8 +289,9 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
         </form>
       ) : (
         <div>
-          <h2 className="truncate text-xl" title={coluna.nome}>
-            {coluna.nome} <span className="text-base text-grafite-suave">({total})</span>
+          <h2 className="flex items-center gap-2" title={coluna.nome}>
+            <span className="truncate">{coluna.nome}</span>
+            <span className="selo bg-white text-grafite-suave tabular-nums">{total}</span>
           </h2>
           <div className="-ml-2 mt-1 flex flex-wrap items-center gap-1">
             <button
@@ -321,40 +322,17 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
             >
               {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
             </button>
-            {confirmandoExclusao ? (
-              <>
-                <button
-                  type="button"
-                  disabled={excluir.isPending}
-                  onClick={() =>
-                    excluir.mutate(coluna.id, { onSettled: () => setConfirmandoExclusao(false) })
-                  }
-                  className="acao min-h-8 px-3 py-0.5 text-sm"
-                >
-                  Confirmar exclusão
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmandoExclusao(false)}
-                  className="rounded-botao px-2 py-0.5 text-sm text-grafite-suave"
-                >
-                  Cancelar
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                aria-label={`Excluir coluna ${coluna.nome}`}
-                onClick={() => {
-                  renomear.reset();
-                  excluir.reset();
-                  setConfirmandoExclusao(true);
-                }}
-                className="rounded-botao px-2 py-0.5 text-sm text-grafite hover:bg-pessego-claro"
-              >
-                Excluir
-              </button>
-            )}
+            <BotaoSegurar
+              aria-label={`Excluir coluna ${coluna.nome}`}
+              disabled={excluir.isPending}
+              onConfirmar={() => {
+                renomear.reset();
+                excluir.mutate(coluna.id);
+              }}
+              className="min-h-7 border-transparent bg-transparent px-2 py-0.5 shadow-none"
+            >
+              Excluir
+            </BotaoSegurar>
           </div>
         </div>
       )}
@@ -466,7 +444,7 @@ function CartaoConteudo({
             <span className="truncate text-grafite-suave">{tarefa.fornecedorNome}</span>
           )}
           {atrasada && (
-            <span className="selo bg-erro/10 text-erro">Atrasada</span>
+            <span className="selo selo-ponto bg-erro/10 text-erro">Atrasada</span>
           )}
         </div>
       </div>

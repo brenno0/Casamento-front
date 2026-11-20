@@ -10,6 +10,9 @@ import { moverNaLista } from '../site-admin/useSiteAdmin';
 import { useViagens } from '../viagens/useViagens';
 import { IconePainel } from '../painel/IconePainel';
 import { Avatar } from '../painel/Avatar';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
+import { BotaoFechar } from '../painel/BotaoFechar';
 
 export interface ItemPainel {
   id: number;
@@ -106,7 +109,7 @@ function Itens() {
   const ordenar = useMutacaoItens((ids: number[]) => api.put<ItemPainel[]>('/painel/presentes/itens/ordem', { ids }));
   const [editando, setEditando] = useState<ItemPainel | 'novo' | null>(null);
 
-  if (isPending) return <p role="status">Carregando…</p>;
+  if (isPending) return <Esqueleto />;
   if (isError || !data) return <p role="alert" className="text-erro">Não foi possível carregar os itens.</p>;
   const ids = data.map((i) => i.id);
 
@@ -116,7 +119,7 @@ function Itens() {
         <IconePainel nome="mais" />
         Novo item
       </button>
-      {data.length === 0 && <p className="text-grafite-suave">Nenhum item ainda.</p>}
+      {data.length === 0 && <Vazio icone="presentes">Nenhum item ainda.</Vazio>}
       {data.length > 0 && (
         <div className="cartao-painel overflow-x-auto p-0">
           <table className="tabela">
@@ -228,7 +231,10 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
   return (
     <div className="dialogo-fundo" onMouseDown={(e) => e.target === e.currentTarget && !salvar.isPending && onClose()}>
       <div role="dialog" aria-modal="true" aria-label={item ? 'Editar item' : 'Novo item'} className="dialogo">
-        <h2 className="titulo-dialogo">{item ? 'Editar item' : 'Novo item'}</h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="titulo-dialogo">{item ? 'Editar item' : 'Novo item'}</h2>
+          <BotaoFechar onClick={onClose} disabled={salvar.isPending} />
+        </div>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block sm:col-span-2">
             <span className="rotulo">Nome</span>
@@ -344,9 +350,9 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
         </a>
         {extras}
       </div>
-      {isPending && <p role="status">Carregando…</p>}
+      {isPending && <Esqueleto />}
       {isError && <p role="alert" className="text-erro">Não foi possível carregar os presentes.</p>}
-      {data && data.length === 0 && <p className="text-grafite-suave">Nenhum presente ainda.</p>}
+      {data && data.length === 0 && <Vazio icone="presentes">Nenhum presente ainda.</Vazio>}
       <ul className="space-y-2">
         {data?.map((p) => (
           <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="cartao-painel px-5 py-4">

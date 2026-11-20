@@ -17,6 +17,9 @@ import {
   type TipoReserva,
   type ViagemDetalhe,
 } from './useViagens';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
 
 type Aba = 'roteiro' | 'reservas' | 'mala';
 
@@ -26,9 +29,8 @@ export function ViagemPage() {
   const [aba, setAba] = useState<Aba>('roteiro');
   const navigate = useNavigate();
   const excluir = useEditarViagem(id, () => api.del<ViagemDetalhe>(`/painel/viagens/${id}`));
-  const [confirmando, setConfirmando] = useState(false);
 
-  if (isPending) return <p role="status">Carregando…</p>;
+  if (isPending) return <Esqueleto />;
   if (isError || !data) {
     return (
       <p role="alert" className="text-erro">
@@ -39,9 +41,13 @@ export function ViagemPage() {
 
   return (
     <section>
-      <Link to="/painel/viagens" className="text-sm acao-link text-grafite-suave">
-        ← Viagens
-      </Link>
+      <nav aria-label="Caminho" className="flex items-center gap-1.5 text-sm text-grafite-suave">
+        <Link to="/painel/viagens" className="transition-colors hover:text-grafite">
+          Viagens
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span className="truncate text-grafite">{data.nome}</span>
+      </nav>
       <h1 className="mt-2 text-4xl">{data.nome}</h1>
       <p className="text-grafite-suave">
         {data.destino && `${data.destino} · `}
@@ -66,19 +72,13 @@ export function ViagemPage() {
         {aba === 'mala' && <Mala v={data} />}
       </div>
       <div className="mt-10 border-t border-linha pt-4">
-        {confirmando ? (
-          <button
-            type="button"
-            onClick={() => excluir.mutate(undefined, { onSuccess: () => void navigate('/painel/viagens') })}
-            className="acao min-h-9 px-4 py-1"
-          >
-            Confirmar exclusão (reservas e gastos espelhados também saem)
-          </button>
-        ) : (
-          <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
-            Excluir viagem
-          </button>
-        )}
+        <BotaoSegurar
+          disabled={excluir.isPending}
+          onConfirmar={() => excluir.mutate(undefined, { onSuccess: () => void navigate('/painel/viagens') })}
+        >
+          Excluir viagem
+        </BotaoSegurar>
+        <p className="mt-2 text-[0.8125rem] text-grafite-suave">Reservas e gastos espelhados no financeiro também saem.</p>
       </div>
     </section>
   );
@@ -92,7 +92,7 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
 
   return (
     <div className="space-y-6">
-      {dias.length === 0 && <p className="text-grafite-suave">Nenhum item no roteiro.</p>}
+      {dias.length === 0 && <Vazio icone="calendario">Nenhum item no roteiro.</Vazio>}
       {dias.map((dia) => (
         <div key={dia}>
           <h2 className="text-xl text-rose-fundo">{formatDataCurta(dia)}</h2>
@@ -160,7 +160,7 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
 
   return (
     <div className="space-y-4">
-      {v.reservas.length === 0 && <p className="text-grafite-suave">Nenhuma reserva.</p>}
+      {v.reservas.length === 0 && <Vazio icone="viagens">Nenhuma reserva.</Vazio>}
       {v.reservas.map((r) => (
         <CartaoReserva key={r.id} viagemId={v.id} r={r} />
       ))}

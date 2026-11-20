@@ -28,6 +28,10 @@ import {
 } from './useConvidados';
 import { IconePainel } from '../painel/IconePainel';
 import { Avatar } from '../painel/Avatar';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
+import { BotaoFechar } from '../painel/BotaoFechar';
 
 const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
 
@@ -86,16 +90,14 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       </label>
 
       {grupos.isPending && (
-        <p role="status" className="mt-6 text-grafite-suave">
-          Carregando…
-        </p>
+        <Esqueleto className="mt-6" />
       )}
       {grupos.isError && !grupos.data && (
         <p role="alert" className="mt-6 text-erro">
           Não foi possível carregar os convidados.
         </p>
       )}
-      {grupos.data && visiveis.length === 0 && <p className="mt-6 text-grafite-suave">Nenhum grupo encontrado.</p>}
+      {grupos.data && visiveis.length === 0 && <Vazio icone="convidados" className="mt-6">Nenhum grupo encontrado.</Vazio>}
 
       <ul className="mt-6 grid gap-4 lg:grid-cols-2">
         {visiveis.map(({ g, convidados }) => (
@@ -210,7 +212,7 @@ function ResumoCartoes() {
 }
 
 const COR_RSVP: Record<Rsvp, string> = {
-  sem_resposta: 'bg-nevoa-escuro text-grafite-suave',
+  sem_resposta: 'selo-alerta',
   vai: 'bg-rose-claro text-rose-fundo',
   nao_vai: 'bg-pessego-claro text-grafite',
 };
@@ -311,9 +313,12 @@ function Dialogo({ titulo, onClose, ocupado, children }: { titulo: string; onClo
       }}
     >
       <div role="dialog" aria-modal="true" aria-labelledby={id} className="dialogo">
-        <h2 id={id} className="titulo-dialogo">
-          {titulo}
-        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 id={id} className="titulo-dialogo">
+            {titulo}
+          </h2>
+          <BotaoFechar onClick={onClose} disabled={ocupado} />
+        </div>
         {children}
       </div>
     </div>
@@ -329,7 +334,6 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
   const [mensagem, setMensagem] = useState(grupo?.mensagem ?? '');
   const [contato, setContato] = useState<number | null>(grupo?.contatoConvidadoId ?? null);
   const comTelefone = (grupo?.convidados ?? []).filter((c) => c.telefone);
-  const [confirmando, setConfirmando] = useState(false);
   const ocupado = salvar.isPending || excluir.isPending;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -385,15 +389,9 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
         )}
         <div className="flex flex-wrap justify-between gap-2">
           {grupo ? (
-            confirmando ? (
-              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(grupo.id, { onSuccess: onClose })} className="acao">
-                Confirmar exclusão
-              </button>
-            ) : (
-              <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
-                Excluir grupo
-              </button>
-            )
+            <BotaoSegurar disabled={ocupado} onConfirmar={() => excluir.mutate(grupo.id, { onSuccess: onClose })}>
+              Excluir grupo
+            </BotaoSegurar>
           ) : (
             <span />
           )}
@@ -437,7 +435,6 @@ function ConvidadoModal({
     acompanhantePermitido: convidado?.acompanhantePermitido ?? false,
     acompanhanteNome: convidado?.acompanhanteNome ?? '',
   });
-  const [confirmando, setConfirmando] = useState(false);
   const ocupado = salvar.isPending || excluir.isPending;
   const campo = <K extends keyof typeof d>(k: K, v: (typeof d)[K]) => {
     salvar.reset();
@@ -539,15 +536,9 @@ function ConvidadoModal({
         )}
         <div className="flex flex-wrap justify-between gap-2 sm:col-span-2">
           {convidado ? (
-            confirmando ? (
-              <button type="button" disabled={ocupado} onClick={() => excluir.mutate(convidado.id, { onSuccess: onClose })} className="acao">
-                Confirmar exclusão
-              </button>
-            ) : (
-              <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
-                Excluir convidado
-              </button>
-            )
+            <BotaoSegurar disabled={ocupado} onConfirmar={() => excluir.mutate(convidado.id, { onSuccess: onClose })}>
+              Excluir convidado
+            </BotaoSegurar>
           ) : (
             <span />
           )}

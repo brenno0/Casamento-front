@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { json, mockFetch, renderRoute, TOKEN_FAKE } from '../../test/renderRoute';
+import { json, mockFetch, renderRoute, TOKEN_FAKE, segurar } from '../../test/renderRoute';
 import type { Recado } from './MuralSection';
 
 function api() {
@@ -54,8 +54,7 @@ describe('mural', () => {
     });
     renderRoute('/painel/mural');
     const item = await screen.findByRole('listitem', { name: 'Recado de Tio' });
-    fireEvent.click(within(item).getByRole('button', { name: 'Excluir' }));
-    fireEvent.click(within(item).getByRole('button', { name: 'Confirmar exclusão' }));
+    await segurar(within(item).getByRole('button', { name: 'Excluir' }));
     expect(await screen.findByText('Nenhum recado ainda.')).toBeInTheDocument();
   });
 });

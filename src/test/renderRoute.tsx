@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { vi } from 'vitest';
 import { createQueryClient } from '../lib/queryClient';
@@ -147,4 +147,10 @@ export function renderRoute(path: string) {
     </QueryClientProvider>,
   );
   return { ...result, router, queryClient };
+}
+
+/** Segura um `BotaoSegurar` até a ação disparar. */
+export async function segurar(botao: HTMLElement) {
+  fireEvent.pointerDown(botao);
+  await act(() => new Promise((fim) => setTimeout(fim, 950)));
 }

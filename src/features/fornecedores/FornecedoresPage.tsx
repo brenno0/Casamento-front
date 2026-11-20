@@ -11,6 +11,9 @@ import {
   type StatusFornecedor,
 } from './useFornecedores';
 import { IconePainel } from '../painel/IconePainel';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
+import { BotaoFechar } from '../painel/BotaoFechar';
 
 export const inputClass =
   'entrada';
@@ -79,16 +82,14 @@ export function FornecedoresPage() {
       </div>
 
       {isPending && (
-        <p role="status" className="mt-6 text-grafite-suave">
-          Carregando…
-        </p>
+        <Esqueleto className="mt-6" />
       )}
       {isError && !data && (
         <p role="alert" className="mt-6 text-erro">
           Não foi possível carregar os fornecedores.
         </p>
       )}
-      {data && data.length === 0 && <p className="mt-6 text-grafite-suave">Nenhum fornecedor por aqui ainda.</p>}
+      {data && data.length === 0 && <Vazio icone="fornecedores" className="mt-6">Nenhum fornecedor por aqui ainda.</Vazio>}
       {data && data.length > 0 && (
         <div className="cartao-painel mt-6 overflow-x-auto p-0">
           <table className="tabela">
@@ -156,9 +157,12 @@ function NovoFornecedorModal({ onClose }: { onClose: () => void }) {
       }}
     >
       <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="dialogo max-w-md">
-        <h2 id={tituloId} className="titulo-dialogo">
-          Novo fornecedor
-        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 id={tituloId} className="titulo-dialogo">
+            Novo fornecedor
+          </h2>
+          <BotaoFechar onClick={onClose} disabled={criar.isPending} />
+        </div>
         <form onSubmit={onSubmit} className="mt-4 space-y-4" noValidate>
           <label className="block">
             <span className="rotulo">Nome</span>

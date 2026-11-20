@@ -25,6 +25,8 @@ import {
   type Parcela,
   type ParcelaResumo,
 } from './useFinanceiro';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
 
 type Aba = 'resumo' | 'categorias' | 'contratos';
 
@@ -65,9 +67,7 @@ export function FinanceiroPage() {
 function Carregando({ isPending, isError, oque }: { isPending: boolean; isError: boolean; oque: string }) {
   if (isPending) {
     return (
-      <p role="status" className="text-grafite-suave">
-        Carregando…
-      </p>
+      <Esqueleto />
     );
   }
   if (isError) {
@@ -311,7 +311,7 @@ function Contratos() {
   return (
     <div className="space-y-6">
       <NovoContrato categorias={categorias.data} />
-      {contratos.data.length === 0 && <p className="text-grafite-suave">Nenhum contrato ainda.</p>}
+      {contratos.data.length === 0 && <Vazio icone="financeiro">Nenhum contrato ainda.</Vazio>}
       {contratos.data.map((c) => (
         <CartaoContrato key={c.id} c={c} />
       ))}
@@ -473,7 +473,7 @@ function LinhaParcela({ p }: { p: Parcela }) {
         {p.status === 'pago' ? (
           <span className="selo bg-rose-claro text-rose-fundo">Pago em {formatDataCurta(p.pagoEm!)}</span>
         ) : p.atrasada ? (
-          <span className="selo bg-erro/10 text-erro">Atrasada</span>
+          <span className="selo selo-ponto bg-erro/10 text-erro">Atrasada</span>
         ) : (
           <span className="selo bg-nevoa-escuro text-grafite-suave">Pendente</span>
         )}

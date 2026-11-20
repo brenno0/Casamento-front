@@ -1,7 +1,9 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { api } from '../../lib/api';
 import { Avatar } from '../painel/Avatar';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { Esqueleto } from '../painel/Esqueleto';
+import { Vazio } from '../painel/Vazio';
 
 interface RecadoPainel {
   id: number;
@@ -22,13 +24,9 @@ export function MuralAdminPage() {
     initialPageParam: 0,
     getNextPageParam: (u) => (u.temMais ? u.recados.at(-1)?.id : undefined),
   });
-  const [confirmando, setConfirmando] = useState<number | null>(null);
   const excluir = useMutation({
     mutationFn: (id: number) => api.del<void>(`/painel/mural/${id}`),
-    onSuccess: () => {
-      setConfirmando(null);
-      void queryClient.invalidateQueries({ queryKey: KEY });
-    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: KEY }),
   });
   const recados = mural.data?.pages.flatMap((p) => p.recados) ?? [];
 
@@ -36,13 +34,13 @@ export function MuralAdminPage() {
     <section>
       <h1 className="text-4xl">Mural de recados</h1>
       <p className="mt-2 text-grafite-suave">Os recados publicam na hora para quem tem link de convite.</p>
-      {mural.isPending && <p role="status" className="mt-6">Carregando…</p>}
+      {mural.isPending && <Esqueleto className="mt-6" />}
       {mural.isError && (
         <p role="alert" className="mt-6 text-erro">
           Não foi possível carregar o mural.
         </p>
       )}
-      {mural.isSuccess && recados.length === 0 && <p className="mt-6 text-grafite-suave">Nenhum recado ainda.</p>}
+      {mural.isSuccess && recados.length === 0 && <Vazio icone="mural" className="mt-6">Nenhum recado ainda.</Vazio>}
       <ul className="mt-6 space-y-3">
         {recados.map((r) => (
           <li key={r.id} aria-label={`Recado de ${r.autorNome}`} className="cartao-painel">
@@ -52,20 +50,9 @@ export function MuralAdminPage() {
               <span>
                 {r.autorNome} · {r.grupoNome} · {new Date(r.criadoEm).toLocaleString('pt-BR')}
               </span>
-              {confirmando === r.id ? (
-                <>
-                  <button type="button" disabled={excluir.isPending} onClick={() => excluir.mutate(r.id)} className="acao min-h-9 px-3 py-1">
-                    Confirmar exclusão
-                  </button>
-                  <button type="button" onClick={() => setConfirmando(null)}>
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <button type="button" onClick={() => setConfirmando(r.id)} className="acao-link">
-                  Excluir
-                </button>
-              )}
+              <BotaoSegurar disabled={excluir.isPending} onConfirmar={() => excluir.mutate(r.id)} className="ml-auto min-h-8 px-3">
+                Excluir
+              </BotaoSegurar>
             </div>
           </li>
         ))}

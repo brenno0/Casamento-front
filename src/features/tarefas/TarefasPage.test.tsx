@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { erro, json, mockFetch, renderRoute } from '../../test/renderRoute';
+import { erro, json, mockFetch, renderRoute, segurar } from '../../test/renderRoute';
 import { moverNoQuadro, type Quadro, type Tarefa } from './useTarefas';
 
 const HOJE = '2027-03-01';
@@ -238,16 +238,16 @@ describe('TarefasPage', () => {
     renderRoute('/painel/tarefas');
     await screen.findByText('Contratar fotografia');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir coluna A fazer' }));
-    fireEvent.click(within(coluna('A fazer')).getByRole('button', { name: 'Confirmar exclusão' }));
+    await segurar(screen.getByRole('button', { name: 'Excluir coluna A fazer' }));
     expect(await within(coluna('A fazer')).findByRole('alert')).toHaveTextContent(
       'Esvazie a coluna antes de excluí-la.',
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir coluna Fazendo' }));
-    // Nada é excluído antes da confirmação.
+    const excluirFazendo = screen.getByRole('button', { name: 'Excluir coluna Fazendo' });
+    // Clique simples não exclui: só segurar confirma.
+    fireEvent.click(excluirFazendo);
     expect(coluna('Fazendo')).toBeInTheDocument();
-    fireEvent.click(within(coluna('Fazendo')).getByRole('button', { name: 'Confirmar exclusão' }));
+    await segurar(excluirFazendo);
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Fazendo' })).not.toBeInTheDocument());
   });
 
@@ -274,8 +274,7 @@ describe('TarefasPage', () => {
     renderRoute('/painel/tarefas');
     fireEvent.click(await screen.findByText('Contratar fotografia'));
     const dialog = await screen.findByRole('dialog', { name: 'Editar tarefa' });
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir tarefa' }));
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirmar exclusão' }));
+    await segurar(within(dialog).getByRole('button', { name: 'Excluir tarefa' }));
     await waitFor(() => expect(screen.queryByText('Contratar fotografia')).not.toBeInTheDocument());
   });
 

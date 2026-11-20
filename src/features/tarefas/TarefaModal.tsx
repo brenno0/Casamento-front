@@ -11,6 +11,8 @@ import {
   type Tarefa,
 } from './useTarefas';
 import { useFornecedores } from '../fornecedores/useFornecedores';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { BotaoFechar } from '../painel/BotaoFechar';
 
 export type ModoModal = { tipo: 'criar'; colunaId: number } | { tipo: 'editar'; tarefa: Tarefa };
 
@@ -40,7 +42,6 @@ export function TarefaModal({
   const [responsavel, setResponsavel] = useState<Responsavel>(tarefa?.responsavel ?? 'ambos');
   const [colunaId, setColunaId] = useState(modo.tipo === 'criar' ? modo.colunaId : (tarefa?.colunaId ?? 0));
   const [fornecedorId, setFornecedorId] = useState<number | null>(tarefa?.fornecedorId ?? null);
-  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const fornecedores = useFornecedores();
 
   const criar = useCriarTarefa();
@@ -107,9 +108,12 @@ export function TarefaModal({
         aria-labelledby={tituloId}
         className="dialogo"
       >
-        <h2 id={tituloId} className="titulo-dialogo">
-          {tarefa ? 'Editar tarefa' : 'Nova tarefa'}
-        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 id={tituloId} className="titulo-dialogo">
+            {tarefa ? 'Editar tarefa' : 'Nova tarefa'}
+          </h2>
+          <BotaoFechar onClick={onClose} disabled={ocupado} />
+        </div>
         <form className="mt-4 space-y-4" onSubmit={onSubmit} noValidate>
           <label className="block">
             <span className="rotulo">Título</span>
@@ -234,25 +238,15 @@ export function TarefaModal({
             >
               Cancelar
             </button>
-            {tarefa &&
-              (confirmarExclusao ? (
-                <button
-                  type="button"
-                  disabled={ocupado}
-                  onClick={() => excluir.mutate(tarefa.id, { onSuccess: onClose })}
-                  className="acao ml-auto bg-erro hover:bg-erro/90"
-                >
-                  {excluir.isPending ? 'Excluindo…' : 'Confirmar exclusão'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmarExclusao(true)}
-                  className="acao-perigo ml-auto text-sm"
-                >
-                  Excluir tarefa
-                </button>
-              ))}
+            {tarefa && (
+              <BotaoSegurar
+                disabled={ocupado}
+                onConfirmar={() => excluir.mutate(tarefa.id, { onSuccess: onClose })}
+                className="ml-auto"
+              >
+                {excluir.isPending ? 'Excluindo…' : 'Excluir tarefa'}
+              </BotaoSegurar>
+            )}
           </div>
         </form>
       </div>

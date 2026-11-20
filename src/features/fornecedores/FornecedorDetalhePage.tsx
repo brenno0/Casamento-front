@@ -19,6 +19,8 @@ import {
   type FornecedorDetalhe,
   type ResponsavelFornecedor,
 } from './useFornecedores';
+import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { Esqueleto } from '../painel/Esqueleto';
 
 export function FornecedorDetalhePage() {
   const id = Number(useParams().id);
@@ -26,9 +28,7 @@ export function FornecedorDetalhePage() {
 
   if (isPending) {
     return (
-      <p role="status" className="text-grafite-suave">
-        Carregando…
-      </p>
+      <Esqueleto />
     );
   }
   if (isError || !data) {
@@ -48,15 +48,18 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
   const salvarDados = useAtualizarFornecedor(f.id);
   const excluir = useExcluirFornecedor();
   const navigate = useNavigate();
-  const [confirmando, setConfirmando] = useState(false);
 
   return (
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <Link to="/painel/fornecedores" className="text-sm acao-link text-grafite-suave">
-            ← Fornecedores
-          </Link>
+          <nav aria-label="Caminho" className="flex items-center gap-1.5 text-sm text-grafite-suave">
+            <Link to="/painel/fornecedores" className="transition-colors hover:text-grafite">
+              Fornecedores
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span className="truncate text-grafite">{f.nome}</span>
+          </nav>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="text-4xl">{f.nome}</h1>
             <BadgeStatus status={f.status} />
@@ -142,25 +145,12 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
             />
           </div>
           <div className="px-1">
-            {confirmando ? (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={excluir.isPending}
-                  onClick={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
-                  className="acao min-h-9 px-4 py-1"
-                >
-                  Confirmar exclusão
-                </button>
-                <button type="button" onClick={() => setConfirmando(false)} className="acao-discreta">
-                  Cancelar
-                </button>
-              </div>
-            ) : (
-              <button type="button" onClick={() => setConfirmando(true)} className="acao-perigo text-sm">
-                Excluir fornecedor
-              </button>
-            )}
+            <BotaoSegurar
+              disabled={excluir.isPending}
+              onConfirmar={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
+            >
+              Excluir fornecedor
+            </BotaoSegurar>
             {excluir.isError && (
               <p role="alert" className="mt-1 text-erro">
                 Não foi possível excluir.

@@ -66,6 +66,34 @@
     text-decoration-color: var(--color-erro);
   }
 
+  /* Segurar para excluir: o fundo enche enquanto o botão está pressionado. */
+  .segurar {
+    @apply relative inline-flex min-h-9 touch-none items-center justify-center overflow-hidden rounded-botao border border-linha bg-white px-4 py-1.5 text-sm font-medium text-erro select-none;
+    box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
+    transition:
+      border-color 150ms ease-out,
+      transform 150ms ease-out;
+  }
+  .segurar:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-erro) 35%, transparent);
+  }
+  .segurar[data-segurando] {
+    transform: scale(0.97);
+  }
+  .segurar:disabled {
+    opacity: 0.5;
+  }
+  .segurar-fundo {
+    @apply absolute inset-0 bg-erro/15;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms ease-out;
+  }
+  .segurar[data-segurando] .segurar-fundo {
+    transform: none;
+    transition: transform 900ms linear;
+  }
+
   /* Campos */
   .entrada {
     @apply mt-1.5 block min-h-10 w-full rounded-xl border border-linha-forte bg-white px-3 py-2 text-[0.9375rem] text-grafite placeholder:text-grafite-suave/70;
@@ -73,6 +101,20 @@
   }
   .entrada:hover:not(:focus) {
     border-color: var(--color-grafite-suave);
+  }
+  select.entrada {
+    @apply appearance-none pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377696d' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+  input[type='search'].entrada {
+    @apply pl-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377696d' stroke-width='1.75' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+    background-position: left 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
   }
 
   .rotulo {
@@ -115,6 +157,28 @@
 
   .selo {
     @apply inline-flex items-center gap-1 rounded-botao px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
+  }
+
+  /* Selo com ponto; `.selo-alerta` é o escuro para o que pede ação. */
+  .selo-ponto::before,
+  .selo-alerta::before {
+    content: '';
+    @apply size-1.5 shrink-0 rounded-full;
+    background: currentColor;
+  }
+  .selo-alerta {
+    @apply bg-grafite text-white;
+  }
+  .selo-alerta::before {
+    background: var(--color-rose);
+  }
+
+  .esqueleto {
+    @apply rounded-xl bg-nevoa-escuro;
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    animation: brilho 1.4s ease-in-out infinite;
   }
 
   .avatar {
@@ -268,6 +332,14 @@
   from {
     opacity: 0;
     transform: translateX(2.5rem);
+  }
+}
+@keyframes brilho {
+  from {
+    background-position: -50% 0;
+  }
+  to {
+    background-position: 150% 0;
   }
 }
 @keyframes crescer {

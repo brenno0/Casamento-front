@@ -3,6 +3,7 @@ import { QuadroKanban } from './QuadroKanban';
 import { TarefaModal, type ModoModal } from './TarefaModal';
 import { useCriarColuna, useMoverTarefa, useQuadro, type FiltroTarefas, type MoverVars } from './useTarefas';
 import { IconePainel } from '../painel/IconePainel';
+import { Esqueleto } from '../painel/Esqueleto';
 
 const FILTROS: { valor: FiltroTarefas; label: string }[] = [
   { valor: 'todas', label: 'Todas' },
@@ -66,9 +67,7 @@ export function TarefasPage() {
       )}
 
       {isPending && (
-        <p className="mt-6 text-grafite-suave" role="status">
-          Carregando…
-        </p>
+        <Esqueleto className="mt-6" />
       )}
       {isError && !quadro && (
         <p className="mt-6 text-erro" role="alert">

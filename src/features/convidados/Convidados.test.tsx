@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { erro, json, mockFetch, renderRoute } from '../../test/renderRoute';
+import { erro, json, mockFetch, renderRoute, segurar } from '../../test/renderRoute';
 import type { Convidado, Grupo } from './useConvidados';
 
 function conv(id: number, grupoId: number, nome: string, extra: Partial<Convidado> = {}): Convidado {
@@ -140,8 +140,7 @@ describe('Convidados', () => {
     const carlos = await screen.findByRole('article', { name: 'Grupo Carlos' });
     fireEvent.click(within(carlos).getByRole('button', { name: 'Editar grupo' }));
     const dialog = screen.getByRole('dialog', { name: 'Editar grupo' });
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir grupo' }));
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirmar exclusão' }));
+    await segurar(within(dialog).getByRole('button', { name: 'Excluir grupo' }));
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('Mova ou exclua os convidados');
   });
 

@@ -16,6 +16,7 @@ import {
   type SitePainel,
 } from './useSiteAdmin';
 import { IconePainel } from '../painel/IconePainel';
+import { Esqueleto } from '../painel/Esqueleto';
 
 type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
 
@@ -61,7 +62,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
         ))}
       </div>
       <div className="mt-6">
-        {isPending && <p role="status">Carregando…</p>}
+        {isPending && <Esqueleto />}
         {isError && !data && (
           <p role="alert" className="text-erro">
             Não foi possível carregar o site.

@@ -6,6 +6,8 @@ import { inputClass } from '../fornecedores/FornecedoresPage';
 import { useSitePainel } from '../site-admin/useSiteAdmin';
 import { destaques, linkMapa, useEditarRoteiro, useRoteiro, type EnvolvidoInput, type Etapa, type Roteiro } from './roteiro';
 import { IconePainel } from '../painel/IconePainel';
+import { Esqueleto } from '../painel/Esqueleto';
+import { BotaoFechar } from '../painel/BotaoFechar';
 
 export function RoteiroPage() {
   const { data, isPending, isError } = useRoteiro();
@@ -16,7 +18,7 @@ export function RoteiroPage() {
     return () => clearInterval(id);
   }, []);
 
-  if (isPending) return <p role="status">Carregando…</p>;
+  if (isPending) return <Esqueleto />;
   if (isError || !data) return <p role="alert" className="text-erro">Não foi possível carregar o roteiro.</p>;
   const d = destaques(data.etapas, data.data, agora);
 
@@ -122,7 +124,10 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
   return (
     <div className="dialogo-fundo" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="dialogo">
-        <h2 className="titulo-dialogo">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="titulo-dialogo">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
+          <BotaoFechar onClick={onClose} />
+        </div>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block">
             <span className="rotulo">Início</span>

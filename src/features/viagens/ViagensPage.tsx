@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { formatDataCurta } from '../../lib/date';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { useCriarViagem, useViagens } from './useViagens';
+import { Esqueleto } from '../painel/Esqueleto';
 
 export function ViagensPage() {
   const { data, isPending, isError } = useViagens();
@@ -20,7 +21,7 @@ export function ViagensPage() {
   return (
     <section>
       <h1 className="text-4xl">Viagens</h1>
-      {isPending && <p role="status" className="mt-6">Carregando…</p>}
+      {isPending && <Esqueleto className="mt-6" />}
       {isError && <p role="alert" className="mt-6 text-erro">Não foi possível carregar as viagens.</p>}
       <ul className="mt-6 grid gap-4 sm:grid-cols-2">
         {data?.map((v) => (

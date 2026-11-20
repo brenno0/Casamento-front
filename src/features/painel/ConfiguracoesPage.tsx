@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ApiError } from '../../lib/api';
 import type { CasalPublico } from '../site/useCasal';
 import { useAtualizarCasal, useCasalPainel } from './useCasalPainel';
+import { Esqueleto } from './Esqueleto';
 
 const NOME_MAX = 80;
 
@@ -19,9 +20,7 @@ export function ConfiguracoesPage() {
       <p className="mt-3 text-grafite-suave">Nomes do casal exibidos no site e no painel.</p>
 
       {isPending && (
-        <p className="mt-6 text-grafite-suave" role="status">
-          Carregando…
-        </p>
+        <Esqueleto className="mt-6" />
       )}
       {isError && !data && (
         <p className="mt-6 text-erro" role="alert">

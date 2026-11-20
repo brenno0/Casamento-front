@@ -61,6 +61,7 @@ const TRACOS = {
   ),
   sair: <path d="M14.5 4.5H17A2.5 2.5 0 0 1 19.5 7v10a2.5 2.5 0 0 1-2.5 2.5h-2.5 M10 8l-4 4 4 4 M6 12h9" />,
   mais: <path d="M12 5.5v13 M5.5 12h13" />,
+  fechar: <path d="M6.5 6.5l11 11 M17.5 6.5l-11 11" />,
   abrir: <path d="M8 16 16 8 M9.5 8H16v6.5" />,
   calendario: (
     <>
