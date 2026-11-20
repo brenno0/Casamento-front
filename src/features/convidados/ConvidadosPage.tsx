@@ -1,9 +1,10 @@
-import { useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
 import { useAdiado } from '../../lib/useAdiado';
 import { linkConvite } from '../../lib/whatsapp';
 import { BotoesWhatsApp } from './BotoesWhatsApp';
 import { CartaoLgpd } from './CartaoLgpd';
+import { Dialogo, FormGrupo, GrupoGaveta } from './GrupoGaveta';
 import { ImportarPlanilha } from './ImportarPlanilha';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import {
@@ -12,11 +13,8 @@ import {
   LABEL_RSVP,
   LABEL_TIPO,
   useAtualizarConvidado,
-  useAtualizarGrupo,
   useCriarConvidado,
-  useCriarGrupo,
   useExcluirConvidado,
-  useExcluirGrupo,
   useGrupos,
   useResumo,
   type Convidado,
@@ -33,12 +31,11 @@ import { Avatar } from '../painel/Avatar';
 import { BotaoSegurar } from '../painel/BotaoSegurar';
 import { Esqueleto } from '../painel/Esqueleto';
 import { Vazio } from '../painel/Vazio';
-import { BotaoFechar } from '../painel/BotaoFechar';
 
 const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
 
 type Modal =
-  | { tipo: 'grupo'; grupo?: Grupo }
+  | { tipo: 'grupo'; grupoId?: number }
   | { tipo: 'convidado'; grupoId?: number; convidado?: Convidado }
   | { tipo: 'importar' };
 
@@ -113,7 +110,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
             <CartaoGrupo
               g={g}
               convidados={convidados}
-              onEditar={() => setModal({ tipo: 'grupo', grupo: g })}
+              onEditar={() => setModal({ tipo: 'grupo', grupoId: g.id })}
               onNovoConvidado={() => setModal({ tipo: 'convidado', grupoId: g.id })}
               onEditarConvidado={(c) => setModal({ tipo: 'convidado', convidado: c })}
               acoes={
@@ -130,7 +127,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       <CartaoLgpd />
 
       {modal?.tipo === 'importar' && <ImportarPlanilha onClose={() => setModal(null)} />}
-      {modal?.tipo === 'grupo' && <GrupoModal grupo={modal.grupo} onClose={() => setModal(null)} />}
+      {modal?.tipo === 'grupo' && <ModalGrupo grupoId={modal.grupoId} onClose={() => setModal(null)} />}
       {modal?.tipo === 'convidado' && (
         <ConvidadoModal
           convidado={modal.convidado}
@@ -244,7 +241,11 @@ function CartaoGrupo({
   return (
     <article aria-label={`Grupo ${g.nome}`} className="cartao-painel flex flex-col p-0">
       <div className="flex items-baseline justify-between gap-2 px-5 pt-4">
-        <h2>{g.nome}</h2>
+        <h2>
+          <button type="button" onClick={onEditar} className="text-left hover:text-rose-fundo">
+            {g.nome}
+          </button>
+        </h2>
         <button type="button" onClick={onEditar} className="text-sm acao-link text-grafite-suave">
           Editar grupo
         </button>
@@ -312,108 +313,18 @@ function CopiarLink({ token, nome }: { token: string; nome: string }) {
   );
 }
 
-function Dialogo({ titulo, onClose, ocupado, children }: { titulo: string; onClose: () => void; ocupado: boolean; children: ReactNode }) {
-  const id = useId();
-  return (
-    <div
-      className="dialogo-fundo"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !ocupado) onClose();
-      }}
-    >
-      <div role="dialog" aria-modal="true" aria-labelledby={id} className="dialogo">
-        <div className="flex items-start justify-between gap-4">
-          <h2 id={id} className="titulo-dialogo">
-            {titulo}
-          </h2>
-          <BotaoFechar onClick={onClose} disabled={ocupado} />
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) {
-  const criar = useCriarGrupo();
-  const atualizar = useAtualizarGrupo();
-  const excluir = useExcluirGrupo();
-  const salvar = grupo ? atualizar : criar;
-  const [nome, setNome] = useState(grupo?.nome ?? '');
-  const [mensagem, setMensagem] = useState(grupo?.mensagem ?? '');
-  const [contato, setContato] = useState<number | null>(grupo?.contatoConvidadoId ?? null);
-  const comTelefone = (grupo?.convidados ?? []).filter((c) => c.telefone);
-  const ocupado = salvar.isPending || excluir.isPending;
-
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!nome.trim()) return;
-    const dados = { nome: nome.trim(), mensagem: mensagem.trim() || null };
-    if (grupo) atualizar.mutate({ id: grupo.id, ...dados, contatoConvidadoId: contato }, { onSuccess: onClose });
-    else criar.mutate(dados, { onSuccess: onClose });
+/** Grupo existente abre a gaveta com as pessoas; sem id, cria um grupo novo. */
+function ModalGrupo({ grupoId, onClose }: { grupoId?: number; onClose: () => void }) {
+  // Todos os grupos, sem a busca e os filtros da página: mover e trazer pessoas precisa da lista inteira.
+  const grupos = useGrupos('').data ?? [];
+  if (grupoId !== undefined) {
+    const grupo = grupos.find((g) => g.id === grupoId);
+    // Ainda carregando, ou o grupo acabou de ser excluído.
+    return grupo ? <GrupoGaveta grupo={grupo} grupos={grupos} onClose={onClose} /> : null;
   }
-
   return (
-    <Dialogo titulo={grupo ? 'Editar grupo' : 'Novo grupo'} onClose={onClose} ocupado={ocupado}>
-      <form onSubmit={onSubmit} className="mt-4 space-y-4" noValidate>
-        <label className="block">
-          <span className="rotulo">Nome do grupo</span>
-          <input autoFocus maxLength={80} value={nome} onChange={(e) => setNome(e.target.value)} className={inputClass} />
-        </label>
-        <label className="block">
-          <span className="rotulo">Mensagem personalizada</span>
-          <textarea rows={3} maxLength={1000} value={mensagem} onChange={(e) => setMensagem(e.target.value)} className={inputClass} />
-        </label>
-        {grupo && (
-          <label className="block">
-            <span className="rotulo">Contato no WhatsApp</span>
-            <select
-              value={contato ?? ''}
-              onChange={(e) => setContato(e.target.value === '' ? null : Number(e.target.value))}
-              className={inputClass}
-            >
-              <option value="">Escolher no WhatsApp na hora</option>
-              {comTelefone.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-            {comTelefone.length === 0 && (
-              <span className="text-xs text-grafite-suave">Cadastre o telefone de alguém do grupo para escolher.</span>
-            )}
-          </label>
-        )}
-        {salvar.isError && (
-          <p role="alert" className="text-erro">
-            Não foi possível salvar o grupo.
-          </p>
-        )}
-        {excluir.isError && (
-          <p role="alert" className="text-erro">
-            {excluir.error instanceof ApiError && excluir.error.code === 'GRUPO_NAO_VAZIO'
-              ? 'Mova ou exclua os convidados antes de excluir o grupo.'
-              : 'Não foi possível excluir o grupo.'}
-          </p>
-        )}
-        <div className="flex flex-wrap justify-between gap-2">
-          {grupo ? (
-            <BotaoSegurar disabled={ocupado} onConfirmar={() => excluir.mutate(grupo.id, { onSuccess: onClose })}>
-              Excluir grupo
-            </BotaoSegurar>
-          ) : (
-            <span />
-          )}
-          <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="acao-discreta">
-              Cancelar
-            </button>
-            <button type="submit" disabled={!nome.trim() || ocupado} className="acao">
-              Salvar
-            </button>
-          </div>
-        </div>
-      </form>
+    <Dialogo titulo="Novo grupo" onClose={onClose} ocupado={false}>
+      <FormGrupo onClose={onClose} />
     </Dialogo>
   );
 }

@@ -139,9 +139,67 @@ describe('Convidados', () => {
     renderRoute('/painel/convidados');
     const carlos = await screen.findByRole('article', { name: 'Grupo Carlos' });
     fireEvent.click(within(carlos).getByRole('button', { name: 'Editar grupo' }));
-    const dialog = screen.getByRole('dialog', { name: 'Editar grupo' });
+    const dialog = await screen.findByRole('dialog', { name: 'Carlos' });
     await segurar(within(dialog).getByRole('button', { name: 'Excluir grupo' }));
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('Mova ou exclua os convidados');
+  });
+
+  it('clicar no grupo mostra as pessoas; marcar criança e mudar de grupo salvam na hora', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api().rotas });
+    renderRoute('/painel/convidados');
+    const familia = await screen.findByRole('article', { name: 'Grupo Família Souza' });
+    fireEvent.click(within(familia).getByRole('button', { name: 'Família Souza' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Família Souza' });
+    const pessoas = within(dialog).getByRole('list', { name: 'Pessoas do grupo' });
+    const pai = within(pessoas).getByRole('listitem', { name: 'Pai' });
+    expect(within(pessoas).getByRole('listitem', { name: 'Filha' })).toBeInTheDocument();
+
+    fireEvent.click(within(pai).getByRole('button', { name: 'Criança' }));
+    const corpo = (n: number) => JSON.parse(String(fetchMock.mock.calls.filter(([u, i]) => String(u).endsWith('/painel/convidados/1') && i?.method === 'PUT')[n]![1]!.body));
+    await waitFor(() => expect(corpo(0)).toEqual({ tipo: 'crianca' }));
+
+    fireEvent.change(within(pai).getByLabelText('Grupo'), { target: { value: '2' } });
+    await waitFor(() => expect(corpo(1)).toEqual({ grupoId: 2 }));
+    await waitFor(() => expect(within(pessoas).queryByRole('listitem', { name: 'Pai' })).not.toBeInTheDocument());
+  });
+
+  it('traz para o grupo alguém já cadastrado em outro grupo, ou cria uma pessoa nova', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api().rotas });
+    renderRoute('/painel/convidados');
+    const carlos = await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(within(carlos).getByRole('button', { name: 'Editar grupo' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Carlos' });
+    const campo = within(dialog).getByLabelText('Nome da pessoa');
+
+    fireEvent.change(campo, { target: { value: 'filha' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: /Trazer Filha/ }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/convidados/2') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toEqual({ grupoId: 2 });
+    });
+    expect(await within(dialog).findByRole('listitem', { name: 'Filha' })).toBeInTheDocument();
+
+    fireEvent.change(campo, { target: { value: 'Bia' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Adicionar nova' }));
+    await waitFor(() => {
+      const post = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/convidados') && i?.method === 'POST');
+      expect(JSON.parse(String(post![1]!.body))).toMatchObject({ nome: 'Bia', grupoId: 2 });
+    });
+  });
+
+  it('renomeia pessoa ao sair do campo', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api().rotas });
+    renderRoute('/painel/convidados');
+    const carlos = await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(within(carlos).getByRole('button', { name: 'Editar grupo' }));
+    const linha = within(await screen.findByRole('dialog', { name: 'Carlos' })).getByRole('listitem', { name: 'Carlos' });
+    const nome = within(linha).getByLabelText('Nome');
+    fireEvent.change(nome, { target: { value: 'Carlos Lima' } });
+    fireEvent.blur(nome);
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/convidados/3') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toEqual({ nome: 'Carlos Lima' });
+    });
   });
 
   it('importa CSV e mostra o que entrou', async () => {

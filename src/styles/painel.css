@@ -260,6 +260,9 @@
     .dialogo {
       animation-name: gaveta-deslizar;
     }
+    .dialogo-largo {
+      max-width: 44rem;
+    }
   }
 
   .entrada-pagina > * > * {
