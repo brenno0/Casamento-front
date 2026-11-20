@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 
 export type Tipo = 'adulto' | 'crianca';
@@ -70,6 +70,8 @@ export function useGrupos(busca: string, naoConfirmados = false) {
   return useQuery({
     queryKey: [...GRUPOS_QUERY_KEY, termo, naoConfirmados],
     queryFn: () => api.get<Grupo[]>(`/painel/grupos${qs ? `?${qs}` : ''}`),
+    // Trocar a busca mantém a lista anterior na tela em vez de voltar ao esqueleto.
+    placeholderData: keepPreviousData,
   });
 }
 

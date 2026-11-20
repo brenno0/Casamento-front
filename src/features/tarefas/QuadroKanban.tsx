@@ -24,6 +24,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useMemo, useState, type FormEvent, type KeyboardEventHandler, type PointerEventHandler, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
+import { prefereMenosMovimento } from '../../lib/motion';
 import {
   estaAtrasada,
   RESPONSAVEIS,
@@ -56,10 +57,6 @@ function colunaDe(itens: Itens, id: UniqueIdentifier): number | undefined {
   if (alvo.tipo === 'coluna') return alvo.id in itens ? alvo.id : undefined;
   const entrada = Object.entries(itens).find(([, ids]) => ids.includes(alvo.id));
   return entrada ? Number(entrada[0]) : undefined;
-}
-
-function prefereMenosMovimento(): boolean {
-  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 const LABEL_RESPONSAVEL = Object.fromEntries(RESPONSAVEIS.map((r) => [r.valor, r.label]));

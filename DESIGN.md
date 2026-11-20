@@ -39,7 +39,7 @@ Primary action is a graphite pill (`.acao`); colour stays in small tints on badg
 - Controls: `.segmentos`/`.abas` are one segmented control, the chosen option a raised white pill. Secondary actions are white pills with a hairline.
 - States: loading is `Esqueleto` (shimmering blocks, "Carregando…" for screen readers); empty lists use `Vazio` (dashed tray, icon in a mist circle). Badges can carry a dot (`.selo-ponto`); `.selo-alerta` is the dark pill with a rosé dot for what needs action (guests without an answer).
 - Destructive actions have no confirm step: `BotaoSegurar` fills while held (pointer, touch, Space or Enter) and fires after 900ms; releasing cancels. Drawers carry a close button (`BotaoFechar`) in the title row.
-- Motion: dialogs open as drawers (from the right on wide screens, from the bottom on phones) over a blurred backdrop; page sections rise in sequence; progress bars grow in; `.barra.tracos` renders as a tick ruler. All of it collapses under reduced motion.
+- Motion: dialogs open as drawers (from the right on wide screens, from the bottom on phones) over a blurred backdrop; page sections rise in sequence; progress bars grow in; `.barra.tracos` renders as a tick ruler. GSAP slides the white nav chip to the active item and counts the overview numbers up. On the overview, a three.js canvas drops a few rose petals behind the title; it loads lazily, pauses off screen or in a hidden tab, and never loads under reduced motion. All of it collapses under reduced motion.
 
 ## Type
 

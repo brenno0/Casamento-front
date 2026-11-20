@@ -1,5 +1,6 @@
-import { useId, useState, type FormEvent, type ReactNode } from 'react';
+import { useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError } from '../../lib/api';
+import { useAdiado } from '../../lib/useAdiado';
 import { linkConvite } from '../../lib/whatsapp';
 import { BotoesWhatsApp } from './BotoesWhatsApp';
 import { CartaoLgpd } from './CartaoLgpd';
@@ -47,11 +48,13 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
   const [filtros, setFiltros] = useState<Filtros>(SEM_FILTRO);
   const [modal, setModal] = useState<Modal | null>(null);
   const [naoConfirmados, setNaoConfirmados] = useState(false);
-  const grupos = useGrupos(busca, naoConfirmados);
-  const algumFiltro = Object.values(filtros).some(Boolean);
-  const visiveis = (grupos.data ?? [])
-    .map((g) => ({ g, convidados: g.convidados.filter((c) => passaFiltros(c, filtros)) }))
-    .filter(({ convidados }) => !algumFiltro || convidados.length > 0);
+  const grupos = useGrupos(useAdiado(busca, 250), naoConfirmados);
+  const visiveis = useMemo(() => {
+    const algumFiltro = Object.values(filtros).some(Boolean);
+    return (grupos.data ?? [])
+      .map((g) => ({ g, convidados: g.convidados.filter((c) => passaFiltros(c, filtros)) }))
+      .filter(({ convidados }) => !algumFiltro || convidados.length > 0);
+  }, [grupos.data, filtros]);
 
   return (
     <section>

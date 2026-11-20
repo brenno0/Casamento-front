@@ -1,6 +1,8 @@
-import { Fragment, useEffect, type ReactNode } from 'react';
+import { gsap } from 'gsap';
+import { Fragment, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { diasEntre, formatDataExtenso } from '../../lib/date';
+import { prefereMenosMovimento } from '../../lib/motion';
 import { useLogout, useSessao } from '../auth/useSessao';
 import { agoraEmSaoPaulo } from '../roteiro/roteiro';
 import { useCasalPublico } from '../site/useCasal';
@@ -24,11 +26,44 @@ function contagem(dataCasamento: string): string | null {
   return dias === 1 ? 'Falta 1 dia' : `Faltam ${dias} dias`;
 }
 
+/** Chip branco que desliza até o item ativo ao trocar de página. */
+function useIndicadorNav(pathname: string) {
+  const trilho = useRef<HTMLDivElement>(null);
+  const indicador = useRef<HTMLSpanElement>(null);
+  const jaPosicionou = useRef(false);
+
+  useLayoutEffect(() => {
+    const base = trilho.current;
+    const chip = indicador.current;
+    if (!base || !chip) return;
+
+    function posicionar(animar: boolean) {
+      const ativo = base!.querySelector<HTMLElement>('.nav-item.active');
+      if (!ativo) return void gsap.set(chip, { autoAlpha: 0 });
+      const a = ativo.getBoundingClientRect();
+      const b = base!.getBoundingClientRect();
+      const alvo = { x: a.left - b.left, y: a.top - b.top, width: a.width, height: a.height, autoAlpha: 1 };
+      if (animar) gsap.to(chip, { ...alvo, duration: 0.45, ease: 'power3.out', overwrite: true });
+      else gsap.set(chip, alvo);
+    }
+
+    posicionar(jaPosicionou.current && !prefereMenosMovimento());
+    jaPosicionou.current = true;
+    if (typeof ResizeObserver === 'undefined') return;
+    const tamanho = new ResizeObserver(() => posicionar(false));
+    tamanho.observe(base);
+    return () => tamanho.disconnect();
+  }, [pathname]);
+
+  return { trilho, indicador };
+}
+
 export function PainelLayout() {
   const { pathname } = useLocation();
   const { data: conta } = useSessao();
   const { data: casal, isError: casalFalhou } = useCasalPublico();
   const logout = useLogout();
+  const { trilho, indicador } = useIndicadorNav(pathname);
 
   const nomes = casal ? `${casal.nomeNoiva} & ${casal.nomeNoivo}` : null;
   const titulo = nomes ?? (casalFalhou ? 'Painel' : null);
@@ -61,32 +96,35 @@ export function PainelLayout() {
           )}
         </div>
         <nav aria-label="Módulos do painel" className="overflow-x-auto px-3 pb-3 md:flex-1 md:overflow-y-auto md:pb-6">
-          <ul className="flex gap-1 md:flex-col md:gap-0.5">
-            <li className="md:mt-4">
-              <ItemNav to="/painel" icone="inicio" end>
-                Visão geral
-              </ItemNav>
-            </li>
-            {GRUPOS_MODULOS.map((g) => (
-              <Fragment key={g.titulo}>
-                <li aria-hidden="true" className="nav-grupo hidden md:block">
-                  {g.titulo}
-                </li>
-                {g.modulos.map((m) => (
-                  <li key={m.slug}>
-                    <ItemNav to={`/painel/${m.slug}`} icone={m.icone}>
-                      {m.label}
-                    </ItemNav>
+          <div ref={trilho} className="nav-trilho relative">
+            <span ref={indicador} aria-hidden="true" className="nav-indicador" />
+            <ul className="relative flex gap-1 md:flex-col md:gap-0.5">
+              <li className="md:mt-4">
+                <ItemNav to="/painel" icone="inicio" end>
+                  Visão geral
+                </ItemNav>
+              </li>
+              {GRUPOS_MODULOS.map((g) => (
+                <Fragment key={g.titulo}>
+                  <li aria-hidden="true" className="nav-grupo hidden md:block">
+                    {g.titulo}
                   </li>
-                ))}
-              </Fragment>
-            ))}
-            <li className="md:mt-6">
-              <ItemNav to="/painel/configuracoes" icone="configuracoes">
-                Configurações
-              </ItemNav>
-            </li>
-          </ul>
+                  {g.modulos.map((m) => (
+                    <li key={m.slug}>
+                      <ItemNav to={`/painel/${m.slug}`} icone={m.icone}>
+                        {m.label}
+                      </ItemNav>
+                    </li>
+                  ))}
+                </Fragment>
+              ))}
+              <li className="md:mt-6">
+                <ItemNav to="/painel/configuracoes" icone="configuracoes">
+                  Configurações
+                </ItemNav>
+              </li>
+            </ul>
+          </div>
         </nav>
         <div className="flex items-center gap-2.5 px-5 pb-4 md:py-4">
           {conta && <Avatar nome={conta.nome} />}

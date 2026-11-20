@@ -1,16 +1,21 @@
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { NotFoundPage } from '../../components/NotFoundPage';
 import { formatDataCurta } from '../../lib/date';
 import { formatarCentavos } from '../../lib/dinheiro';
+import { prefereMenosMovimento } from '../../lib/motion';
 import { useResumo } from '../convidados/useConvidados';
 import { useDashboard } from '../financeiro/useFinanceiro';
 import { estaAtrasada, RESPONSAVEIS, useQuadro, type Quadro } from '../tarefas/useTarefas';
 import { Avatar } from './Avatar';
+import { Contador } from './Contador';
 import { IconePainel, type NomeIconePainel } from './IconePainel';
 import { MODULOS_PAINEL } from './modulos';
 
 const PROXIMAS = 6;
+
+// three.js só baixa quando a visão geral abre com movimento permitido.
+const CenaPetalas = lazy(() => import('./CenaPetalas').then((m) => ({ default: m.CenaPetalas })));
 
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 const fracao = (parte: number, todo: number) => `${todo > 0 ? Math.min(100, Math.round((parte / todo) * 100)) : 0}%`;
@@ -58,7 +63,7 @@ function IndicadorConvidados() {
       titulo="Confirmados"
       valor={
         <>
-          {data.porRsvp.vai}
+          <Contador valor={data.porRsvp.vai} />
           <Parte>/{data.pessoas}</Parte>
         </>
       }
@@ -88,7 +93,7 @@ function IndicadorTarefas() {
       titulo="Tarefas abertas"
       valor={
         <>
-          {abertas.length}
+          <Contador valor={abertas.length} />
           <Parte>/{total}</Parte>
         </>
       }
@@ -112,7 +117,7 @@ function IndicadorFinanceiro() {
       to="/painel/financeiro"
       icone="financeiro"
       titulo="Pago"
-      valor={formatarCentavos(pagoCentavos)}
+      valor={<Contador valor={pagoCentavos} formatar={formatarCentavos} />}
       progresso={fracao(pagoCentavos, contratadoCentavos)}
     >
       de {formatarCentavos(contratadoCentavos)} contratados
@@ -210,7 +215,14 @@ function ProximosPagamentos() {
 export function PainelHomePage() {
   return (
     <section>
-      <h1>Visão geral</h1>
+      <header className="relative flex min-h-28 items-end">
+        {!prefereMenosMovimento() && (
+          <Suspense fallback={null}>
+            <CenaPetalas className="pointer-events-none absolute inset-y-[-1rem] right-0 left-1/4 [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
+          </Suspense>
+        )}
+        <h1 className="relative">Visão geral</h1>
+      </header>
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <IndicadorConvidados />
         <IndicadorTarefas />

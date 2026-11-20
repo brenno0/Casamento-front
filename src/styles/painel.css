@@ -236,6 +236,15 @@
     @apply border-linha bg-white text-grafite;
     box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
   }
+  /* Com o indicador (GSAP) o chip ativo é ele; o item só muda de cor. */
+  .nav-indicador {
+    @apply invisible absolute top-0 left-0 rounded-xl border border-linha bg-white;
+    box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
+  }
+  .nav-trilho .nav-item.active {
+    @apply border-transparent bg-transparent;
+    box-shadow: none;
+  }
 
   /* Diálogos abrem como gaveta: de baixo no celular, da direita na tela larga. */
   .dialogo-fundo {
