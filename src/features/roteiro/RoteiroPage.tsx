@@ -5,6 +5,7 @@ import { LABEL_FUNCAO, useGrupos, type Funcao } from '../convidados/useConvidado
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { useSitePainel } from '../site-admin/useSiteAdmin';
 import { destaques, linkMapa, useEditarRoteiro, useRoteiro, type EnvolvidoInput, type Etapa, type Roteiro } from './roteiro';
+import { IconePainel } from '../painel/IconePainel';
 
 export function RoteiroPage() {
   const { data, isPending, isError } = useRoteiro();
@@ -24,13 +25,14 @@ export function RoteiroPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-4xl">Roteiro do dia</h1>
-          <p className="text-verde-suave">{formatDataExtenso(data.data)}</p>
+          <p className="text-grafite-suave">{formatDataExtenso(data.data)}</p>
         </div>
         <button type="button" onClick={() => setEditando('nova')} className="acao">
+          <IconePainel nome="mais" />
           Nova etapa
         </button>
       </div>
-      <ol aria-label="Etapas" className="mt-8 border-l-2 border-folha-escuro pl-6">
+      <ol aria-label="Etapas" className="mt-8 border-l-2 border-linha-forte pl-6">
         {data.etapas.map((e) => {
           const ehAgora = d.agora === e.id;
           const ehProxima = d.proxima === e.id;
@@ -39,22 +41,22 @@ export function RoteiroPage() {
             <li
               key={e.id}
               aria-current={ehAgora ? 'step' : undefined}
-              className={`relative mb-2 rounded-card px-4 py-3 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-papel shadow-suave' : ''}`}
+              className={`relative mb-2 rounded-card px-4 py-3 ${ehAgora ? 'bg-pessego-claro shadow-suave' : ehProxima ? 'bg-white shadow-suave' : ''}`}
             >
-              <span aria-hidden="true" className={`absolute top-5 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-verde' : 'bg-folha-escuro'}`} />
-              <p className="text-3xl tabular-nums">
+              <span aria-hidden="true" className={`absolute top-5 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-rose-fundo' : 'bg-linha-forte'}`} />
+              <p className="text-2xl font-medium tracking-[-0.02em] tabular-nums">
                 {e.horario}
-                {e.horarioFim && <span className="text-xl text-verde-suave"> – {e.horarioFim}</span>}
-                {ehAgora && <span className="selo ml-3 bg-verde align-middle text-linho">Agora</span>}
-                {ehProxima && <span className="selo ml-3 bg-vela-claro align-middle text-verde">Próxima</span>}
+                {e.horarioFim && <span className="text-lg font-normal text-grafite-suave"> – {e.horarioFim}</span>}
+                {ehAgora && <span className="selo ml-3 bg-rose-fundo align-middle text-white">Agora</span>}
+                {ehProxima && <span className="selo ml-3 bg-pessego-claro align-middle text-grafite">Próxima</span>}
               </p>
               <h2 className="text-2xl">
-                <button type="button" onClick={() => setEditando(e)} className="text-left hover:text-verde">
+                <button type="button" onClick={() => setEditando(e)} className="text-left hover:text-grafite">
                   {e.titulo}
                 </button>
               </h2>
               {(e.local || e.localTexto) && (
-                <p className="text-verde-suave">
+                <p className="text-grafite-suave">
                   {e.local?.nome ?? e.localTexto}
                   {mapa && (
                     <a href={mapa} target="_blank" rel="noreferrer" className="acao-link ml-2">
@@ -69,7 +71,7 @@ export function RoteiroPage() {
                   {e.envolvidos.map((en, i) => (
                     <li key={i}>
                       <strong>{en.rotulo}</strong>
-                      {en.tipo === 'funcao' && <span className="text-verde-suave">: {en.nomes.length ? en.nomes.join(', ') : 'ninguém cadastrado'}</span>}
+                      {en.tipo === 'funcao' && <span className="text-grafite-suave">: {en.nomes.length ? en.nomes.join(', ') : 'ninguém cadastrado'}</span>}
                     </li>
                   ))}
                 </ul>
@@ -151,7 +153,7 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
             <legend className="rotulo">Envolvidos</legend>
             <ul className="mt-1 flex flex-wrap gap-2">
               {envolvidos.map((en, i) => (
-                <li key={i} className="selo bg-folha-claro text-musgo">
+                <li key={i} className="selo bg-rose-claro text-rose-fundo">
                   {rotulo(en)}
                   <button type="button" aria-label={`Remover ${rotulo(en)}`} onClick={() => setEnvolvidos(envolvidos.filter((_, j) => j !== i))} className="ml-1">
                     ×

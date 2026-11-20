@@ -1,20 +1,24 @@
 /*
- * Peças do painel do casal: mesma paleta do site, num registro de ferramenta de trabalho.
+ * Peças do painel do casal: névoa rosada, grafite e rosé, num registro de ferramenta de trabalho.
  * Só o painel usa estas classes; o site dos convidados continua com `.botao` e `.campo`.
  */
 @layer components {
+  /* Ações */
   .acao {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-botao bg-verde px-5 py-2 font-semibold text-linho;
+    @apply inline-flex min-h-9 items-center justify-center gap-1.5 rounded-botao bg-grafite px-4 py-1.5 text-sm font-medium text-white;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.14),
+      0 1px 2px rgb(31 26 28 / 0.24);
     transition:
       background-color 150ms ease-out,
       transform 150ms ease-out;
   }
   .acao:hover:not(:disabled) {
-    background-color: var(--color-tinta);
+    background-color: var(--color-black);
   }
   .acao:active:not(:disabled),
   .acao-secundaria:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
   .acao:disabled,
   .acao-secundaria:disabled,
@@ -23,23 +27,25 @@
   }
 
   .acao-secundaria {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-botao border border-folha-escuro bg-papel px-5 py-2 font-semibold text-verde;
+    @apply inline-flex min-h-9 items-center justify-center gap-1.5 rounded-botao border border-linha bg-white px-4 py-1.5 text-sm font-medium text-grafite;
+    box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
     transition:
       border-color 150ms ease-out,
+      background-color 150ms ease-out,
       transform 150ms ease-out;
   }
   .acao-secundaria:hover:not(:disabled) {
-    border-color: var(--color-verde);
+    @apply border-linha-forte bg-nevoa;
   }
 
   .acao-discreta {
-    @apply inline-flex min-h-10 items-center justify-center rounded-botao px-4 py-2 text-verde-suave;
+    @apply inline-flex min-h-9 items-center justify-center gap-1.5 rounded-botao px-3 py-1.5 text-sm text-grafite-suave;
     transition:
       background-color 150ms ease-out,
       color 150ms ease-out;
   }
   .acao-discreta:hover:not(:disabled) {
-    @apply bg-linho-escuro text-verde;
+    @apply bg-nevoa-escuro text-grafite;
   }
 
   .acao-link,
@@ -48,10 +54,10 @@
     transition: text-decoration-color 150ms ease-out;
   }
   .acao-link {
-    @apply text-verde decoration-folha-escuro;
+    @apply text-rose-fundo decoration-rose;
   }
   .acao-link:hover {
-    text-decoration-color: var(--color-verde);
+    text-decoration-color: var(--color-rose-fundo);
   }
   .acao-perigo {
     @apply text-erro decoration-erro/40;
@@ -60,63 +66,190 @@
     text-decoration-color: var(--color-erro);
   }
 
+  /* Campos */
   .entrada {
-    @apply mt-1.5 block min-h-10 w-full rounded-card border border-folha-escuro/70 bg-papel px-3 py-2 text-tinta;
+    @apply mt-1.5 block min-h-10 w-full rounded-xl border border-linha-forte bg-white px-3 py-2 text-[0.9375rem] text-grafite placeholder:text-grafite-suave/70;
+    box-shadow: 0 1px 2px rgb(31 26 28 / 0.04);
   }
   .entrada:hover:not(:focus) {
-    border-color: var(--color-folha-escuro);
+    border-color: var(--color-grafite-suave);
   }
 
   .rotulo {
-    @apply text-sm font-medium text-verde-suave;
+    @apply text-[0.8125rem] font-medium text-grafite-suave;
   }
 
+  /* Superfícies */
   .cartao-painel {
-    @apply rounded-card border border-folha bg-papel p-5;
-    box-shadow: 0 1px 2px rgb(23 36 28 / 0.04);
+    @apply rounded-card border border-linha bg-white p-5;
+    box-shadow:
+      0 1px 2px rgb(31 26 28 / 0.04),
+      0 8px 24px -12px rgb(31 26 28 / 0.08);
+  }
+  a.cartao-painel {
+    transition:
+      border-color 200ms ease-out,
+      box-shadow 200ms ease-out;
+  }
+  a.cartao-painel:hover {
+    border-color: var(--color-linha-forte);
+    box-shadow:
+      0 1px 2px rgb(31 26 28 / 0.05),
+      0 16px 32px -16px rgb(31 26 28 / 0.16);
+  }
+
+  /* Bandeja: rótulo com ícone num fundo de névoa, cartão branco por dentro. */
+  .bandeja {
+    @apply flex flex-col rounded-[1.375rem] border border-linha bg-nevoa-escuro/60 p-1.5;
+  }
+  .bandeja-rotulo {
+    @apply flex items-center gap-2 px-3 pt-1.5 pb-2.5 text-[0.8125rem] font-medium text-grafite-suave;
+  }
+  .bandeja > .cartao-painel {
+    @apply flex-1 rounded-2xl;
+  }
+
+  .numero {
+    @apply font-sans text-[2rem] leading-none font-medium tracking-[-0.03em] text-grafite tabular-nums;
   }
 
   .selo {
-    @apply inline-flex items-center rounded-botao px-2 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-botao px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
   }
 
-  /* Abas sublinhadas: o traço desliza sob a aba escolhida. */
+  .avatar {
+    @apply inline-grid size-7 shrink-0 place-items-center rounded-full text-[0.6875rem] font-semibold tracking-wide text-grafite ring-2 ring-white;
+  }
+
+  /* Controle segmentado: trilho de névoa, escolhido em branco elevado. */
+  .segmentos,
   .abas {
-    @apply flex gap-6 overflow-x-auto border-b border-folha;
+    @apply inline-flex gap-0.5 rounded-botao bg-nevoa-escuro p-1;
+  }
+  .segmento,
+  .aba {
+    @apply inline-flex items-center gap-1.5 rounded-botao px-3.5 py-1.5 text-sm font-medium text-grafite-suave;
+    transition:
+      color 150ms ease-out,
+      background-color 150ms ease-out,
+      box-shadow 150ms ease-out;
+  }
+  .segmento:hover,
+  .aba:hover {
+    color: var(--color-grafite);
+  }
+  .segmento[aria-pressed='true'],
+  .aba[aria-selected='true'] {
+    @apply bg-white text-grafite;
+    box-shadow:
+      0 1px 2px rgb(31 26 28 / 0.08),
+      0 2px 8px -2px rgb(31 26 28 / 0.08);
+  }
+
+  /* Abas usam o mesmo controle, com rolagem no celular. */
+  .abas {
+    @apply w-fit max-w-full overflow-x-auto;
   }
   .aba {
-    @apply relative shrink-0 py-3 font-medium whitespace-nowrap text-verde-suave;
-    transition: color 150ms ease-out;
-  }
-  .aba::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 -1px;
-    height: 2px;
-    background: var(--color-verde);
-    transform: scaleX(0);
-    transition: transform 200ms var(--ease-saida);
-  }
-  .aba:hover,
-  .aba[aria-selected='true'] {
-    color: var(--color-verde);
-  }
-  .aba[aria-selected='true']::after {
-    transform: none;
+    @apply shrink-0 whitespace-nowrap;
   }
 
+  /* Navegação lateral */
+  .nav-grupo {
+    @apply px-3 pt-6 pb-1.5 text-[0.6875rem] font-medium tracking-[0.08em] text-grafite-suave/80 uppercase;
+  }
+  .nav-item {
+    @apply flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2 text-sm font-medium whitespace-nowrap text-grafite-suave;
+    transition:
+      color 150ms ease-out,
+      background-color 150ms ease-out,
+      box-shadow 150ms ease-out;
+  }
+  .nav-item:hover {
+    @apply bg-white/60 text-grafite;
+  }
+  .nav-item.active {
+    @apply border-linha bg-white text-grafite;
+    box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
+  }
+
+  /* Diálogos abrem como gaveta: de baixo no celular, da direita na tela larga. */
   .dialogo-fundo {
-    @apply fixed inset-0 z-50 flex items-end justify-center bg-tinta/40 p-4 sm:items-center;
-    animation: esmaecer 150ms ease-out;
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-grafite/20 p-2 backdrop-blur-[3px] sm:items-stretch sm:justify-end;
+    animation: esmaecer 200ms ease-out;
   }
   .dialogo {
-    @apply max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-papel p-6;
-    box-shadow: 0 24px 48px -16px rgb(23 36 28 / 0.35);
-    animation: surgir 200ms var(--ease-saida);
+    @apply max-h-[92svh] w-full max-w-lg overflow-y-auto rounded-[1.25rem] border border-linha bg-white p-6 sm:max-h-none sm:max-w-[30rem];
+    box-shadow: 0 24px 64px -24px rgb(31 26 28 / 0.35);
+    animation: gaveta-subir 360ms var(--ease-saida);
+  }
+  @media (min-width: 40rem) {
+    .dialogo {
+      animation-name: gaveta-deslizar;
+    }
   }
 
-  .entrada-pagina {
-    animation: surgir 200ms var(--ease-saida);
+  .entrada-pagina > * > * {
+    animation: surgir 420ms var(--ease-saida) backwards;
+  }
+  .entrada-pagina > * > :nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .entrada-pagina > * > :nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .entrada-pagina > * > :nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .entrada-pagina > * > :nth-child(n + 5) {
+    animation-delay: 160ms;
+  }
+
+  /* Tabelas */
+  .tabela {
+    @apply w-full border-collapse text-left text-sm;
+  }
+  .tabela th {
+    @apply border-b border-linha px-3 py-2.5 text-[0.8125rem] font-normal whitespace-nowrap text-grafite-suave;
+  }
+  .tabela td {
+    @apply border-b border-linha px-3 py-3.5 align-middle;
+  }
+  .tabela tr > :first-child {
+    @apply pl-5;
+  }
+  .tabela tr > :last-child {
+    @apply pr-5;
+  }
+  .tabela tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .tabela tbody tr {
+    transition: background-color 150ms ease-out;
+  }
+  .tabela tbody tr:hover {
+    @apply bg-nevoa/80;
+  }
+  .num {
+    @apply text-right tabular-nums whitespace-nowrap;
+  }
+
+  /* Barras de progresso: crescem ao aparecer. `.tracos` vira régua de tiques. */
+  .barra {
+    @apply h-1.5 overflow-hidden rounded-full bg-nevoa-escuro;
+  }
+  .barra > span {
+    @apply block h-full rounded-full bg-rose-fundo;
+    transform-origin: left;
+    animation: crescer 800ms var(--ease-saida) backwards;
+    transition: width 400ms var(--ease-saida);
+  }
+  .barra.tracos {
+    @apply h-5 rounded-none;
+    mask-image: repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 6px);
+  }
+  .barra.tracos > span {
+    @apply rounded-none;
   }
 }
 
@@ -125,74 +258,108 @@
     opacity: 0;
   }
 }
+@keyframes gaveta-subir {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+}
+@keyframes gaveta-deslizar {
+  from {
+    opacity: 0;
+    transform: translateX(2.5rem);
+  }
+}
+@keyframes crescer {
+  from {
+    transform: scaleX(0);
+  }
+}
 
 /*
- * Dentro do painel, só o título da página usa a fonte de exibição; seções e cartões usam a de interface.
- * Fora das camadas para vencer os tamanhos utilitários herdados das páginas.
+ * Raiz do painel e do login: Inter no lugar da Figtree, texto de ferramenta (15px), cantos macios
+ * e nada de verde nas regras de base. Fora das camadas para vencer a base e os utilitários herdados.
  */
-.painel-conteudo h1 {
-  font-size: 2.25rem;
-}
-.painel-conteudo h2 {
+.painel {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --radius-card: 1.125rem;
+  --radius-botao: 9999px;
   font-family: var(--font-sans);
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+  font-feature-settings: 'cv11', 'ss01';
+  caret-color: var(--color-grafite);
+  scrollbar-color: var(--color-linha-forte) transparent;
 }
-.painel-conteudo h3 {
+.painel h1,
+.painel h2,
+.painel h3 {
+  color: var(--color-grafite);
+}
+.painel h1 {
+  font-size: 2.25rem;
+  letter-spacing: -0.015em;
+}
+.painel h2 {
   font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
+  letter-spacing: -0.01em;
 }
-.painel-conteudo h2.titulo-dialogo {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 400;
-}
-
-.painel-conteudo input[type='file'] {
-  font-size: 0.875rem;
-  color: var(--color-verde-suave);
-}
-.painel-conteudo input[type='file']::file-selector-button {
-  margin-right: 0.75rem;
-  border: 1px solid var(--color-folha-escuro);
-  border-radius: var(--radius-botao);
-  background: var(--color-papel);
-  padding: 0.375rem 0.75rem;
-  font: inherit;
+.painel h3 {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-verde);
+  line-height: 1.4;
+}
+.painel h2.titulo-dialogo {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.painel ::selection {
+  background: var(--color-rose-claro);
+  color: var(--color-grafite);
+}
+.painel :focus-visible {
+  outline-color: var(--color-grafite);
+}
+.painel input:focus,
+.painel select:focus,
+.painel textarea:focus {
+  border-color: var(--color-grafite);
+  box-shadow: 0 0 0 3px rgb(31 26 28 / 0.08);
+}
+.painel input[type='checkbox'],
+.painel input[type='radio'] {
+  accent-color: var(--color-grafite);
+}
+.painel input[type='file'] {
+  font-size: 0.875rem;
+  color: var(--color-grafite-suave);
+}
+.painel input[type='file']::file-selector-button {
+  margin-right: 0.75rem;
+  border: 1px solid var(--color-linha);
+  border-radius: var(--radius-botao);
+  background: var(--color-white);
+  padding: 0.375rem 0.875rem;
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-grafite);
+  box-shadow: 0 1px 2px rgb(31 26 28 / 0.06);
   cursor: pointer;
 }
 
-@layer components {
-  .tabela {
-    @apply w-full border-collapse text-left;
-  }
-  .tabela th {
-    @apply border-b border-folha-escuro px-3 py-2 text-sm font-medium whitespace-nowrap text-verde-suave;
-  }
-  .tabela td {
-    @apply border-b border-folha px-3 py-3 align-middle;
-  }
-  .tabela tbody tr {
-    transition: background-color 150ms ease-out;
-  }
-  .tabela tbody tr:hover {
-    @apply bg-linho-escuro/50;
-  }
-  .num {
-    @apply text-right tabular-nums whitespace-nowrap;
-  }
-
-  .barra {
-    @apply h-1.5 overflow-hidden rounded-full bg-linho-escuro;
-  }
-  .barra > span {
-    @apply block h-full rounded-full bg-verde;
-    transition: width 400ms var(--ease-saida);
+@media (prefers-reduced-motion: reduce) {
+  .painel *,
+  .painel *::before,
+  .painel *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
   }
 }

@@ -39,11 +39,11 @@ export function ViagemPage() {
 
   return (
     <section>
-      <Link to="/painel/viagens" className="text-sm acao-link text-verde-suave">
+      <Link to="/painel/viagens" className="text-sm acao-link text-grafite-suave">
         ← Viagens
       </Link>
       <h1 className="mt-2 text-4xl">{data.nome}</h1>
-      <p className="text-verde-suave">
+      <p className="text-grafite-suave">
         {data.destino && `${data.destino} · `}
         {formatDataCurta(data.dataInicio)} a {formatDataCurta(data.dataFim)}
       </p>
@@ -65,7 +65,7 @@ export function ViagemPage() {
         {aba === 'reservas' && <Reservas v={data} />}
         {aba === 'mala' && <Mala v={data} />}
       </div>
-      <div className="mt-10 border-t border-folha pt-4">
+      <div className="mt-10 border-t border-linha pt-4">
         {confirmando ? (
           <button
             type="button"
@@ -92,17 +92,17 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
 
   return (
     <div className="space-y-6">
-      {dias.length === 0 && <p className="text-verde-suave">Nenhum item no roteiro.</p>}
+      {dias.length === 0 && <p className="text-grafite-suave">Nenhum item no roteiro.</p>}
       {dias.map((dia) => (
         <div key={dia}>
-          <h2 className="text-xl text-musgo">{formatDataCurta(dia)}</h2>
-          <ol className="mt-2 border-l border-folha-escuro pl-4">
+          <h2 className="text-xl text-rose-fundo">{formatDataCurta(dia)}</h2>
+          <ol className="mt-2 border-l border-linha-forte pl-4">
             {v.roteiro
               .filter((r) => r.data === dia)
               .map((r) => (
                 <li key={r.id} className="mb-3">
                   <span className="font-semibold">{r.horario ?? '—'}</span> {r.titulo}
-                  {r.local && <span className="text-verde-suave"> · {r.local}</span>}
+                  {r.local && <span className="text-grafite-suave"> · {r.local}</span>}
                   <button type="button" aria-label={`Excluir ${r.titulo}`} onClick={() => excluir.mutate(r.id)} className="ml-2 text-sm acao-perigo">
                     excluir
                   </button>
@@ -160,7 +160,7 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
 
   return (
     <div className="space-y-4">
-      {v.reservas.length === 0 && <p className="text-verde-suave">Nenhuma reserva.</p>}
+      {v.reservas.length === 0 && <p className="text-grafite-suave">Nenhuma reserva.</p>}
       {v.reservas.map((r) => (
         <CartaoReserva key={r.id} viagemId={v.id} r={r} />
       ))}
@@ -241,13 +241,13 @@ function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
   const excluir = useEditarViagem(viagemId, () => api.del<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`));
   return (
     <article aria-label={`Reserva ${r.descricao}`} className="cartao-painel">
-      <p className="text-sm text-verde-suave">{LABEL_TIPO_RESERVA[r.tipo]} · {formatDataCurta(r.data)}</p>
+      <p className="text-sm text-grafite-suave">{LABEL_TIPO_RESERVA[r.tipo]} · {formatDataCurta(r.data)}</p>
       <h3 className="text-xl">{r.descricao}</h3>
-      {r.codigo && <p className="mt-1 font-mono text-3xl tracking-wider">{r.codigo}</p>}
+      {r.codigo && <p className="mt-1 font-mono text-2xl tracking-wider">{r.codigo}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
         {r.valorCentavos !== null && <span>{formatarCentavos(r.valorCentavos)}</span>}
-        <span className={`selo ${r.statusPagamento === 'pago' ? 'bg-folha-claro text-musgo' : 'bg-linho-escuro text-verde-suave'}`}>{r.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}</span>
-        {r.contratoId !== null && <span className="text-verde-suave">no financeiro</span>}
+        <span className={`selo ${r.statusPagamento === 'pago' ? 'bg-rose-claro text-rose-fundo' : 'bg-nevoa-escuro text-grafite-suave'}`}>{r.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}</span>
+        {r.contratoId !== null && <span className="text-grafite-suave">no financeiro</span>}
         {r.voucherArquivoId && (
           <a href={urlArquivo(r.voucherArquivoId)} target="_blank" rel="noreferrer" className="acao min-h-9 px-3 py-1">
             Abrir voucher
@@ -284,12 +284,12 @@ function Mala({ v }: { v: ViagemDetalhe }) {
           <li key={m.id} className="flex items-center gap-3">
             <label className="flex flex-1 items-center gap-2">
               <input type="checkbox" checked={m.naMala} onChange={(e) => marcar.mutate({ id: m.id, naMala: e.target.checked })} />
-              <span className={m.naMala ? 'text-verde-suave line-through' : ''}>{m.descricao}</span>
-              <span className="text-xs text-verde-suave">
+              <span className={m.naMala ? 'text-grafite-suave line-through' : ''}>{m.descricao}</span>
+              <span className="text-xs text-grafite-suave">
                 {m.categoria} · {LABEL_DONO[m.dono]}
               </span>
             </label>
-            <button type="button" aria-label={`Remover ${m.descricao}`} onClick={() => excluir.mutate(m.id)} className="text-sm text-verde-suave">
+            <button type="button" aria-label={`Remover ${m.descricao}`} onClick={() => excluir.mutate(m.id)} className="text-sm text-grafite-suave">
               ×
             </button>
           </li>

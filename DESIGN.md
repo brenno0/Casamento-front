@@ -17,7 +17,27 @@ The wedding table laid for each guest. Tokens live in `src/styles/theme.css`.
 | `vela` / `vela-claro` | `#f0d277` / `#faf0cc` | Candle accent: times on green, selected and success states |
 | `erro` | `#a3352b` | Errors, overdue, destructive actions |
 
-Green is committed in whole bands (places section, footer, panel sidebar), never as scattered accents. Inside a green band add `sobre-verde` so buttons invert.
+Green is committed in whole bands (places section, footer), never as scattered accents. Inside a green band add `sobre-verde` so buttons invert.
+
+## Couple's panel
+
+The private panel and its login drop the green for a light, romantic work tool: rosy mist ground, white cards, warm graphite ink, rosé accents. Every panel screen sits under `.painel`, which also swaps the paper radii for soft ones (`rounded-card` 16px, `rounded-botao` pill) and points focus, carets and checkboxes at graphite.
+
+| Token | Value | Role |
+|---|---|---|
+| `nevoa` / `nevoa-escuro` | `#faf7f5` / `#f1ebe8` | Page ground; quiet fills, tracks, hover |
+| `linha` / `linha-forte` | `#ece4e1` / `#ddd2ce` | Hairlines; field and table-header borders |
+| `grafite` / `grafite-suave` | `#1f1a1c` / `#77696d` | Text and primary actions; secondary text |
+| `rose` / `rose-claro` / `rose-fundo` | `#e4b8bd` / `#f8ebec` / `#a85561` | Accents: badges, progress, links, "now" |
+| `lavanda-claro`, `pessego-claro` | `#eeeaf7`, `#fcebdf` | Secondary badge tints |
+
+Primary action is a graphite pill (`.acao`); colour stays in small tints on badges and bars.
+
+- Type: Inter at 15px (`.painel` swaps `--font-sans`); serif only for the page h1, dialog titles and the couple's names. KPI figures use `.numero` (sans 500, tight tracking) with the denominator greyed.
+- Frame: the sidebar sits on the mist; the page is a white sheet with a 20px radius. Nav items carry a 16px line icon (`IconePainel`), grouped under small uppercase labels; the active item is a raised white chip.
+- Surfaces: `.cartao-painel` (18px radius, hairline, soft shadow); `.bandeja` holds a label row with icon over a white card (overview KPIs). People show as pastel initial avatars (`Avatar`).
+- Controls: `.segmentos`/`.abas` are one segmented control, the chosen option a raised white pill. Secondary actions are white pills with a hairline.
+- Motion: dialogs open as drawers (from the right on wide screens, from the bottom on phones) over a blurred backdrop; page sections rise in sequence; progress bars grow in; `.barra.tracos` renders as a tick ruler. All of it collapses under reduced motion.
 
 ## Type
 
@@ -30,7 +50,7 @@ Green is committed in whole bands (places section, footer, panel sidebar), never
 ## Shape and depth
 
 - Paper has near-square corners: `rounded-card` 4px, `rounded-botao` 3px.
-- `.cartao-mesa`: white card, soft shadow, fine inner rule (place card, login, thank-you).
+- `.cartao-mesa`: white card, soft shadow, fine inner rule (place card, thank-you).
 - Photographs are prints: white `p-3` mat with `shadow-suave`, 4:5 crop.
 - Lists separate with hairlines (`border-folha-escuro`), not boxed cards.
 

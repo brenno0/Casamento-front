@@ -33,12 +33,12 @@ export function CartaoLgpd() {
         Privacidade dos convidados (LGPD)
       </h2>
       {data.limpoEm ? (
-        <p className="mt-1 text-musgo">
+        <p className="mt-1 text-rose-fundo">
           Telefones e e-mails apagados em {new Date(data.limpoEm).toLocaleDateString('pt-BR')}. O registro de presentes foi mantido.
         </p>
       ) : (
         <>
-          <p className="mt-1 text-verde-suave">
+          <p className="mt-1 text-grafite-suave">
             Telefones e e-mails dos convidados serão apagados automaticamente em {formatDataCurta(data.automaticaEm)}. Vocês podem
             apagar antes, depois do casamento. O registro de presentes é mantido.
           </p>
@@ -46,12 +46,12 @@ export function CartaoLgpd() {
             <div className="mt-3 flex flex-wrap items-end gap-2">
               <label className="block">
                 <span className="rotulo">Digite APAGAR para confirmar</span>
-                <input value={texto} onChange={(e) => setTexto(e.target.value)} className="mt-1 block rounded-card border border-folha px-3 py-2" />
+                <input value={texto} onChange={(e) => setTexto(e.target.value)} className="mt-1 block rounded-card border border-linha px-3 py-2" />
               </label>
               <button type="button" disabled={texto !== 'APAGAR' || limpar.isPending} onClick={() => limpar.mutate()} className="acao">
                 Apagar contatos agora
               </button>
-              <button type="button" onClick={() => setAberto(false)} className="px-3 py-2 text-verde-suave">
+              <button type="button" onClick={() => setAberto(false)} className="px-3 py-2 text-grafite-suave">
                 Cancelar
               </button>
             </div>

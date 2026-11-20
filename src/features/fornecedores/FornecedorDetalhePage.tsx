@@ -26,7 +26,7 @@ export function FornecedorDetalhePage() {
 
   if (isPending) {
     return (
-      <p role="status" className="text-verde-suave">
+      <p role="status" className="text-grafite-suave">
         Carregando…
       </p>
     );
@@ -54,14 +54,14 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <Link to="/painel/fornecedores" className="text-sm acao-link text-verde-suave">
+          <Link to="/painel/fornecedores" className="text-sm acao-link text-grafite-suave">
             ← Fornecedores
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="text-4xl">{f.nome}</h1>
             <BadgeStatus status={f.status} />
           </div>
-          <p className="text-verde-suave">{f.categoria}</p>
+          <p className="text-grafite-suave">{f.categoria}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Mudar status">
           {PROXIMOS[f.status].map((s) => (
@@ -97,13 +97,13 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
                 <button
                   type="button"
                   onClick={() => atualizar.mutate({ contratoArquivoId: null })}
-                  className="ml-3 text-sm acao-link text-verde-suave"
+                  className="ml-3 text-sm acao-link text-grafite-suave"
                 >
                   Remover
                 </button>
               </p>
             ) : (
-              <p className="mt-2 text-verde-suave">Nenhum contrato anexado.</p>
+              <p className="mt-2 text-grafite-suave">Nenhum contrato anexado.</p>
             )}
             <div className="mt-3">
               <FileUpload
@@ -123,7 +123,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
               Tarefas vinculadas
             </h2>
             {f.tarefas.length === 0 ? (
-              <p className="mt-2 text-verde-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
+              <p className="mt-2 text-grafite-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
             ) : (
               <ul className="mt-2 list-disc pl-6">
                 {f.tarefas.map((t) => (
@@ -300,7 +300,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
         Orçamentos
       </h2>
       {f.orcamentos.length === 0 ? (
-        <p className="mt-2 text-verde-suave">Nenhum orçamento ainda.</p>
+        <p className="mt-2 text-grafite-suave">Nenhum orçamento ainda.</p>
       ) : (
         <div className="mt-2 overflow-x-auto">
           <table className="tabela">
@@ -316,7 +316,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
               {f.orcamentos.map((o) => {
                 const maisBarato = o.valorCentavos === menor;
                 return (
-                  <tr key={o.id} className={maisBarato ? 'bg-folha-claro/60' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
+                  <tr key={o.id} className={maisBarato ? 'bg-rose-claro/60' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
                     <td>
                       {o.descricao}
                       {o.arquivo && (
@@ -325,10 +325,10 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
                         </a>
                       )}
                     </td>
-                    <td className="text-verde-suave tabular-nums">{formatDataCurta(o.data)}</td>
+                    <td className="text-grafite-suave tabular-nums">{formatDataCurta(o.data)}</td>
                     <td className="num font-semibold">
                       {formatarCentavos(o.valorCentavos)}
-                      {maisBarato && <span className="ml-2 text-sm font-normal text-musgo">menor</span>}
+                      {maisBarato && <span className="ml-2 text-sm font-normal text-rose-fundo">menor</span>}
                     </td>
                     <td className="text-right">
                       <button
@@ -363,7 +363,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
         </label>
         <div className="sm:col-span-3">
           <FileUpload label="Anexo (opcional)" onEnviado={(a) => setArquivoId(a.id)} />
-          {arquivoId && <p className="text-sm text-musgo">Anexo pronto.</p>}
+          {arquivoId && <p className="text-sm text-rose-fundo">Anexo pronto.</p>}
         </div>
         <div className="flex items-end">
           <button

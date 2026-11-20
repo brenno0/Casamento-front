@@ -65,7 +65,7 @@ export function FinanceiroPage() {
 function Carregando({ isPending, isError, oque }: { isPending: boolean; isError: boolean; oque: string }) {
   if (isPending) {
     return (
-      <p role="status" className="text-verde-suave">
+      <p role="status" className="text-grafite-suave">
         Carregando…
       </p>
     );
@@ -89,8 +89,8 @@ function Resumo() {
 function Cartao({ titulo, valor, destaque }: { titulo: string; valor: number; destaque?: string }) {
   return (
     <div className={`cartao-painel ${destaque ?? ''}`}>
-      <p className="text-sm text-verde-suave">{titulo}</p>
-      <p className="mt-1 font-display text-3xl text-verde">{formatarCentavos(valor)}</p>
+      <p className="rotulo">{titulo}</p>
+      <p className="numero mt-3 text-[1.75rem]">{formatarCentavos(valor)}</p>
     </div>
   );
 }
@@ -119,7 +119,7 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
           Próximos 30 dias
         </h2>
         {d.proximosVencimentos.length === 0 ? (
-          <p className="mt-2 text-verde-suave">Nenhum vencimento nos próximos 30 dias.</p>
+          <p className="mt-2 text-grafite-suave">Nenhum vencimento nos próximos 30 dias.</p>
         ) : (
           <ListaParcelas itens={d.proximosVencimentos} />
         )}
@@ -144,7 +144,7 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
               {d.categorias.map((c) => {
                 const vazia = c.previstoCentavos + c.contratadoCentavos + c.pagoCentavos === 0;
                 return (
-                  <tr key={c.id} className={vazia ? 'text-verde-suave' : ''}>
+                  <tr key={c.id} className={vazia ? 'text-grafite-suave' : ''}>
                     <td className={vazia ? '' : 'font-medium'}>{c.nome}</td>
                     <td className="num">{formatarCentavos(c.previstoCentavos)}</td>
                     <td className="num">{formatarCentavos(c.contratadoCentavos)}</td>
@@ -162,14 +162,14 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
         </div>
       </section>
 
-      <section aria-labelledby="entradas" className="cartao-painel border-musgo">
+      <section aria-labelledby="entradas" className="cartao-painel border-rose-fundo">
         <h2 id="entradas" className="text-2xl">
           Entradas
         </h2>
         <p className="mt-1">
           Presentes recebidos: <strong>{formatarCentavos(d.presentesRecebidosCentavos)}</strong>
         </p>
-        <p className="text-sm text-verde-suave">Entram à parte e não abatem os custos acima.</p>
+        <p className="text-sm text-grafite-suave">Entram à parte e não abatem os custos acima.</p>
       </section>
     </div>
   );
@@ -177,7 +177,7 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
 
 function ListaParcelas({ itens }: { itens: ParcelaResumo[] }) {
   return (
-    <ul className="mt-2 divide-y divide-folha">
+    <ul className="mt-2 divide-y divide-linha">
       {itens.map((p) => (
         <li key={p.id} className="flex flex-wrap justify-between gap-2 py-2">
           <span>
@@ -311,7 +311,7 @@ function Contratos() {
   return (
     <div className="space-y-6">
       <NovoContrato categorias={categorias.data} />
-      {contratos.data.length === 0 && <p className="text-verde-suave">Nenhum contrato ainda.</p>}
+      {contratos.data.length === 0 && <p className="text-grafite-suave">Nenhum contrato ainda.</p>}
       {contratos.data.map((c) => (
         <CartaoContrato key={c.id} c={c} />
       ))}
@@ -412,18 +412,18 @@ function CartaoContrato({ c }: { c: Contrato }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-xl">{c.descricao}</h2>
-          <p className="text-sm text-verde-suave">
+          <p className="text-sm text-grafite-suave">
             {c.categoriaNome}
             {c.fornecedorNome ? ` · ${c.fornecedorNome}` : ''}
           </p>
         </div>
         <div className="text-right text-sm">
           <p>Contratado {formatarCentavos(c.valorContratadoCentavos)}</p>
-          <p className="text-musgo">Pago {formatarCentavos(c.pagoCentavos)}</p>
+          <p className="text-rose-fundo">Pago {formatarCentavos(c.pagoCentavos)}</p>
         </div>
       </div>
 
-      <ul className="mt-3 divide-y divide-folha">
+      <ul className="mt-3 divide-y divide-linha">
         {c.parcelas.map((p) => (
           <LinhaParcela key={p.id} p={p} />
         ))}
@@ -431,7 +431,7 @@ function CartaoContrato({ c }: { c: Contrato }) {
 
       {restante > 0 && (
         <form onSubmit={onGerar} className="mt-3 flex flex-wrap items-end gap-2" aria-label={`Gerar parcelas de ${c.descricao}`}>
-          <p className="w-full text-sm text-verde-suave">Falta parcelar {formatarCentavos(restante)}.</p>
+          <p className="w-full text-sm text-grafite-suave">Falta parcelar {formatarCentavos(restante)}.</p>
           <label className="block">
             <span className="rotulo">Parcelas</span>
             <input type="number" min={1} max={60} value={quantidade} onChange={(e) => setQuantidade(e.target.value)} className={inputClass} />
@@ -471,11 +471,11 @@ function LinhaParcela({ p }: { p: Parcela }) {
         <span className={p.atrasada ? 'text-erro' : ''}>{formatDataCurta(p.vencimento)}</span>
         <strong>{formatarCentavos(p.valorCentavos)}</strong>
         {p.status === 'pago' ? (
-          <span className="selo bg-folha-claro text-musgo">Pago em {formatDataCurta(p.pagoEm!)}</span>
+          <span className="selo bg-rose-claro text-rose-fundo">Pago em {formatDataCurta(p.pagoEm!)}</span>
         ) : p.atrasada ? (
           <span className="selo bg-erro/10 text-erro">Atrasada</span>
         ) : (
-          <span className="selo bg-linho-escuro text-verde-suave">Pendente</span>
+          <span className="selo bg-nevoa-escuro text-grafite-suave">Pendente</span>
         )}
         {p.comprovanteArquivoId && (
           <a href={urlArquivo(p.comprovanteArquivoId)} target="_blank" rel="noreferrer" className="acao-link text-sm">
@@ -487,16 +487,16 @@ function LinhaParcela({ p }: { p: Parcela }) {
             Registrar pagamento
           </button>
         ) : (
-          <button type="button" onClick={() => desfazer.mutate(p.id)} className="text-sm acao-link text-verde-suave">
+          <button type="button" onClick={() => desfazer.mutate(p.id)} className="text-sm acao-link text-grafite-suave">
             Desfazer pagamento
           </button>
         )}
-        <button type="button" aria-label="Excluir parcela" onClick={() => excluir.mutate(p.id)} className="text-sm acao-link text-verde-suave">
+        <button type="button" aria-label="Excluir parcela" onClick={() => excluir.mutate(p.id)} className="text-sm acao-link text-grafite-suave">
           Excluir
         </button>
       </div>
       {pagando && p.status === 'pendente' && (
-        <div className="mt-2 flex flex-wrap items-end gap-3 rounded-card bg-linho p-3">
+        <div className="mt-2 flex flex-wrap items-end gap-3 rounded-card bg-nevoa p-3">
           <label className="block">
             <span className="rotulo">Pago em</span>
             <input type="date" value={pagoEm} onChange={(e) => setPagoEm(e.target.value)} className={inputClass} />

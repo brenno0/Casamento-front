@@ -40,9 +40,9 @@ export function BotoesWhatsApp({ g, lembrete }: { g: Grupo; lembrete: boolean })
         </button>
       )}
       {g.statusEnvio === 'enviado' && g.enviadoEm && (
-        <span className="text-verde-suave">Enviado em {new Date(g.enviadoEm).toLocaleDateString('pt-BR')}</span>
+        <span className="text-grafite-suave">Enviado em {new Date(g.enviadoEm).toLocaleDateString('pt-BR')}</span>
       )}
-      {!contato && <span className="text-verde-suave">(sem contato: escolha no WhatsApp)</span>}
+      {!contato && <span className="text-grafite-suave">(sem contato: escolha no WhatsApp)</span>}
     </span>
   );
 }

@@ -34,6 +34,7 @@ import {
   type Quadro,
   type Tarefa,
 } from './useTarefas';
+import { Avatar } from '../painel/Avatar';
 
 type Itens = Record<number, number[]>;
 
@@ -200,7 +201,7 @@ function ColunaKanban({
   return (
     <section
       aria-label={coluna.nome}
-      className="flex w-72 shrink-0 flex-col rounded-card bg-linho-escuro/60 md:max-h-[calc(100svh-15rem)]"
+      className="flex w-72 shrink-0 flex-col rounded-card bg-nevoa-escuro/60 md:max-h-[calc(100svh-15rem)]"
     >
       <CabecalhoColuna coluna={coluna} total={tarefas.length} />
       <SortableContext items={tarefas.map((t) => idTarefa(t.id))} strategy={verticalListSortingStrategy}>
@@ -208,7 +209,7 @@ function ColunaKanban({
           ref={setNodeRef}
           className={[
             'flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3 transition-colors',
-            isOver ? 'bg-vela-claro/30' : '',
+            isOver ? 'bg-pessego-claro/30' : '',
           ].join(' ')}
         >
           {tarefas.map((t) => (
@@ -220,14 +221,14 @@ function ColunaKanban({
               onEditar={onEditar}
             />
           ))}
-          {tarefas.length === 0 && <li className="py-4 text-center text-sm text-verde-suave">Nada aqui.</li>}
+          {tarefas.length === 0 && <li className="py-4 text-center text-sm text-grafite-suave">Nada aqui.</li>}
         </ul>
       </SortableContext>
       <button
         type="button"
         onClick={() => onNovaTarefa(coluna.id)}
         aria-label={`Nova tarefa em ${coluna.nome}`}
-        className="mx-3 mb-3 rounded-botao px-3 py-1.5 text-left text-musgo hover:bg-folha-claro/50"
+        className="mx-3 mb-3 rounded-botao px-3 py-1.5 text-left text-rose-fundo hover:bg-rose-claro/50"
       >
         + Nova tarefa
       </button>
@@ -281,7 +282,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
               setNome(coluna.nome);
               renomear.reset();
             }}
-            className="rounded-botao px-2 py-1 text-sm text-verde-suave"
+            className="rounded-botao px-2 py-1 text-sm text-grafite-suave"
           >
             Cancelar
           </button>
@@ -289,7 +290,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
       ) : (
         <div>
           <h2 className="truncate text-xl" title={coluna.nome}>
-            {coluna.nome} <span className="text-base text-verde-suave">({total})</span>
+            {coluna.nome} <span className="text-base text-grafite-suave">({total})</span>
           </h2>
           <div className="-ml-2 mt-1 flex flex-wrap items-center gap-1">
             <button
@@ -300,7 +301,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                 setEditando(true);
                 excluir.reset();
               }}
-              className="rounded-botao px-2 py-0.5 text-sm text-verde-suave hover:bg-linho-escuro"
+              className="rounded-botao px-2 py-0.5 text-sm text-grafite-suave hover:bg-nevoa-escuro"
             >
               Renomear
             </button>
@@ -314,8 +315,8 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                 excluir.reset();
                 renomear.mutate({ id: coluna.id, concluida: !coluna.concluida });
               }}
-              className={`rounded-botao px-2 py-0.5 text-sm hover:bg-linho-escuro disabled:opacity-60 ${
-                coluna.concluida ? 'bg-folha-claro text-tinta' : 'text-verde-suave'
+              className={`rounded-botao px-2 py-0.5 text-sm hover:bg-nevoa-escuro disabled:opacity-60 ${
+                coluna.concluida ? 'bg-rose-claro text-grafite' : 'text-grafite-suave'
               }`}
             >
               {coluna.concluida ? '✓ Concluídas' : 'Concluídas?'}
@@ -335,7 +336,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                 <button
                   type="button"
                   onClick={() => setConfirmandoExclusao(false)}
-                  className="rounded-botao px-2 py-0.5 text-sm text-verde-suave"
+                  className="rounded-botao px-2 py-0.5 text-sm text-grafite-suave"
                 >
                   Cancelar
                 </button>
@@ -349,7 +350,7 @@ function CabecalhoColuna({ coluna, total }: { coluna: Coluna; total: number }) {
                   excluir.reset();
                   setConfirmandoExclusao(true);
                 }}
-                className="rounded-botao px-2 py-0.5 text-sm text-verde hover:bg-vela-claro"
+                className="rounded-botao px-2 py-0.5 text-sm text-grafite hover:bg-pessego-claro"
               >
                 Excluir
               </button>
@@ -415,7 +416,7 @@ function CartaoTarefa({
               {...attributes}
               onKeyDown={onKeyDown}
               aria-label={`Mover ${tarefa.titulo}`}
-              className="cursor-grab rounded px-1 text-verde-suave hover:text-tinta active:cursor-grabbing"
+              className="cursor-grab rounded px-1 text-grafite-suave hover:text-grafite active:cursor-grabbing"
             >
               ⠿
             </button>
@@ -441,27 +442,28 @@ function CartaoConteudo({
 }) {
   return (
     <article
-      className={`flex gap-2 rounded-card border border-folha bg-papel px-3 py-2.5 transition-colors hover:border-folha-escuro ${className}`}
+      className={`flex gap-2 rounded-card border border-linha bg-white px-3 py-2.5 transition-colors hover:border-linha-forte ${className}`}
     >
       <div className="min-w-0 flex-1">
         <button
           type="button"
           onClick={onEditar}
-          className="block w-full text-left text-[0.9375rem] leading-snug text-tinta hover:text-verde"
+          className="block w-full text-left text-[0.9375rem] leading-snug text-grafite hover:text-grafite"
         >
           {tarefa.titulo}
         </button>
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           {tarefa.prazo && (
-            <span className={`tabular-nums ${atrasada ? 'font-semibold text-erro' : 'text-verde-suave'}`}>
+            <span className={`tabular-nums ${atrasada ? 'font-semibold text-erro' : 'text-grafite-suave'}`}>
               {formatDataCurta(tarefa.prazo)}
             </span>
           )}
-          <span className="text-musgo">
-            {LABEL_RESPONSAVEL[tarefa.responsavel]}
+          <span className="order-last ml-auto inline-flex">
+            <Avatar nome={LABEL_RESPONSAVEL[tarefa.responsavel] ?? tarefa.responsavel} className="size-6 text-[0.625rem]" />
+            <span className="sr-only">{LABEL_RESPONSAVEL[tarefa.responsavel]}</span>
           </span>
           {tarefa.fornecedorNome && (
-            <span className="truncate text-verde-suave">{tarefa.fornecedorNome}</span>
+            <span className="truncate text-grafite-suave">{tarefa.fornecedorNome}</span>
           )}
           {atrasada && (
             <span className="selo bg-erro/10 text-erro">Atrasada</span>

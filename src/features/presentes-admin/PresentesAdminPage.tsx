@@ -8,6 +8,8 @@ import { FINANCEIRO_QUERY_KEY } from '../financeiro/useFinanceiro';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { moverNaLista } from '../site-admin/useSiteAdmin';
 import { useViagens } from '../viagens/useViagens';
+import { IconePainel } from '../painel/IconePainel';
+import { Avatar } from '../painel/Avatar';
 
 export interface ItemPainel {
   id: number;
@@ -81,7 +83,7 @@ export function PresentesAdminPage({ extras }: { extras?: ReactNode } = {}) {
   return (
     <section>
       <h1 className="text-4xl">Presentes</h1>
-      <p className="mt-2 text-verde-suave">Só vocês veem quem deu e quanto.</p>
+      <p className="mt-2 text-grafite-suave">Só vocês veem quem deu e quanto.</p>
       <div role="tablist" aria-label="Presentes" className="abas mt-6">
         {(
           [
@@ -111,9 +113,10 @@ function Itens() {
   return (
     <div className="space-y-4">
       <button type="button" onClick={() => setEditando('novo')} className="acao">
+        <IconePainel nome="mais" />
         Novo item
       </button>
-      {data.length === 0 && <p className="text-verde-suave">Nenhum item ainda.</p>}
+      {data.length === 0 && <p className="text-grafite-suave">Nenhum item ainda.</p>}
       {data.length > 0 && (
         <div className="cartao-painel overflow-x-auto p-0">
           <table className="tabela">
@@ -130,7 +133,7 @@ function Itens() {
             </thead>
             <tbody>
               {data.map((i, idx) => (
-                <tr key={i.id} className={i.ativo ? '' : 'text-verde-suave'}>
+                <tr key={i.id} className={i.ativo ? '' : 'text-grafite-suave'}>
                   <td>
                     <span className="flex gap-1">
                       <button type="button" aria-label={`Subir ${i.nome}`} disabled={idx === 0} onClick={() => ordenar.mutate(moverNaLista(ids, idx, -1))} className="acao-discreta min-h-8 px-2 disabled:opacity-30">↑</button>
@@ -138,14 +141,14 @@ function Itens() {
                     </span>
                   </td>
                   <td>
-                    <button type="button" onClick={() => setEditando(i)} className="flex items-center gap-3 text-left hover:text-verde">
+                    <button type="button" onClick={() => setEditando(i)} className="flex items-center gap-3 text-left hover:text-grafite">
                       {i.fotoUrl ? (
                         <img src={i.fotoUrl} alt="" className="h-10 w-10 shrink-0 rounded-card object-cover" />
                       ) : (
-                        <span aria-hidden="true" className="h-10 w-10 shrink-0 rounded-card bg-linho-escuro" />
+                        <span aria-hidden="true" className="h-10 w-10 shrink-0 rounded-card bg-nevoa-escuro" />
                       )}
                       <span className="font-medium">{i.nome}</span>
-                      {!i.ativo && <span className="selo bg-linho-escuro text-verde-suave">Inativo</span>}
+                      {!i.ativo && <span className="selo bg-nevoa-escuro text-grafite-suave">Inativo</span>}
                     </button>
                   </td>
                   <td className="num">{formatarCentavos(i.precoCentavos)}</td>
@@ -269,7 +272,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
           </label>
           <div className="sm:col-span-2">
             <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />
-            {d.fotoArquivoId && <p className="text-sm text-musgo">Foto definida.</p>}
+            {d.fotoArquivoId && <p className="text-sm text-rose-fundo">Foto definida.</p>}
           </div>
           <label className="flex items-center gap-2 sm:col-span-2">
             <input type="checkbox" checked={d.ativo} onChange={(e) => set('ativo', e.target.checked)} />
@@ -343,15 +346,18 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
       </div>
       {isPending && <p role="status">Carregando…</p>}
       {isError && <p role="alert" className="text-erro">Não foi possível carregar os presentes.</p>}
-      {data && data.length === 0 && <p className="text-verde-suave">Nenhum presente ainda.</p>}
+      {data && data.length === 0 && <p className="text-grafite-suave">Nenhum presente ainda.</p>}
       <ul className="space-y-2">
         {data?.map((p) => (
           <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="cartao-painel px-5 py-4">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <strong>{p.doadorNome}</strong>
-              <span className="text-verde-suave">{p.itemNome}</span>
+              <span className="flex items-center gap-2.5">
+                <Avatar nome={p.doadorNome} />
+                <strong className="font-semibold">{p.doadorNome}</strong>
+              </span>
+              <span className="text-grafite-suave">{p.itemNome}</span>
               <span className="font-semibold tabular-nums">{formatarCentavos(p.valorCentavos)}</span>
-              <span className="selo bg-linho-escuro text-verde-suave">{LABEL_STATUS[p.status]}</span>
+              <span className="selo bg-nevoa-escuro text-grafite-suave">{LABEL_STATUS[p.status]}</span>
               <span className="rotulo">{p.via === 'loja' ? 'Loja' : `Online${p.metodo ? ` (${p.metodo === 'pix' ? 'PIX' : 'cartão'})` : ''}`}</span>
               <span className="rotulo">{new Date(p.criadoEm).toLocaleDateString('pt-BR')}</span>
               {p.status === 'comprado' && (
@@ -361,7 +367,7 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
               )}
             </div>
             {(p.mensagem || p.numeroPedido || p.doadorEmail || p.fotoArquivoId) && (
-              <p className="mt-1 text-sm text-verde-suave">
+              <p className="mt-1 text-sm text-grafite-suave">
                 {p.mensagem && <>“{p.mensagem}” </>}
                 {p.numeroPedido && <>· pedido {p.numeroPedido} </>}
                 {p.doadorEmail && <>· {p.doadorEmail} </>}

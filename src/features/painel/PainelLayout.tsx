@@ -1,18 +1,20 @@
-import { useEffect } from 'react';
+import { Fragment, useEffect, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { diasEntre, formatDataExtenso } from '../../lib/date';
 import { useLogout, useSessao } from '../auth/useSessao';
 import { agoraEmSaoPaulo } from '../roteiro/roteiro';
 import { useCasalPublico } from '../site/useCasal';
-import { MODULOS_PAINEL } from './modulos';
+import { Avatar } from './Avatar';
+import { IconePainel, type NomeIconePainel } from './IconePainel';
+import { GRUPOS_MODULOS } from './modulos';
 
-function navClass({ isActive }: { isActive: boolean }): string {
-  return [
-    'block rounded-botao px-4 py-2 whitespace-nowrap transition-colors',
-    isActive
-      ? 'bg-linho/10 font-semibold text-linho shadow-[inset_0_-2px_0_var(--color-vela)] md:shadow-[inset_2px_0_0_var(--color-vela)]'
-      : 'text-linho/75 hover:bg-linho/5 hover:text-linho',
-  ].join(' ');
+function ItemNav({ to, icone, end, children }: { to: string; icone: NomeIconePainel; end?: boolean; children: ReactNode }) {
+  return (
+    <NavLink to={to} end={end} className="nav-item">
+      <IconePainel nome={icone} />
+      {children}
+    </NavLink>
+  );
 }
 
 function contagem(dataCasamento: string): string | null {
@@ -42,53 +44,70 @@ export function PainelLayout() {
   }, [nomes]);
 
   return (
-    <div className="min-h-svh bg-linho md:flex">
-      <aside className="bg-verde text-linho md:sticky md:top-0 md:flex md:h-svh md:w-sidebar md:shrink-0 md:flex-col">
-        <div className="px-gutter pt-6 pb-4 md:pt-10 md:pb-8">
-          <p className="min-h-[1.2em] font-display text-3xl leading-tight">{titulo}</p>
+    <div className="painel min-h-svh bg-nevoa text-grafite md:flex">
+      <aside className="md:sticky md:top-0 md:flex md:h-svh md:w-sidebar md:shrink-0 md:flex-col">
+        <div className="px-5 pt-6 pb-3 md:pt-8 md:pb-2">
+          <p className="min-h-[1.2em] font-display text-2xl leading-tight">{titulo}</p>
           {casal && (
-            <p className="mt-2 text-sm text-linho/70">
+            <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.8125rem] text-grafite-suave">
               {formatDataExtenso(casal.dataCasamento)}
-              {falta && <span className="block font-semibold text-vela">{falta}</span>}
+              {falta && (
+                <span className="selo bg-rose-claro text-rose-fundo">
+                  <IconePainel nome="coracao" className="size-3" />
+                  {falta}
+                </span>
+              )}
             </p>
           )}
         </div>
-        <nav aria-label="Módulos do painel" className="overflow-x-auto px-3 pb-4 md:flex-1 md:overflow-y-auto md:pb-8">
-          <ul className="flex gap-1 md:flex-col">
-            <li>
-              <NavLink to="/painel" end className={navClass}>
+        <nav aria-label="Módulos do painel" className="overflow-x-auto px-3 pb-3 md:flex-1 md:overflow-y-auto md:pb-6">
+          <ul className="flex gap-1 md:flex-col md:gap-0.5">
+            <li className="md:mt-4">
+              <ItemNav to="/painel" icone="inicio" end>
                 Visão geral
-              </NavLink>
+              </ItemNav>
             </li>
-            {MODULOS_PAINEL.map((m) => (
-              <li key={m.slug}>
-                <NavLink to={`/painel/${m.slug}`} className={navClass}>
-                  {m.label}
-                </NavLink>
-              </li>
+            {GRUPOS_MODULOS.map((g) => (
+              <Fragment key={g.titulo}>
+                <li aria-hidden="true" className="nav-grupo hidden md:block">
+                  {g.titulo}
+                </li>
+                {g.modulos.map((m) => (
+                  <li key={m.slug}>
+                    <ItemNav to={`/painel/${m.slug}`} icone={m.icone}>
+                      {m.label}
+                    </ItemNav>
+                  </li>
+                ))}
+              </Fragment>
             ))}
-            <li className="md:mt-4 md:border-t md:border-linho/15 md:pt-4">
-              <NavLink to="/painel/configuracoes" className={navClass}>
+            <li className="md:mt-6">
+              <ItemNav to="/painel/configuracoes" icone="configuracoes">
                 Configurações
-              </NavLink>
+              </ItemNav>
             </li>
           </ul>
         </nav>
-        <div className="flex items-center justify-between gap-3 border-t border-linho/15 px-gutter py-3 md:py-5">
-          <p className="truncate text-sm text-linho/75">{conta?.nome}</p>
+        <div className="flex items-center gap-2.5 px-5 pb-4 md:py-4">
+          {conta && <Avatar nome={conta.nome} />}
+          <p className="min-w-0 flex-1 truncate text-sm font-medium">{conta?.nome}</p>
           <button
             type="button"
+            aria-label="Sair"
+            title="Sair"
             onClick={() => logout.mutate()}
             disabled={logout.isPending}
-            className="rounded-botao px-3 py-1.5 text-sm text-linho/90 transition-colors hover:bg-linho/10 hover:text-linho disabled:opacity-60"
+            className="acao-discreta min-h-8 px-2"
           >
-            Sair
+            <IconePainel nome="sair" />
           </button>
         </div>
       </aside>
-      <main className="min-w-0 flex-1 px-gutter py-8 text-base md:px-12 md:py-12">
-        <div key={pathname} className="painel-conteudo entrada-pagina mx-auto max-w-6xl">
-          <Outlet />
+      <main className="min-w-0 flex-1 md:py-2 md:pr-2">
+        <div className="min-h-[calc(100svh-1rem)] bg-white px-gutter py-8 md:rounded-[1.25rem] md:border md:border-linha md:px-12 md:py-10 md:shadow-[0_1px_2px_rgb(31_26_28/0.04)]">
+          <div key={pathname} className="entrada-pagina mx-auto max-w-6xl">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

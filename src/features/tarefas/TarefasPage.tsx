@@ -2,6 +2,7 @@ import { useCallback, useState, type FormEvent } from 'react';
 import { QuadroKanban } from './QuadroKanban';
 import { TarefaModal, type ModoModal } from './TarefaModal';
 import { useCriarColuna, useMoverTarefa, useQuadro, type FiltroTarefas, type MoverVars } from './useTarefas';
+import { IconePainel } from '../painel/IconePainel';
 
 const FILTROS: { valor: FiltroTarefas; label: string }[] = [
   { valor: 'todas', label: 'Todas' },
@@ -34,21 +35,19 @@ export function TarefasPage() {
           onClick={() => primeiraColuna && setModal({ tipo: 'criar', colunaId: primeiraColuna.id })}
           className="acao"
         >
+          <IconePainel nome="mais" />
           Nova tarefa
         </button>
       </div>
 
-      <div role="group" aria-label="Filtro de tarefas" className="mt-6 inline-flex rounded-botao border border-folha-escuro bg-papel p-0.5">
+      <div role="group" aria-label="Filtro de tarefas" className="segmentos mt-6">
         {FILTROS.map((f) => (
           <button
             key={f.valor}
             type="button"
             aria-pressed={filtro === f.valor}
             onClick={() => setFiltro(f.valor)}
-            className={[
-              'rounded-botao px-4 py-1.5 text-sm font-medium transition-colors',
-              filtro === f.valor ? 'bg-verde text-linho' : 'text-verde-suave hover:text-verde',
-            ].join(' ')}
+            className="segmento"
           >
             {f.label}
           </button>
@@ -56,7 +55,7 @@ export function TarefasPage() {
       </div>
 
       {filtro !== 'todas' && (
-        <p className="mt-3 text-sm text-verde-suave">
+        <p className="mt-3 text-sm text-grafite-suave">
           Visão filtrada: para reordenar ou mover cartões, volte para “Todas”.
         </p>
       )}
@@ -67,7 +66,7 @@ export function TarefasPage() {
       )}
 
       {isPending && (
-        <p className="mt-6 text-verde-suave" role="status">
+        <p className="mt-6 text-grafite-suave" role="status">
           Carregando…
         </p>
       )}
@@ -126,7 +125,7 @@ function NovaColuna() {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="w-64 shrink-0 rounded-card border border-dashed border-folha p-3"
+      className="w-64 shrink-0 rounded-card border border-dashed border-linha p-3"
     >
       <label className="block">
         <span className="rotulo">Nova coluna</span>

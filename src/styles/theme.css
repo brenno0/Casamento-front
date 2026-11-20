@@ -24,6 +24,19 @@
   --color-terracota: #b8674f;
   --color-erro: #a3352b;
 
+  /* Paleta do painel do casal: névoa rosada, grafite quente e rosé. */
+  --color-nevoa: #faf7f5;
+  --color-nevoa-escuro: #f1ebe8;
+  --color-linha: #ece4e1;
+  --color-linha-forte: #ddd2ce;
+  --color-grafite: #1f1a1c;
+  --color-grafite-suave: #77696d;
+  --color-rose: #e4b8bd;
+  --color-rose-claro: #f8ebec;
+  --color-rose-fundo: #a85561;
+  --color-lavanda-claro: #eeeaf7;
+  --color-pessego-claro: #fcebdf;
+
   /* Tipografia */
   --font-display: 'Libre Caslon Display', 'Libre Caslon Text', 'Big Caslon', Georgia, serif;
   --font-caslon: 'Libre Caslon Text', 'Big Caslon', Georgia, serif;

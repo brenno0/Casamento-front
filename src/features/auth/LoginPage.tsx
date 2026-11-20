@@ -9,8 +9,7 @@ function mensagemDeErro(error: unknown): string {
   return 'Não foi possível entrar agora. Tente novamente em instantes.';
 }
 
-const inputClass =
-  'campo';
+const inputClass = 'entrada';
 
 export function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -32,14 +31,14 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-linho px-gutter">
-      <section className="cartao-mesa w-full max-w-md px-8 py-12 sm:px-12">
-        <h1 className="text-5xl">Entrar</h1>
-        <p className="mt-2 text-lg text-verde-suave">Painel do casal</p>
+    <main className="painel flex min-h-svh items-center justify-center bg-nevoa px-gutter">
+      <section className="cartao-painel w-full max-w-md px-8 py-10 sm:px-10">
+        <h1 className="text-4xl">Entrar</h1>
+        <p className="mt-1 text-grafite-suave">Painel do casal</p>
 
-        <form className="mt-10 space-y-5" onSubmit={onSubmit} noValidate>
+        <form className="mt-8 space-y-5" onSubmit={onSubmit} noValidate>
           <label className="block">
-            <span className="text-sm font-medium text-verde-suave">E-mail</span>
+            <span className="rotulo">E-mail</span>
             <input
               type="email"
               name="email"
@@ -51,7 +50,7 @@ export function LoginPage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-verde-suave">Senha</span>
+            <span className="rotulo">Senha</span>
             <input
               type="password"
               name="senha"
@@ -72,7 +71,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={login.isPending || email.trim() === '' || senha === ''}
-            className="botao w-full"
+            className="acao w-full"
           >
             {login.isPending ? 'Entrando…' : 'Entrar'}
           </button>

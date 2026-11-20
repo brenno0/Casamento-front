@@ -25,9 +25,9 @@ export function ViagensPage() {
       <ul className="mt-6 grid gap-4 sm:grid-cols-2">
         {data?.map((v) => (
           <li key={v.id}>
-            <Link to={`/painel/viagens/${v.id}`} className="block cartao-painel transition-colors hover:border-folha-escuro">
+            <Link to={`/painel/viagens/${v.id}`} className="block cartao-painel transition-colors hover:border-linha-forte">
               <h2 className="text-2xl">{v.nome}</h2>
-              <p className="text-verde-suave">
+              <p className="text-grafite-suave">
                 {v.destino && `${v.destino} · `}
                 {formatDataCurta(v.dataInicio)} a {formatDataCurta(v.dataFim)}
               </p>

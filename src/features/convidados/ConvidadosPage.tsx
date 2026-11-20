@@ -26,6 +26,8 @@ import {
   passaFiltros,
   type Filtros,
 } from './useConvidados';
+import { IconePainel } from '../painel/IconePainel';
+import { Avatar } from '../painel/Avatar';
 
 const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
 
@@ -52,13 +54,15 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">Convidados</h1>
-          <p className="mt-2 text-verde-suave">Cada grupo recebe um convite.</p>
+          <p className="mt-2 text-grafite-suave">Cada grupo recebe um convite.</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={() => setModal({ tipo: 'grupo' })} className="acao-secundaria">
+            <IconePainel nome="mais" />
             Novo grupo
           </button>
           <button type="button" onClick={() => setModal({ tipo: 'convidado' })} className="acao">
+            <IconePainel nome="mais" />
             Novo convidado
           </button>
         </div>
@@ -82,7 +86,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       </label>
 
       {grupos.isPending && (
-        <p role="status" className="mt-6 text-verde-suave">
+        <p role="status" className="mt-6 text-grafite-suave">
           Carregando…
         </p>
       )}
@@ -91,7 +95,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
           Não foi possível carregar os convidados.
         </p>
       )}
-      {grupos.data && visiveis.length === 0 && <p className="mt-6 text-verde-suave">Nenhum grupo encontrado.</p>}
+      {grupos.data && visiveis.length === 0 && <p className="mt-6 text-grafite-suave">Nenhum grupo encontrado.</p>}
 
       <ul className="mt-6 grid gap-4 lg:grid-cols-2">
         {visiveis.map(({ g, convidados }) => (
@@ -155,9 +159,9 @@ function Filtro<T extends string>({
 }
 
 const BARRA_RSVP: [Rsvp, string][] = [
-  ['vai', 'bg-verde'],
-  ['nao_vai', 'bg-terracota'],
-  ['sem_resposta', 'bg-linho-escuro'],
+  ['vai', 'bg-rose-fundo'],
+  ['nao_vai', 'bg-rose'],
+  ['sem_resposta', 'bg-nevoa-escuro'],
 ];
 
 function ResumoCartoes() {
@@ -175,28 +179,28 @@ function ResumoCartoes() {
   return (
     <div className="cartao-painel mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
       <div>
-        <p className="text-sm font-medium text-verde-suave">Confirmados</p>
-        <p className="mt-1 font-display text-4xl text-verde">
-          {data.porRsvp.vai} <span className="text-2xl text-verde-suave">de {data.pessoas}</span>
+        <p className="rotulo">Confirmados</p>
+        <p className="numero mt-3">
+          {data.porRsvp.vai} <span className="text-xl tracking-normal text-grafite-suave/70">de {data.pessoas}</span>
         </p>
-        <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-linho-escuro" aria-hidden="true">
+        <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-nevoa-escuro" aria-hidden="true">
           {BARRA_RSVP.map(([r, cor]) => (
             <span key={r} className={cor} style={{ width: largura(data.porRsvp[r]) }} />
           ))}
         </div>
         <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
           {BARRA_RSVP.map(([r, cor]) => (
-            <li key={r} className="flex items-center gap-2 text-verde-suave">
+            <li key={r} className="flex items-center gap-2 text-grafite-suave">
               <span aria-hidden="true" className={`h-2 w-2 rounded-full ${cor}`} />
-              <span className="font-semibold text-tinta">{data.porRsvp[r]}</span> {LABEL_RSVP[r].toLowerCase()}
+              <span className="font-semibold text-grafite">{data.porRsvp[r]}</span> {LABEL_RSVP[r].toLowerCase()}
             </li>
           ))}
         </ul>
       </div>
-      <dl aria-label="Resumo" className="grid grid-cols-3 gap-x-6 gap-y-3 sm:grid-cols-6 lg:border-l lg:border-folha lg:pl-6">
+      <dl aria-label="Resumo" className="grid grid-cols-3 gap-x-6 gap-y-3 sm:grid-cols-6 lg:border-l lg:border-linha lg:pl-6">
         {itens.map(([rotulo, n]) => (
           <div key={rotulo}>
-            <dt className="text-sm text-verde-suave">{rotulo}</dt>
+            <dt className="text-sm text-grafite-suave">{rotulo}</dt>
             <dd className="text-xl font-semibold tabular-nums">{n}</dd>
           </div>
         ))}
@@ -206,9 +210,9 @@ function ResumoCartoes() {
 }
 
 const COR_RSVP: Record<Rsvp, string> = {
-  sem_resposta: 'bg-linho-escuro text-verde-suave',
-  vai: 'bg-folha-claro text-tinta',
-  nao_vai: 'bg-vela-claro text-verde',
+  sem_resposta: 'bg-nevoa-escuro text-grafite-suave',
+  vai: 'bg-rose-claro text-rose-fundo',
+  nao_vai: 'bg-pessego-claro text-grafite',
 };
 
 function CartaoGrupo({
@@ -230,22 +234,23 @@ function CartaoGrupo({
     <article aria-label={`Grupo ${g.nome}`} className="cartao-painel flex flex-col p-0">
       <div className="flex items-baseline justify-between gap-2 px-5 pt-4">
         <h2>{g.nome}</h2>
-        <button type="button" onClick={onEditar} className="text-sm acao-link text-verde-suave">
+        <button type="button" onClick={onEditar} className="text-sm acao-link text-grafite-suave">
           Editar grupo
         </button>
       </div>
       {convidados.length === 0 ? (
-        <p className="px-5 py-3 text-sm text-verde-suave">Nenhum convidado neste grupo.</p>
+        <p className="px-5 py-3 text-sm text-grafite-suave">Nenhum convidado neste grupo.</p>
       ) : (
-        <ul className="mt-2 flex-1 divide-y divide-folha/70 px-5">
+        <ul className="mt-2 flex-1 divide-y divide-linha/70 px-5">
           {convidados.map((c) => (
-            <li key={c.id} className="flex flex-wrap items-center gap-2 py-2">
-              <button type="button" onClick={() => onEditarConvidado(c)} className="mr-auto text-left font-medium hover:text-verde">
+            <li key={c.id} className="flex flex-wrap items-center gap-2 py-2.5">
+              <Avatar nome={c.nome} className="size-6 text-[0.625rem]" />
+              <button type="button" onClick={() => onEditarConvidado(c)} className="mr-auto text-left font-medium hover:text-grafite">
                 {c.nome}
               </button>
-              {c.tipo === 'crianca' && <span className="selo bg-linho-escuro text-verde-suave">Criança</span>}
-              {c.funcao && <span className="selo bg-folha-claro text-musgo">{LABEL_FUNCAO[c.funcao]}</span>}
-              <span className="text-xs text-verde-suave">{LABEL_LADO[c.lado]}</span>
+              {c.tipo === 'crianca' && <span className="selo bg-nevoa-escuro text-grafite-suave">Criança</span>}
+              {c.funcao && <span className="selo bg-rose-claro text-rose-fundo">{LABEL_FUNCAO[c.funcao]}</span>}
+              <span className="text-xs text-grafite-suave">{LABEL_LADO[c.lado]}</span>
               <span
                 className={`selo ${COR_RSVP[c.rsvp]}`}
                 title={c.rsvpEm ? `Respondeu em ${new Date(c.rsvpEm).toLocaleString('pt-BR')}` : undefined}
@@ -254,13 +259,13 @@ function CartaoGrupo({
                 {c.rsvpEm && ` · ${new Date(c.rsvpEm).toLocaleDateString('pt-BR')}`}
               </span>
               {c.acompanhantePermitido && (
-                <span className="text-xs text-verde-suave">+1{c.acompanhanteNome ? `: ${c.acompanhanteNome}` : ''}</span>
+                <span className="text-xs text-grafite-suave">+1{c.acompanhanteNome ? `: ${c.acompanhanteNome}` : ''}</span>
               )}
             </li>
           ))}
         </ul>
       )}
-      <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-folha bg-linho/50 px-5 py-3">
+      <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-linha bg-nevoa/50 px-5 py-3">
         <button type="button" onClick={onNovoConvidado} className="text-sm acao-link">
           + Convidado neste grupo
         </button>
@@ -283,12 +288,12 @@ function CopiarLink({ token, nome }: { token: string; nome: string }) {
   }
   return (
     <span className="text-sm">
-      <button type="button" aria-label={`Copiar link do convite de ${nome}`} onClick={() => void copiar()} className="acao-link text-verde-suave">
+      <button type="button" aria-label={`Copiar link do convite de ${nome}`} onClick={() => void copiar()} className="acao-link text-grafite-suave">
         Copiar link
       </button>
-      {copiado === 'ok' && <span role="status" className="ml-1 text-musgo">copiado!</span>}
+      {copiado === 'ok' && <span role="status" className="ml-1 text-rose-fundo">copiado!</span>}
       {copiado === 'erro' && (
-        <span role="status" className="ml-1 break-all text-verde-suave">
+        <span role="status" className="ml-1 break-all text-grafite-suave">
           {linkConvite(token)}
         </span>
       )}
@@ -362,7 +367,7 @@ function GrupoModal({ grupo, onClose }: { grupo?: Grupo; onClose: () => void }) 
               ))}
             </select>
             {comTelefone.length === 0 && (
-              <span className="text-xs text-verde-suave">Cadastre o telefone de alguém do grupo para escolher.</span>
+              <span className="text-xs text-grafite-suave">Cadastre o telefone de alguém do grupo para escolher.</span>
             )}
           </label>
         )}

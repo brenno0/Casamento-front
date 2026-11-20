@@ -16,10 +16,10 @@ export function ConfiguracoesPage() {
   return (
     <section>
       <h1 className="text-4xl">Configurações</h1>
-      <p className="mt-3 text-verde-suave">Nomes do casal exibidos no site e no painel.</p>
+      <p className="mt-3 text-grafite-suave">Nomes do casal exibidos no site e no painel.</p>
 
       {isPending && (
-        <p className="mt-6 text-verde-suave" role="status">
+        <p className="mt-6 text-grafite-suave" role="status">
           Carregando…
         </p>
       )}
@@ -102,7 +102,7 @@ function NomesForm({
         </p>
       )}
       {atualizar.isSuccess && (
-        <p className="text-musgo" role="status">
+        <p className="text-rose-fundo" role="status">
           Salvo.
         </p>
       )}

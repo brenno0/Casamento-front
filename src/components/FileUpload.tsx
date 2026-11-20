@@ -40,7 +40,7 @@ export function FileUpload({
 
   return (
     <div>
-      <label htmlFor={id} className="text-sm text-verde-suave">
+      <label htmlFor={id} className="text-sm text-grafite-suave">
         {label}
       </label>
       <input
@@ -52,10 +52,10 @@ export function FileUpload({
           void onChange(e.target.files?.[0]);
           e.target.value = '';
         }}
-        className="mt-1 block w-full text-sm file:mr-3 file:rounded-botao file:border-0 file:bg-vela-claro file:px-4 file:py-1 file:text-verde"
+        className="mt-1 block w-full text-sm file:mr-3 file:rounded-botao file:border-0 file:bg-pessego-claro file:px-4 file:py-1 file:text-grafite"
       />
       {estado === 'enviando' && (
-        <p role="status" className="mt-1 text-sm text-verde-suave">
+        <p role="status" className="mt-1 text-sm text-grafite-suave">
           Enviando…
         </p>
       )}

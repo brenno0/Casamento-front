@@ -10,15 +10,16 @@ import {
   useFornecedores,
   type StatusFornecedor,
 } from './useFornecedores';
+import { IconePainel } from '../painel/IconePainel';
 
 export const inputClass =
   'entrada';
 
 const COR_STATUS: Record<StatusFornecedor, string> = {
-  pesquisando: 'bg-linho-escuro text-tinta',
-  orcado: 'bg-folha text-tinta',
-  contratado: 'bg-folha-claro text-tinta',
-  descartado: 'bg-papel text-verde-suave line-through',
+  pesquisando: 'bg-nevoa-escuro text-grafite',
+  orcado: 'bg-lavanda-claro text-grafite',
+  contratado: 'bg-rose-claro text-grafite',
+  descartado: 'bg-nevoa text-grafite-suave line-through',
 };
 
 export function BadgeStatus({ status }: { status: StatusFornecedor }) {
@@ -43,6 +44,7 @@ export function FornecedoresPage() {
           onClick={() => setCriando(true)}
           className="acao"
         >
+          <IconePainel nome="mais" />
           Novo fornecedor
         </button>
       </div>
@@ -77,7 +79,7 @@ export function FornecedoresPage() {
       </div>
 
       {isPending && (
-        <p role="status" className="mt-6 text-verde-suave">
+        <p role="status" className="mt-6 text-grafite-suave">
           Carregando…
         </p>
       )}
@@ -86,7 +88,7 @@ export function FornecedoresPage() {
           Não foi possível carregar os fornecedores.
         </p>
       )}
-      {data && data.length === 0 && <p className="mt-6 text-verde-suave">Nenhum fornecedor por aqui ainda.</p>}
+      {data && data.length === 0 && <p className="mt-6 text-grafite-suave">Nenhum fornecedor por aqui ainda.</p>}
       {data && data.length > 0 && (
         <div className="cartao-painel mt-6 overflow-x-auto p-0">
           <table className="tabela">
@@ -104,11 +106,11 @@ export function FornecedoresPage() {
               {data.map((f) => (
                 <tr key={f.id}>
                   <td>
-                    <Link to={`/painel/fornecedores/${f.id}`} className="font-semibold text-verde hover:underline">
+                    <Link to={`/painel/fornecedores/${f.id}`} className="font-semibold text-grafite hover:underline">
                       {f.nome}
                     </Link>
                   </td>
-                  <td className="text-verde-suave">{f.categoria}</td>
+                  <td className="text-grafite-suave">{f.categoria}</td>
                   <td>
                     <BadgeStatus status={f.status} />
                   </td>
@@ -116,7 +118,7 @@ export function FornecedoresPage() {
                   <td className="num">
                     {f.menorOrcamentoCentavos === null ? '—' : formatarCentavos(f.menorOrcamentoCentavos)}
                   </td>
-                  <td className="text-sm text-musgo">{f.contrato ? 'Anexado' : ''}</td>
+                  <td className="text-sm text-rose-fundo">{f.contrato ? 'Anexado' : ''}</td>
                 </tr>
               ))}
             </tbody>

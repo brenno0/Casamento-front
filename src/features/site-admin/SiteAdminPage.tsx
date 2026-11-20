@@ -15,6 +15,7 @@ import {
   useSitePainel,
   type SitePainel,
 } from './useSiteAdmin';
+import { IconePainel } from '../painel/IconePainel';
 
 type Aba = 'locais' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
 
@@ -38,10 +39,11 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">Site</h1>
-          <p className="mt-2 text-verde-suave">Endereços e mapas só aparecem pelo link do convite.</p>
+          <p className="mt-2 text-grafite-suave">Endereços e mapas só aparecem pelo link do convite.</p>
         </div>
         <a href="/" target="_blank" rel="noreferrer" className="acao-secundaria">
           Ver site
+          <IconePainel nome="abrir" className="size-3.5" />
         </a>
       </div>
       <div role="tablist" aria-label="Partes do site" className="abas mt-6">
@@ -147,7 +149,7 @@ function LocalForm({ l }: { l: SitePainel['locais'][number] }) {
         <span className="rotulo">Longitude</span>
         <input inputMode="decimal" value={d.longitude} onChange={campo('longitude')} className={inputClass} />
       </label>
-      <p className="text-xs text-verde-suave sm:col-span-2">
+      <p className="text-xs text-grafite-suave sm:col-span-2">
         Dica: no Google Maps, clique com o botão direito no local e copie as coordenadas.
       </p>
       {!coordsOk && <Erro mostrar texto="Coordenadas inválidas." />}
@@ -230,7 +232,7 @@ function Historia({ s }: { s: SitePainel }) {
         </label>
         <div className="sm:col-span-2">
           <FileUpload label="Foto (opcional)" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => setFoto(a.id)} />
-          {foto && <p className="text-sm text-musgo">Foto pronta.</p>}
+          {foto && <p className="text-sm text-rose-fundo">Foto pronta.</p>}
         </div>
         <div className="flex items-end">
           <button type="submit" disabled={!d.data || !d.titulo.trim() || criar.isPending} className="acao w-full">
@@ -276,7 +278,7 @@ function DressCode({ s }: { s: SitePainel }) {
                 value={cor}
                 onChange={(e) => setPaleta(paleta.map((c, j) => (j === i ? e.target.value : c)))}
               />
-              <button type="button" aria-label={`Remover cor ${i + 1}`} onClick={() => setPaleta(paleta.filter((_, j) => j !== i))} className="text-sm text-verde-suave">
+              <button type="button" aria-label={`Remover cor ${i + 1}`} onClick={() => setPaleta(paleta.filter((_, j) => j !== i))} className="text-sm text-grafite-suave">
                 ×
               </button>
             </span>
@@ -346,7 +348,7 @@ function Faq({ s }: { s: SitePainel }) {
             <BotoesOrdem ids={ids} i={i} recurso="faq" />
             <div className="flex-1">
               <p className="font-semibold">{f.pergunta}</p>
-              <p className="text-verde-suave">{f.resposta}</p>
+              <p className="text-grafite-suave">{f.resposta}</p>
             </div>
             <button type="button" aria-label={`Excluir pergunta ${f.pergunta}`} onClick={() => excluir.mutate(f.id)} className="text-sm acao-perigo">
               Excluir
@@ -402,7 +404,7 @@ function Mensagens({ s }: { s: SitePainel }) {
       }}
       className="space-y-4 cartao-painel"
     >
-      <p className="text-sm text-verde-suave">
+      <p className="text-sm text-grafite-suave">
         Use {'{grupo}'}, {'{link}'} e {'{prazo}'}: eles são trocados pelo nome do grupo, o link do convite e o prazo do RSVP.
       </p>
       {(
@@ -427,7 +429,7 @@ function Mensagens({ s }: { s: SitePainel }) {
           </label>
           <div>
             <span className="rotulo">Prévia</span>
-            <p aria-label={`Prévia do ${rotulo.toLowerCase()}`} className="mt-1 rounded-card bg-folha-claro p-3 whitespace-pre-line">
+            <p aria-label={`Prévia do ${rotulo.toLowerCase()}`} className="mt-1 rounded-card bg-rose-claro p-3 whitespace-pre-line">
               {montarTexto(valor, exemplo)}
             </p>
           </div>
