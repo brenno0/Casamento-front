@@ -20,7 +20,7 @@ export function RoteiroPage() {
   const d = destaques(data.etapas, data.data, agora);
 
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="max-w-3xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-4xl">Roteiro do dia</h1>
@@ -39,9 +39,9 @@ export function RoteiroPage() {
             <li
               key={e.id}
               aria-current={ehAgora ? 'step' : undefined}
-              className={`relative mb-8 rounded-card p-4 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-papel shadow-suave' : ''}`}
+              className={`relative mb-2 rounded-card px-4 py-3 ${ehAgora ? 'bg-vela-claro shadow-suave' : ehProxima ? 'bg-papel shadow-suave' : ''}`}
             >
-              <span aria-hidden="true" className={`absolute top-6 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-verde' : 'bg-folha-escuro'}`} />
+              <span aria-hidden="true" className={`absolute top-5 -left-[33px] h-4 w-4 rounded-full ${ehAgora ? 'bg-verde' : 'bg-folha-escuro'}`} />
               <p className="text-3xl tabular-nums">
                 {e.horario}
                 {e.horarioFim && <span className="text-xl text-verde-suave"> – {e.horarioFim}</span>}
@@ -57,7 +57,7 @@ export function RoteiroPage() {
                 <p className="text-verde-suave">
                   {e.local?.nome ?? e.localTexto}
                   {mapa && (
-                    <a href={mapa} target="_blank" rel="noreferrer" className="ml-2 underline">
+                    <a href={mapa} target="_blank" rel="noreferrer" className="acao-link ml-2">
                       mapa
                     </a>
                   )}
@@ -120,7 +120,7 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
   return (
     <div className="dialogo-fundo" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-label={etapa ? 'Editar etapa' : 'Nova etapa'} className="dialogo">
-        <h2 className="text-2xl">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
+        <h2 className="titulo-dialogo">{etapa ? 'Editar etapa' : 'Nova etapa'}</h2>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block">
             <span className="rotulo">Início</span>
@@ -151,7 +151,7 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
             <legend className="rotulo">Envolvidos</legend>
             <ul className="mt-1 flex flex-wrap gap-2">
               {envolvidos.map((en, i) => (
-                <li key={i} className="rounded-botao bg-papel px-3 py-1 text-sm">
+                <li key={i} className="selo bg-folha-claro text-musgo">
                   {rotulo(en)}
                   <button type="button" aria-label={`Remover ${rotulo(en)}`} onClick={() => setEnvolvidos(envolvidos.filter((_, j) => j !== i))} className="ml-1">
                     ×
@@ -181,7 +181,7 @@ function EtapaModal({ etapa, onClose }: { etapa: Etapa | null; onClose: () => vo
                     setEnvolvidos([...envolvidos, { texto: novoTexto.trim() }]);
                     setNovoTexto('');
                   }}
-                  className="mt-1 rounded-botao border border-folha-escuro px-3"
+                  className="acao-secundaria mt-1.5 px-3"
                 >
                   +
                 </button>

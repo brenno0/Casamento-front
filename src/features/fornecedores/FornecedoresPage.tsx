@@ -22,7 +22,7 @@ const COR_STATUS: Record<StatusFornecedor, string> = {
 };
 
 export function BadgeStatus({ status }: { status: StatusFornecedor }) {
-  return <span className={`rounded-botao px-3 py-0.5 text-sm ${COR_STATUS[status]}`}>{labelStatus(status)}</span>;
+  return <span className={`selo ${COR_STATUS[status]}`}>{labelStatus(status)}</span>;
 }
 
 export function FornecedoresPage() {
@@ -88,28 +88,40 @@ export function FornecedoresPage() {
       )}
       {data && data.length === 0 && <p className="mt-6 text-verde-suave">Nenhum fornecedor por aqui ainda.</p>}
       {data && data.length > 0 && (
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {data.map((f) => (
-            <li key={f.id}>
-              <Link
-                to={`/painel/fornecedores/${f.id}`}
-                className="block cartao-painel transition-colors hover:border-folha-escuro"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-xl">{f.nome}</h2>
-                  <BadgeStatus status={f.status} />
-                </div>
-                <p className="text-sm text-verde-suave">{f.categoria}</p>
-                <p className="mt-2 text-sm">
-                  {f.totalOrcamentos === 0
-                    ? 'Sem orçamentos'
-                    : `${f.totalOrcamentos} orçamento(s) · menor ${formatarCentavos(f.menorOrcamentoCentavos!)}`}
-                </p>
-                {f.contrato && <p className="mt-1 text-sm text-musgo">Contrato anexado</p>}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="cartao-painel mt-6 overflow-x-auto p-0">
+          <table className="tabela">
+            <thead>
+              <tr>
+                <th>Fornecedor</th>
+                <th>Categoria</th>
+                <th>Status</th>
+                <th className="num">Orçamentos</th>
+                <th className="num">Menor orçamento</th>
+                <th>Contrato</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((f) => (
+                <tr key={f.id}>
+                  <td>
+                    <Link to={`/painel/fornecedores/${f.id}`} className="font-semibold text-verde hover:underline">
+                      {f.nome}
+                    </Link>
+                  </td>
+                  <td className="text-verde-suave">{f.categoria}</td>
+                  <td>
+                    <BadgeStatus status={f.status} />
+                  </td>
+                  <td className="num">{f.totalOrcamentos}</td>
+                  <td className="num">
+                    {f.menorOrcamentoCentavos === null ? '—' : formatarCentavos(f.menorOrcamentoCentavos)}
+                  </td>
+                  <td className="text-sm text-musgo">{f.contrato ? 'Anexado' : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {criando && <NovoFornecedorModal onClose={() => setCriando(false)} />}
@@ -142,7 +154,7 @@ function NovoFornecedorModal({ onClose }: { onClose: () => void }) {
       }}
     >
       <div role="dialog" aria-modal="true" aria-labelledby={tituloId} className="dialogo max-w-md">
-        <h2 id={tituloId} className="text-2xl">
+        <h2 id={tituloId} className="titulo-dialogo">
           Novo fornecedor
         </h2>
         <form onSubmit={onSubmit} className="mt-4 space-y-4" noValidate>

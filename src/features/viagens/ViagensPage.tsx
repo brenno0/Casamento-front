@@ -36,6 +36,7 @@ export function ViagensPage() {
         ))}
       </ul>
       <form onSubmit={onSubmit} aria-label="Nova viagem" className="mt-8 grid gap-3 cartao-painel sm:grid-cols-4">
+        <h2 className="sm:col-span-4">Nova viagem</h2>
         <label className="block sm:col-span-2">
           <span className="rotulo">Nome</span>
           <input maxLength={80} value={d.nome} onChange={(e) => setD({ ...d, nome: e.target.value })} className={inputClass} />

@@ -87,7 +87,7 @@ export function PainelLayout() {
         </div>
       </aside>
       <main className="min-w-0 flex-1 px-gutter py-8 text-base md:px-12 md:py-12">
-        <div key={pathname} className="entrada-pagina mx-auto max-w-6xl">
+        <div key={pathname} className="painel-conteudo entrada-pagina mx-auto max-w-6xl">
           <Outlet />
         </div>
       </main>

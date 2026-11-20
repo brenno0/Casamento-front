@@ -1,4 +1,4 @@
-import { Fragment, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { FileUpload } from '../../components/FileUpload';
 import { ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
@@ -96,8 +96,7 @@ function Cartao({ titulo, valor, destaque }: { titulo: string; valor: number; de
 }
 
 function ResumoConteudo({ d }: { d: Dashboard }) {
-  const maior = Math.max(1, ...d.categorias.flatMap((c) => [c.previstoCentavos, c.contratadoCentavos, c.pagoCentavos]));
-  const pct = (v: number) => `${Math.round((v / maior) * 100)}%`;
+  const pct = (parte: number, todo: number) => `${todo > 0 ? Math.min(100, Math.round((parte / todo) * 100)) : 0}%`;
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3" aria-label="Totais">
@@ -130,30 +129,37 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
         <h2 id="por-categoria" className="text-2xl">
           Por categoria
         </h2>
-        <ul className="mt-3 space-y-4">
-          {d.categorias.map((c) => (
-            <li key={c.id}>
-              <p className="font-medium">{c.nome}</p>
-              <dl className="mt-2 grid grid-cols-[6.5rem_1fr_auto] items-center gap-x-3 gap-y-1.5 text-sm">
-                {(
-                  [
-                    ['Previsto', c.previstoCentavos, 'bg-folha-escuro'],
-                    ['Contratado', c.contratadoCentavos, 'bg-vela'],
-                    ['Pago', c.pagoCentavos, 'bg-verde'],
-                  ] as const
-                ).map(([rotulo, valor, cor]) => (
-                  <Fragment key={rotulo}>
-                    <dt className="text-verde-suave">{rotulo}</dt>
-                    <dd aria-hidden="true" className="h-2 rounded-botao bg-linho-escuro">
-                      <div className={`h-2 rounded-botao ${cor}`} style={{ width: pct(valor) }} />
-                    </dd>
-                    <dd className="text-right tabular-nums">{formatarCentavos(valor)}</dd>
-                  </Fragment>
-                ))}
-              </dl>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-3 overflow-x-auto">
+          <table className="tabela">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th className="num">Previsto</th>
+                <th className="num">Contratado</th>
+                <th className="num">Pago</th>
+                <th className="w-1/4">Pago do contratado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.categorias.map((c) => {
+                const vazia = c.previstoCentavos + c.contratadoCentavos + c.pagoCentavos === 0;
+                return (
+                  <tr key={c.id} className={vazia ? 'text-verde-suave' : ''}>
+                    <td className={vazia ? '' : 'font-medium'}>{c.nome}</td>
+                    <td className="num">{formatarCentavos(c.previstoCentavos)}</td>
+                    <td className="num">{formatarCentavos(c.contratadoCentavos)}</td>
+                    <td className="num">{formatarCentavos(c.pagoCentavos)}</td>
+                    <td>
+                      <div className="barra" aria-hidden="true">
+                        <span style={{ width: pct(c.pagoCentavos, c.contratadoCentavos) }} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section aria-labelledby="entradas" className="cartao-painel border-musgo">
@@ -465,14 +471,14 @@ function LinhaParcela({ p }: { p: Parcela }) {
         <span className={p.atrasada ? 'text-erro' : ''}>{formatDataCurta(p.vencimento)}</span>
         <strong>{formatarCentavos(p.valorCentavos)}</strong>
         {p.status === 'pago' ? (
-          <span className="rounded-botao bg-folha-claro px-2 text-sm">Pago em {formatDataCurta(p.pagoEm!)}</span>
+          <span className="selo bg-folha-claro text-musgo">Pago em {formatDataCurta(p.pagoEm!)}</span>
         ) : p.atrasada ? (
           <span className="selo bg-erro/10 text-erro">Atrasada</span>
         ) : (
           <span className="selo bg-linho-escuro text-verde-suave">Pendente</span>
         )}
         {p.comprovanteArquivoId && (
-          <a href={urlArquivo(p.comprovanteArquivoId)} target="_blank" rel="noreferrer" className="text-sm underline">
+          <a href={urlArquivo(p.comprovanteArquivoId)} target="_blank" rel="noreferrer" className="acao-link text-sm">
             comprovante
           </a>
         )}

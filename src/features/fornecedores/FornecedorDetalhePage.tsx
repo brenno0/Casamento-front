@@ -34,7 +34,7 @@ export function FornecedorDetalhePage() {
   if (isError || !data) {
     return (
       <p role="alert" className="text-erro">
-        Fornecedor não encontrado. <Link to="/painel/fornecedores" className="underline">Voltar</Link>
+        Fornecedor não encontrado. <Link to="/painel/fornecedores" className="acao-link">Voltar</Link>
       </p>
     );
   }
@@ -51,121 +51,123 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
   const [confirmando, setConfirmando] = useState(false);
 
   return (
-    <section className="space-y-8">
-      <div>
-        <Link to="/painel/fornecedores" className="text-sm acao-link text-verde-suave">
-          ← Fornecedores
-        </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl">{f.nome}</h1>
-          <BadgeStatus status={f.status} />
-        </div>
-        <p className="text-verde-suave">{f.categoria}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Mudar status">
-        {PROXIMOS[f.status].map((s) => (
-          <button
-            key={s}
-            type="button"
-            disabled={mudar.isPending}
-            onClick={() => mudar.mutate(s)}
-            className={`rounded-botao px-4 py-1 disabled:opacity-60 ${
-              s === 'descartado' ? 'border border-verde text-verde' : 'bg-verde text-linho'
-            }`}
-          >
-            Marcar como {labelStatus(s).toLowerCase()}
-          </button>
-        ))}
-        {mudar.isError && (
-          <p role="alert" className="text-erro">
-            Não foi possível mudar o status.
-          </p>
-        )}
-      </div>
-
-      <DadosForm
-        key={[f.nome, f.categoria, f.telefone, f.email, f.site, f.observacoes, f.responsavel].join('|')}
-        f={f}
-        atualizar={salvarDados}
-      />
-
-      <section aria-labelledby="contrato-titulo" className="cartao-painel">
-        <h2 id="contrato-titulo" className="text-2xl">
-          Contrato
-        </h2>
-        {f.contrato ? (
-          <p className="mt-2">
-            <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="acao-link">
-              {f.contrato.nomeOriginal}
-            </a>
-            <button
-              type="button"
-              onClick={() => atualizar.mutate({ contratoArquivoId: null })}
-              className="ml-3 text-sm acao-link text-verde-suave"
-            >
-              Remover
-            </button>
-          </p>
-        ) : (
-          <p className="mt-2 text-verde-suave">Nenhum contrato anexado.</p>
-        )}
-        <div className="mt-3">
-          <FileUpload
-            label="Enviar contrato (PDF)"
-            accept="application/pdf"
-            onEnviado={(a) => atualizar.mutate({ contratoArquivoId: a.id })}
-          />
-        </div>
-        {atualizar.isError && atualizar.error instanceof ApiError && atualizar.error.code === 'CONTRATO_DEVE_SER_PDF' && (
-          <p role="alert" className="mt-1 text-sm text-erro">
-            O contrato deve ser um PDF.
-          </p>
-        )}
-      </section>
-
-      <Orcamentos f={f} />
-
-      <section aria-labelledby="tarefas-titulo">
-        <h2 id="tarefas-titulo" className="text-2xl">
-          Tarefas vinculadas
-        </h2>
-        {f.tarefas.length === 0 ? (
-          <p className="mt-2 text-verde-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
-        ) : (
-          <ul className="mt-2 list-disc pl-6">
-            {f.tarefas.map((t) => (
-              <li key={t.id}>{t.titulo}</li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <div className="border-t border-folha pt-4">
-        {confirmando ? (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={excluir.isPending}
-              onClick={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
-              className="acao min-h-9 px-4 py-1"
-            >
-              Confirmar exclusão
-            </button>
-            <button type="button" onClick={() => setConfirmando(false)} className="px-4 py-1 text-verde-suave">
-              Cancelar
-            </button>
+    <section>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Link to="/painel/fornecedores" className="text-sm acao-link text-verde-suave">
+            ← Fornecedores
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="text-4xl">{f.nome}</h1>
+            <BadgeStatus status={f.status} />
           </div>
-        ) : (
-          <button type="button" onClick={() => setConfirmando(true)} className="acao-link">
-            Excluir fornecedor
-          </button>
-        )}
-        {excluir.isError && (
-          <p role="alert" className="mt-1 text-erro">
-            Não foi possível excluir.
-          </p>
-        )}
+          <p className="text-verde-suave">{f.categoria}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Mudar status">
+          {PROXIMOS[f.status].map((s) => (
+            <button
+              key={s}
+              type="button"
+              disabled={mudar.isPending}
+              onClick={() => mudar.mutate(s)}
+              className={s === 'descartado' ? 'acao-secundaria' : 'acao'}
+            >
+              Marcar como {labelStatus(s).toLowerCase()}
+            </button>
+          ))}
+          {mudar.isError && (
+            <p role="alert" className="text-erro">
+              Não foi possível mudar o status.
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="space-y-6">
+          <Orcamentos f={f} />
+          <section aria-labelledby="contrato-titulo" className="cartao-painel">
+            <h2 id="contrato-titulo" className="text-2xl">
+              Contrato
+            </h2>
+            {f.contrato ? (
+              <p className="mt-2">
+                <a href={urlArquivo(f.contrato.id)} target="_blank" rel="noreferrer" className="acao-link">
+                  {f.contrato.nomeOriginal}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => atualizar.mutate({ contratoArquivoId: null })}
+                  className="ml-3 text-sm acao-link text-verde-suave"
+                >
+                  Remover
+                </button>
+              </p>
+            ) : (
+              <p className="mt-2 text-verde-suave">Nenhum contrato anexado.</p>
+            )}
+            <div className="mt-3">
+              <FileUpload
+                label="Enviar contrato (PDF)"
+                accept="application/pdf"
+                onEnviado={(a) => atualizar.mutate({ contratoArquivoId: a.id })}
+              />
+            </div>
+            {atualizar.isError && atualizar.error instanceof ApiError && atualizar.error.code === 'CONTRATO_DEVE_SER_PDF' && (
+              <p role="alert" className="mt-1 text-sm text-erro">
+                O contrato deve ser um PDF.
+              </p>
+            )}
+          </section>
+          <section aria-labelledby="tarefas-titulo" className="cartao-painel">
+            <h2 id="tarefas-titulo" className="text-2xl">
+              Tarefas vinculadas
+            </h2>
+            {f.tarefas.length === 0 ? (
+              <p className="mt-2 text-verde-suave">Nenhuma. Vincule pelo quadro de tarefas.</p>
+            ) : (
+              <ul className="mt-2 list-disc pl-6">
+                {f.tarefas.map((t) => (
+                  <li key={t.id}>{t.titulo}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+        <aside className="space-y-4">
+          <div className="cartao-painel">
+            <DadosForm
+              key={[f.nome, f.categoria, f.telefone, f.email, f.site, f.observacoes, f.responsavel].join('|')}
+              f={f}
+              atualizar={salvarDados}
+            />
+          </div>
+          <div className="px-1">
+            {confirmando ? (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={excluir.isPending}
+                  onClick={() => excluir.mutate(f.id, { onSuccess: () => void navigate('/painel/fornecedores') })}
+                  className="acao min-h-9 px-4 py-1"
+                >
+                  Confirmar exclusão
+                </button>
+                <button type="button" onClick={() => setConfirmando(false)} className="acao-discreta">
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmando(true)} className="acao-perigo text-sm">
+                Excluir fornecedor
+              </button>
+            )}
+            {excluir.isError && (
+              <p role="alert" className="mt-1 text-erro">
+                Não foi possível excluir.
+              </p>
+            )}
+          </div>
+        </aside>
       </div>
     </section>
   );
@@ -207,7 +209,7 @@ function DadosForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2" noValidate aria-label="Dados do fornecedor">
+    <form onSubmit={onSubmit} className="grid gap-4" noValidate aria-label="Dados do fornecedor">
       <label className="block">
         <span className="rotulo">Nome</span>
         <input maxLength={120} value={dados.nome} onChange={(e) => campo('nome', e.target.value)} className={inputClass} />
@@ -242,11 +244,11 @@ function DadosForm({
           ))}
         </select>
       </label>
-      <label className="block sm:col-span-2">
+      <label className="block">
         <span className="rotulo">Observações</span>
         <textarea rows={3} value={dados.observacoes} onChange={(e) => campo('observacoes', e.target.value)} className={inputClass} />
       </label>
-      <div className="flex items-center gap-3 sm:col-span-2">
+      <div className="flex items-center gap-3">
         <button
           type="submit"
           disabled={!dados.nome.trim() || !dados.categoria.trim() || atualizar.isPending}
@@ -293,7 +295,7 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
   }
 
   return (
-    <section aria-labelledby="orcamentos-titulo">
+    <section aria-labelledby="orcamentos-titulo" className="cartao-painel">
       <h2 id="orcamentos-titulo" className="text-2xl">
         Orçamentos
       </h2>
@@ -301,39 +303,39 @@ function Orcamentos({ f }: { f: FornecedorDetalhe }) {
         <p className="mt-2 text-verde-suave">Nenhum orçamento ainda.</p>
       ) : (
         <div className="mt-2 overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="text-sm text-verde-suave">
+          <table className="tabela">
+            <thead>
               <tr>
-                <th className="py-1 pr-4">Descrição</th>
-                <th className="py-1 pr-4">Data</th>
-                <th className="py-1 pr-4">Valor</th>
-                <th className="py-1" />
+                <th>Descrição</th>
+                <th>Data</th>
+                <th className="num">Valor</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {f.orcamentos.map((o) => {
                 const maisBarato = o.valorCentavos === menor;
                 return (
-                  <tr key={o.id} className={maisBarato ? 'bg-folha-claro' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
-                    <td className="py-2 pr-4">
+                  <tr key={o.id} className={maisBarato ? 'bg-folha-claro/60' : ''} aria-label={maisBarato ? 'Menor orçamento' : undefined}>
+                    <td>
                       {o.descricao}
                       {o.arquivo && (
-                        <a href={urlArquivo(o.arquivo.id)} target="_blank" rel="noreferrer" className="ml-2 text-sm underline">
+                        <a href={urlArquivo(o.arquivo.id)} target="_blank" rel="noreferrer" className="acao-link ml-2 text-sm">
                           anexo
                         </a>
                       )}
                     </td>
-                    <td className="py-2 pr-4">{formatDataCurta(o.data)}</td>
-                    <td className="py-2 pr-4 font-semibold">
+                    <td className="text-verde-suave tabular-nums">{formatDataCurta(o.data)}</td>
+                    <td className="num font-semibold">
                       {formatarCentavos(o.valorCentavos)}
                       {maisBarato && <span className="ml-2 text-sm font-normal text-musgo">menor</span>}
                     </td>
-                    <td className="py-2">
+                    <td className="text-right">
                       <button
                         type="button"
                         aria-label={`Excluir orçamento ${o.descricao}`}
                         onClick={() => excluir.mutate(o.id)}
-                        className="text-sm acao-link"
+                        className="acao-perigo text-sm"
                       >
                         Excluir
                       </button>

@@ -72,7 +72,7 @@ describe('Fornecedores', () => {
     renderRoute('/painel/fornecedores');
     expect(await screen.findByText('Buffet Sabor')).toBeInTheDocument();
     expect(screen.getByText('Foto Lux')).toBeInTheDocument();
-    expect(screen.getByText('3 orçamento(s) · menor R$ 7.500,00')).toBeInTheDocument();
+    expect(screen.getByText('R$ 7.500,00')).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'orcado' } });
     await waitFor(() => expect(screen.queryByText('Foto Lux')).not.toBeInTheDocument());

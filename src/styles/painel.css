@@ -125,3 +125,74 @@
     opacity: 0;
   }
 }
+
+/*
+ * Dentro do painel, só o título da página usa a fonte de exibição; seções e cartões usam a de interface.
+ * Fora das camadas para vencer os tamanhos utilitários herdados das páginas.
+ */
+.painel-conteudo h1 {
+  font-size: 2.25rem;
+}
+.painel-conteudo h2 {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.painel-conteudo h3 {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.painel-conteudo h2.titulo-dialogo {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+}
+
+.painel-conteudo input[type='file'] {
+  font-size: 0.875rem;
+  color: var(--color-verde-suave);
+}
+.painel-conteudo input[type='file']::file-selector-button {
+  margin-right: 0.75rem;
+  border: 1px solid var(--color-folha-escuro);
+  border-radius: var(--radius-botao);
+  background: var(--color-papel);
+  padding: 0.375rem 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-verde);
+  cursor: pointer;
+}
+
+@layer components {
+  .tabela {
+    @apply w-full border-collapse text-left;
+  }
+  .tabela th {
+    @apply border-b border-folha-escuro px-3 py-2 text-sm font-medium whitespace-nowrap text-verde-suave;
+  }
+  .tabela td {
+    @apply border-b border-folha px-3 py-3 align-middle;
+  }
+  .tabela tbody tr {
+    transition: background-color 150ms ease-out;
+  }
+  .tabela tbody tr:hover {
+    @apply bg-linho-escuro/50;
+  }
+  .num {
+    @apply text-right tabular-nums whitespace-nowrap;
+  }
+
+  .barra {
+    @apply h-1.5 overflow-hidden rounded-full bg-linho-escuro;
+  }
+  .barra > span {
+    @apply block h-full rounded-full bg-verde;
+    transition: width 400ms var(--ease-saida);
+  }
+}

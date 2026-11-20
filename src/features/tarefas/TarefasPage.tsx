@@ -38,7 +38,7 @@ export function TarefasPage() {
         </button>
       </div>
 
-      <div role="group" aria-label="Filtro de tarefas" className="mt-6 flex flex-wrap gap-2">
+      <div role="group" aria-label="Filtro de tarefas" className="mt-6 inline-flex rounded-botao border border-folha-escuro bg-papel p-0.5">
         {FILTROS.map((f) => (
           <button
             key={f.valor}
@@ -46,10 +46,8 @@ export function TarefasPage() {
             aria-pressed={filtro === f.valor}
             onClick={() => setFiltro(f.valor)}
             className={[
-              'rounded-botao border px-4 py-1 transition-colors',
-              filtro === f.valor
-                ? 'border-verde bg-vela-claro text-verde'
-                : 'border-folha text-verde-suave hover:bg-linho-escuro',
+              'rounded-botao px-4 py-1.5 text-sm font-medium transition-colors',
+              filtro === f.valor ? 'bg-verde text-linho' : 'text-verde-suave hover:text-verde',
             ].join(' ')}
           >
             {f.label}

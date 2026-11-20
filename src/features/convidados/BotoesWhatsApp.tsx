@@ -25,7 +25,7 @@ export function BotoesWhatsApp({ g, lembrete }: { g: Grupo; lembrete: boolean })
           abrir(site.config.mensagemConvite);
           marcar.mutate(g.id);
         }}
-        className="rounded-botao bg-musgo px-3 py-1 text-linho"
+        className="acao min-h-8 px-3 py-1 text-sm"
       >
         {g.statusEnvio === 'enviado' ? 'Reenviar convite' : 'Enviar convite'}
       </button>
@@ -34,7 +34,7 @@ export function BotoesWhatsApp({ g, lembrete }: { g: Grupo; lembrete: boolean })
           type="button"
           aria-label={`Lembrar ${g.nome} pelo WhatsApp`}
           onClick={() => abrir(site.config.mensagemLembrete)}
-          className="rounded-botao border border-musgo px-3 py-1 text-musgo"
+          className="acao-secundaria min-h-8 px-3 py-1 text-sm"
         >
           Lembrar
         </button>

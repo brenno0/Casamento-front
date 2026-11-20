@@ -66,8 +66,8 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
 
       <ResumoCartoes />
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-5">
-        <label className="block sm:col-span-5 lg:col-span-1">
+      <div className="mt-6 grid gap-3 sm:grid-cols-4 lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]">
+        <label className="block sm:col-span-4 lg:col-span-1">
           <span className="rotulo">Buscar</span>
           <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Nome do grupo ou convidado" className={inputClass} />
         </label>
@@ -76,7 +76,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
         <Filtro label="Função" valor={filtros.funcao} opcoes={LABEL_FUNCAO} onChange={(v) => setFiltros({ ...filtros, funcao: v as Funcao | '' })} />
         <Filtro label="RSVP" valor={filtros.rsvp} opcoes={LABEL_RSVP} onChange={(v) => setFiltros({ ...filtros, rsvp: v as Rsvp | '' })} />
       </div>
-      <label className="mt-3 flex items-center gap-2">
+      <label className="mt-3 inline-flex items-center gap-2 text-sm">
         <input type="checkbox" checked={naoConfirmados} onChange={(e) => setNaoConfirmados(e.target.checked)} />
         <span>Só grupos com alguém sem resposta</span>
       </label>
@@ -154,6 +154,12 @@ function Filtro<T extends string>({
   );
 }
 
+const BARRA_RSVP: [Rsvp, string][] = [
+  ['vai', 'bg-verde'],
+  ['nao_vai', 'bg-terracota'],
+  ['sem_resposta', 'bg-linho-escuro'],
+];
+
 function ResumoCartoes() {
   const { data } = useResumo();
   if (!data) return null;
@@ -162,20 +168,40 @@ function ResumoCartoes() {
     ['Grupos', data.grupos],
     ['Adultos', data.adultos],
     ['Crianças', data.criancas],
-    ['Confirmados', data.porRsvp.vai],
-    ['Sem resposta', data.porRsvp.sem_resposta],
     ['Padrinhos', data.porFuncao.padrinho],
     ['Madrinhas', data.porFuncao.madrinha],
   ];
+  const largura = (n: number) => `${data.pessoas > 0 ? (n / data.pessoas) * 100 : 0}%`;
   return (
-    <dl aria-label="Resumo" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-      {itens.map(([rotulo, n]) => (
-        <div key={rotulo} className="cartao-painel p-3 text-center">
-          <dt className="text-sm text-verde-suave">{rotulo}</dt>
-          <dd className="text-2xl">{n}</dd>
+    <div className="cartao-painel mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div>
+        <p className="text-sm font-medium text-verde-suave">Confirmados</p>
+        <p className="mt-1 font-display text-4xl text-verde">
+          {data.porRsvp.vai} <span className="text-2xl text-verde-suave">de {data.pessoas}</span>
+        </p>
+        <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-linho-escuro" aria-hidden="true">
+          {BARRA_RSVP.map(([r, cor]) => (
+            <span key={r} className={cor} style={{ width: largura(data.porRsvp[r]) }} />
+          ))}
         </div>
-      ))}
-    </dl>
+        <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+          {BARRA_RSVP.map(([r, cor]) => (
+            <li key={r} className="flex items-center gap-2 text-verde-suave">
+              <span aria-hidden="true" className={`h-2 w-2 rounded-full ${cor}`} />
+              <span className="font-semibold text-tinta">{data.porRsvp[r]}</span> {LABEL_RSVP[r].toLowerCase()}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <dl aria-label="Resumo" className="grid grid-cols-3 gap-x-6 gap-y-3 sm:grid-cols-6 lg:border-l lg:border-folha lg:pl-6">
+        {itens.map(([rotulo, n]) => (
+          <div key={rotulo}>
+            <dt className="text-sm text-verde-suave">{rotulo}</dt>
+            <dd className="text-xl font-semibold tabular-nums">{n}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
@@ -201,27 +227,27 @@ function CartaoGrupo({
   acoes?: ReactNode;
 }) {
   return (
-    <article aria-label={`Grupo ${g.nome}`} className="cartao-painel">
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="text-xl">{g.nome}</h2>
+    <article aria-label={`Grupo ${g.nome}`} className="cartao-painel flex flex-col p-0">
+      <div className="flex items-baseline justify-between gap-2 px-5 pt-4">
+        <h2>{g.nome}</h2>
         <button type="button" onClick={onEditar} className="text-sm acao-link text-verde-suave">
           Editar grupo
         </button>
       </div>
       {convidados.length === 0 ? (
-        <p className="mt-2 text-sm text-verde-suave">Nenhum convidado neste grupo.</p>
+        <p className="px-5 py-3 text-sm text-verde-suave">Nenhum convidado neste grupo.</p>
       ) : (
-        <ul className="mt-2 space-y-1">
+        <ul className="mt-2 flex-1 divide-y divide-folha/70 px-5">
           {convidados.map((c) => (
-            <li key={c.id} className="flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => onEditarConvidado(c)} className="text-left hover:text-verde">
+            <li key={c.id} className="flex flex-wrap items-center gap-2 py-2">
+              <button type="button" onClick={() => onEditarConvidado(c)} className="mr-auto text-left font-medium hover:text-verde">
                 {c.nome}
               </button>
               {c.tipo === 'crianca' && <span className="selo bg-linho-escuro text-verde-suave">Criança</span>}
-              {c.funcao && <span className="rounded-botao bg-folha px-2 text-xs">{LABEL_FUNCAO[c.funcao]}</span>}
+              {c.funcao && <span className="selo bg-folha-claro text-musgo">{LABEL_FUNCAO[c.funcao]}</span>}
               <span className="text-xs text-verde-suave">{LABEL_LADO[c.lado]}</span>
               <span
-                className={`rounded-botao px-2 text-xs ${COR_RSVP[c.rsvp]}`}
+                className={`selo ${COR_RSVP[c.rsvp]}`}
                 title={c.rsvpEm ? `Respondeu em ${new Date(c.rsvpEm).toLocaleString('pt-BR')}` : undefined}
               >
                 {LABEL_RSVP[c.rsvp]}
@@ -234,7 +260,7 @@ function CartaoGrupo({
           ))}
         </ul>
       )}
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+      <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-folha bg-linho/50 px-5 py-3">
         <button type="button" onClick={onNovoConvidado} className="text-sm acao-link">
           + Convidado neste grupo
         </button>
@@ -280,7 +306,7 @@ function Dialogo({ titulo, onClose, ocupado, children }: { titulo: string; onClo
       }}
     >
       <div role="dialog" aria-modal="true" aria-labelledby={id} className="dialogo">
-        <h2 id={id} className="text-2xl">
+        <h2 id={id} className="titulo-dialogo">
           {titulo}
         </h2>
         {children}

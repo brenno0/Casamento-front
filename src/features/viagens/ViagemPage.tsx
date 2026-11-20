@@ -32,7 +32,7 @@ export function ViagemPage() {
   if (isError || !data) {
     return (
       <p role="alert" className="text-erro">
-        Viagem não encontrada. <Link to="/painel/viagens" className="underline">Voltar</Link>
+        Viagem não encontrada. <Link to="/painel/viagens" className="acao-link">Voltar</Link>
       </p>
     );
   }
@@ -246,14 +246,14 @@ function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
       {r.codigo && <p className="mt-1 font-mono text-3xl tracking-wider">{r.codigo}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
         {r.valorCentavos !== null && <span>{formatarCentavos(r.valorCentavos)}</span>}
-        <span className={`rounded-botao px-2 ${r.statusPagamento === 'pago' ? 'bg-folha-claro' : 'bg-linho-escuro'}`}>{r.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}</span>
+        <span className={`selo ${r.statusPagamento === 'pago' ? 'bg-folha-claro text-musgo' : 'bg-linho-escuro text-verde-suave'}`}>{r.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}</span>
         {r.contratoId !== null && <span className="text-verde-suave">no financeiro</span>}
         {r.voucherArquivoId && (
           <a href={urlArquivo(r.voucherArquivoId)} target="_blank" rel="noreferrer" className="acao min-h-9 px-3 py-1">
             Abrir voucher
           </a>
         )}
-        <button type="button" onClick={() => atualizar.mutate({ statusPagamento: r.statusPagamento === 'pago' ? 'pendente' : 'pago' })} className="underline">
+        <button type="button" onClick={() => atualizar.mutate({ statusPagamento: r.statusPagamento === 'pago' ? 'pendente' : 'pago' })} className="acao-link">
           {r.statusPagamento === 'pago' ? 'Marcar pendente' : 'Marcar pago'}
         </button>
         <button type="button" onClick={() => excluir.mutate(undefined)} className="acao-perigo">

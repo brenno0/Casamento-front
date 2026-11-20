@@ -114,23 +114,62 @@ function Itens() {
         Novo item
       </button>
       {data.length === 0 && <p className="text-verde-suave">Nenhum item ainda.</p>}
-      <ul className="space-y-2">
-        {data.map((i, idx) => (
-          <li key={i.id} className={`flex flex-wrap items-center gap-3 cartao-painel p-3 ${i.ativo ? '' : 'opacity-60'}`}>
-            <span className="flex gap-1">
-              <button type="button" aria-label={`Subir ${i.nome}`} disabled={idx === 0} onClick={() => ordenar.mutate(moverNaLista(ids, idx, -1))} className="px-2 disabled:opacity-30">↑</button>
-              <button type="button" aria-label={`Descer ${i.nome}`} disabled={idx === ids.length - 1} onClick={() => ordenar.mutate(moverNaLista(ids, idx, 1))} className="px-2 disabled:opacity-30">↓</button>
-            </span>
-            {i.fotoUrl && <img src={i.fotoUrl} alt="" className="h-12 w-12 rounded object-cover" />}
-            <button type="button" onClick={() => setEditando(i)} className="flex-1 text-left hover:text-verde">
-              <strong>{i.nome}</strong> · {formatarCentavos(i.precoCentavos)}
-              {i.fracionavel ? ` · cotas: ${i.progresso}%` : ` · restam ${i.restante} de ${i.quantidade}`}
-              {!i.ativo && ' · inativo'}
-            </button>
-            <span className="rotulo">arrecadado {formatarCentavos(i.arrecadadoCentavos)}</span>
-          </li>
-        ))}
-      </ul>
+      {data.length > 0 && (
+        <div className="cartao-painel overflow-x-auto p-0">
+          <table className="tabela">
+            <thead>
+              <tr>
+                <th className="w-20">
+                  <span className="sr-only">Ordem</span>
+                </th>
+                <th>Item</th>
+                <th className="num">Preço</th>
+                <th>Disponível</th>
+                <th className="num">Arrecadado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((i, idx) => (
+                <tr key={i.id} className={i.ativo ? '' : 'text-verde-suave'}>
+                  <td>
+                    <span className="flex gap-1">
+                      <button type="button" aria-label={`Subir ${i.nome}`} disabled={idx === 0} onClick={() => ordenar.mutate(moverNaLista(ids, idx, -1))} className="acao-discreta min-h-8 px-2 disabled:opacity-30">↑</button>
+                      <button type="button" aria-label={`Descer ${i.nome}`} disabled={idx === ids.length - 1} onClick={() => ordenar.mutate(moverNaLista(ids, idx, 1))} className="acao-discreta min-h-8 px-2 disabled:opacity-30">↓</button>
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => setEditando(i)} className="flex items-center gap-3 text-left hover:text-verde">
+                      {i.fotoUrl ? (
+                        <img src={i.fotoUrl} alt="" className="h-10 w-10 shrink-0 rounded-card object-cover" />
+                      ) : (
+                        <span aria-hidden="true" className="h-10 w-10 shrink-0 rounded-card bg-linho-escuro" />
+                      )}
+                      <span className="font-medium">{i.nome}</span>
+                      {!i.ativo && <span className="selo bg-linho-escuro text-verde-suave">Inativo</span>}
+                    </button>
+                  </td>
+                  <td className="num">{formatarCentavos(i.precoCentavos)}</td>
+                  <td className="min-w-40">
+                    {i.fracionavel ? (
+                      <div className="flex items-center gap-3">
+                        <div className="barra flex-1" aria-hidden="true">
+                          <span style={{ width: `${i.progresso}%` }} />
+                        </div>
+                        <span className="text-sm tabular-nums">{i.progresso}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm">
+                        {i.restante} de {i.quantidade}
+                      </span>
+                    )}
+                  </td>
+                  <td className="num">{formatarCentavos(i.arrecadadoCentavos)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {editando && <ItemModal item={editando === 'novo' ? null : editando} onClose={() => setEditando(null)} />}
     </div>
   );
@@ -186,7 +225,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
   return (
     <div className="dialogo-fundo" onMouseDown={(e) => e.target === e.currentTarget && !salvar.isPending && onClose()}>
       <div role="dialog" aria-modal="true" aria-label={item ? 'Editar item' : 'Novo item'} className="dialogo">
-        <h2 className="text-2xl">{item ? 'Editar item' : 'Novo item'}</h2>
+        <h2 className="titulo-dialogo">{item ? 'Editar item' : 'Novo item'}</h2>
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2" noValidate>
           <label className="block sm:col-span-2">
             <span className="rotulo">Nome</span>
@@ -307,16 +346,16 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
       {data && data.length === 0 && <p className="text-verde-suave">Nenhum presente ainda.</p>}
       <ul className="space-y-2">
         {data?.map((p) => (
-          <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="cartao-painel p-3">
-            <div className="flex flex-wrap items-center gap-3">
+          <li key={p.id} aria-label={`Presente de ${p.doadorNome}`} className="cartao-painel px-5 py-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <strong>{p.doadorNome}</strong>
-              <span>{p.itemNome}</span>
-              <span>{formatarCentavos(p.valorCentavos)}</span>
+              <span className="text-verde-suave">{p.itemNome}</span>
+              <span className="font-semibold tabular-nums">{formatarCentavos(p.valorCentavos)}</span>
               <span className="selo bg-linho-escuro text-verde-suave">{LABEL_STATUS[p.status]}</span>
               <span className="rotulo">{p.via === 'loja' ? 'Loja' : `Online${p.metodo ? ` (${p.metodo === 'pix' ? 'PIX' : 'cartão'})` : ''}`}</span>
               <span className="rotulo">{new Date(p.criadoEm).toLocaleDateString('pt-BR')}</span>
               {p.status === 'comprado' && (
-                <button type="button" onClick={() => recebido.mutate(p.id)} className="ml-auto rounded-botao bg-musgo px-3 py-1 text-sm text-linho">
+                <button type="button" onClick={() => recebido.mutate(p.id)} className="acao ml-auto min-h-8 px-3 py-1 text-sm">
                   Marcar recebido
                 </button>
               )}
@@ -327,7 +366,7 @@ function Recebidos({ extras }: { extras?: ReactNode }) {
                 {p.numeroPedido && <>· pedido {p.numeroPedido} </>}
                 {p.doadorEmail && <>· {p.doadorEmail} </>}
                 {p.fotoArquivoId && (
-                  <a href={urlArquivo(p.fotoArquivoId)} target="_blank" rel="noreferrer" className="underline">
+                  <a href={urlArquivo(p.fotoArquivoId)} target="_blank" rel="noreferrer" className="acao-link">
                     · foto
                   </a>
                 )}

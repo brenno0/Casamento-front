@@ -107,7 +107,7 @@ export function TarefaModal({
         aria-labelledby={tituloId}
         className="dialogo"
       >
-        <h2 id={tituloId} className="text-2xl">
+        <h2 id={tituloId} className="titulo-dialogo">
           {tarefa ? 'Editar tarefa' : 'Nova tarefa'}
         </h2>
         <form className="mt-4 space-y-4" onSubmit={onSubmit} noValidate>
@@ -248,7 +248,7 @@ export function TarefaModal({
                 <button
                   type="button"
                   onClick={() => setConfirmarExclusao(true)}
-                  className="ml-auto rounded-botao px-4 py-2 text-verde hover:bg-vela-claro"
+                  className="acao-perigo ml-auto text-sm"
                 >
                   Excluir tarefa
                 </button>

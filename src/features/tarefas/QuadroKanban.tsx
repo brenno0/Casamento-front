@@ -200,14 +200,14 @@ function ColunaKanban({
   return (
     <section
       aria-label={coluna.nome}
-      className="flex w-72 shrink-0 flex-col rounded-card bg-linho-escuro/60"
+      className="flex w-72 shrink-0 flex-col rounded-card bg-linho-escuro/60 md:max-h-[calc(100svh-15rem)]"
     >
       <CabecalhoColuna coluna={coluna} total={tarefas.length} />
       <SortableContext items={tarefas.map((t) => idTarefa(t.id))} strategy={verticalListSortingStrategy}>
         <ul
           ref={setNodeRef}
           className={[
-            'flex min-h-24 flex-col gap-2 px-3 pb-3 transition-colors',
+            'flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3 transition-colors',
             isOver ? 'bg-vela-claro/30' : '',
           ].join(' ')}
         >
@@ -441,27 +441,27 @@ function CartaoConteudo({
 }) {
   return (
     <article
-      className={`flex gap-2 rounded-card border border-folha bg-papel p-3 transition-colors hover:border-folha-escuro ${className}`}
+      className={`flex gap-2 rounded-card border border-folha bg-papel px-3 py-2.5 transition-colors hover:border-folha-escuro ${className}`}
     >
       <div className="min-w-0 flex-1">
         <button
           type="button"
           onClick={onEditar}
-          className="block w-full text-left leading-snug text-tinta hover:text-verde"
+          className="block w-full text-left text-[0.9375rem] leading-snug text-tinta hover:text-verde"
         >
           {tarefa.titulo}
         </button>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           {tarefa.prazo && (
-            <span className={atrasada ? 'text-erro' : 'text-verde-suave'}>
+            <span className={`tabular-nums ${atrasada ? 'font-semibold text-erro' : 'text-verde-suave'}`}>
               {formatDataCurta(tarefa.prazo)}
             </span>
           )}
-          <span className="rounded-botao bg-folha-claro px-2 text-musgo">
+          <span className="text-musgo">
             {LABEL_RESPONSAVEL[tarefa.responsavel]}
           </span>
           {tarefa.fornecedorNome && (
-            <span className="rounded-botao bg-folha px-2 text-tinta">{tarefa.fornecedorNome}</span>
+            <span className="truncate text-verde-suave">{tarefa.fornecedorNome}</span>
           )}
           {atrasada && (
             <span className="selo bg-erro/10 text-erro">Atrasada</span>
