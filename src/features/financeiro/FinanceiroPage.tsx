@@ -9,6 +9,8 @@ import { inputClass } from '../fornecedores/FornecedoresPage';
 import { useFornecedores } from '../fornecedores/useFornecedores';
 import {
   useAtualizarCategoria,
+  useAtualizarContrato,
+  useEditarParcela,
   useCategorias,
   useContratos,
   useCriarCategoria,
@@ -460,6 +462,7 @@ function NovoContrato({ categorias }: { categorias: Categoria[] }) {
 export function CartaoContrato({ c }: { c: Contrato }) {
   const gerar = useGerarParcelas();
   const excluir = useExcluirContrato();
+  const [editando, setEditando] = useState(false);
   const [quantidade, setQuantidade] = useState('1');
   const [primeiro, setPrimeiro] = useState('');
   const restante = c.valorContratadoCentavos - c.parceladoCentavos;
@@ -481,11 +484,23 @@ export function CartaoContrato({ c }: { c: Contrato }) {
             {c.fornecedorNome ? ` · ${c.fornecedorNome}` : ''}
           </p>
         </div>
-        <div className="text-right text-sm">
-          <p>Contratado {formatarCentavos(c.valorContratadoCentavos)}</p>
-          <p className="text-rose-fundo">Pago {formatarCentavos(c.pagoCentavos)}</p>
+        <div className="flex items-start gap-3">
+          <div className="text-right text-sm">
+            <p>Contratado {formatarCentavos(c.valorContratadoCentavos)}</p>
+            <p className="text-rose-fundo">Pago {formatarCentavos(c.pagoCentavos)}</p>
+          </div>
+          {c.viagemId === null ? (
+            <button type="button" aria-expanded={editando} onClick={() => setEditando(!editando)} className="acao-secundaria min-h-8 px-3 text-sm">
+              {editando ? 'Fechar' : 'Editar'}
+            </button>
+          ) : (
+            <Link to={`/painel/viagens/${c.viagemId}`} className="acao-secundaria min-h-8 px-3 text-sm">
+              Editar na viagem
+            </Link>
+          )}
         </div>
       </div>
+      {editando && <EditarContrato c={c} onFechar={() => setEditando(false)} />}
 
       <ul className="mt-3 divide-y divide-linha">
         {c.parcelas.map((p) => (
@@ -521,7 +536,85 @@ export function CartaoContrato({ c }: { c: Contrato }) {
   );
 }
 
+/** Descrição, categoria, fornecedor e valor de um contrato já lançado. */
+function EditarContrato({ c, onFechar }: { c: Contrato; onFechar: () => void }) {
+  const salvar = useAtualizarContrato();
+  const categorias = useCategorias();
+  const fornecedores = useFornecedores();
+  const [d, setD] = useState({
+    descricao: c.descricao,
+    categoriaId: c.categoriaId,
+    fornecedorId: c.fornecedorId,
+    valor: centavosParaInput(c.valorContratadoCentavos),
+  });
+  const centavos = parseCentavos(d.valor);
+  const valido = d.descricao.trim() !== '' && centavos !== null && centavos > 0;
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!valido) return;
+    salvar.mutate(
+      { id: c.id, descricao: d.descricao.trim(), categoriaId: d.categoriaId, fornecedorId: d.fornecedorId, valorContratadoCentavos: centavos! },
+      { onSuccess: onFechar },
+    );
+  }
+
+  return (
+    <form onSubmit={onSubmit} aria-label={`Editar contrato ${c.descricao}`} className="mt-3 grid gap-3 rounded-card bg-nevoa p-3 sm:grid-cols-2">
+      <label className="block">
+        <span className="rotulo">Descrição</span>
+        <input maxLength={140} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Valor contratado (R$)</span>
+        <input inputMode="decimal" value={d.valor} onChange={(e) => setD({ ...d, valor: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Categoria</span>
+        <select value={d.categoriaId} onChange={(e) => setD({ ...d, categoriaId: Number(e.target.value) })} className={inputClass}>
+          {(categorias.data ?? []).map((k) => (
+            <option key={k.id} value={k.id}>
+              {k.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block">
+        <span className="rotulo">Fornecedor</span>
+        <select
+          value={d.fornecedorId ?? ''}
+          onChange={(e) => setD({ ...d, fornecedorId: e.target.value === '' ? null : Number(e.target.value) })}
+          className={inputClass}
+        >
+          <option value="">Nenhum</option>
+          {(fornecedores.data ?? []).map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+      {salvar.isError && (
+        <p role="alert" className="text-sm text-erro sm:col-span-2">
+          {salvar.error instanceof ApiError ? salvar.error.message : 'Não foi possível salvar o contrato.'}
+        </p>
+      )}
+      <div className="flex gap-2 sm:col-span-2">
+        <button type="submit" disabled={!valido || salvar.isPending} className="acao">
+          Salvar
+        </button>
+        <button type="button" onClick={onFechar} className="acao-discreta">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function LinhaParcela({ p }: { p: Parcela }) {
+  const editar = useEditarParcela();
+  const [editando, setEditando] = useState(false);
+  const [edicao, setEdicao] = useState({ vencimento: p.vencimento, valor: centavosParaInput(p.valorCentavos) });
   const pagar = usePagarParcela();
   const desfazer = useDesfazerPagamento();
   const excluir = useExcluirParcela();
@@ -555,10 +648,42 @@ function LinhaParcela({ p }: { p: Parcela }) {
             Desfazer pagamento
           </button>
         )}
+        <button type="button" aria-label="Editar parcela" aria-expanded={editando} onClick={() => setEditando(!editando)} className="text-sm acao-link text-grafite-suave">
+          Editar
+        </button>
         <button type="button" aria-label="Excluir parcela" onClick={() => excluir.mutate(p.id)} className="text-sm acao-link text-grafite-suave">
           Excluir
         </button>
       </div>
+      {editando && (
+        <form
+          aria-label="Editar parcela"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const valorCentavos = parseCentavos(edicao.valor);
+            if (!edicao.vencimento || valorCentavos === null || valorCentavos <= 0) return;
+            editar.mutate({ id: p.id, vencimento: edicao.vencimento, valorCentavos }, { onSuccess: () => setEditando(false) });
+          }}
+          className="mt-2 flex flex-wrap items-end gap-3 rounded-card bg-nevoa p-3"
+        >
+          <label className="block">
+            <span className="rotulo">Vencimento</span>
+            <input type="date" value={edicao.vencimento} onChange={(e) => setEdicao({ ...edicao, vencimento: e.target.value })} className={inputClass} />
+          </label>
+          <label className="block">
+            <span className="rotulo">Valor (R$)</span>
+            <input inputMode="decimal" value={edicao.valor} onChange={(e) => setEdicao({ ...edicao, valor: e.target.value })} className={inputClass} />
+          </label>
+          <button type="submit" disabled={editar.isPending} className="acao">
+            Salvar parcela
+          </button>
+          {editar.isError && (
+            <p role="alert" className="w-full text-sm text-erro">
+              {editar.error instanceof ApiError ? editar.error.message : 'Não foi possível salvar a parcela.'}
+            </p>
+          )}
+        </form>
+      )}
       {pagando && p.status === 'pendente' && (
         <div className="mt-2 flex flex-wrap items-end gap-3 rounded-card bg-nevoa p-3">
           <label className="block">

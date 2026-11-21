@@ -34,6 +34,8 @@ export interface Contrato {
   pagoCentavos: number;
   parceladoCentavos: number;
   parcelas: Parcela[];
+  /** Espelho de reserva de viagem: edita pela viagem. */
+  viagemId: number | null;
 }
 
 export interface Reserva {
@@ -122,6 +124,16 @@ export const useAtualizarReserva = () =>
     api.put<Reserva[]>(`/painel/financeiro/reservas/${id}`, dados),
   );
 export const useExcluirReserva = () => useMutacao((id: number) => api.del<Reserva[]>(`/painel/financeiro/reservas/${id}`));
+
+export const useAtualizarContrato = () =>
+  useMutacao(
+    ({ id, ...dados }: { id: number; categoriaId?: number; descricao?: string; valorContratadoCentavos?: number; fornecedorId?: number | null }) =>
+      api.put<Contrato>(`/painel/financeiro/contratos/${id}`, dados),
+  );
+export const useEditarParcela = () =>
+  useMutacao(({ id, ...dados }: { id: number; vencimento?: string; valorCentavos?: number }) =>
+    api.put<Contrato>(`/painel/financeiro/parcelas/${id}`, dados),
+  );
 
 export const useExcluirContrato = () =>
   useMutacao((id: number) => api.del<void>(`/painel/financeiro/contratos/${id}`));

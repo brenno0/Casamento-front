@@ -34,6 +34,7 @@ function contratoFake(): Contrato {
     valorContratadoCentavos: 100000,
     pagoCentavos: 0,
     parceladoCentavos: 40000,
+    viagemId: null,
     parcelas: [
       { id: 6, contratoId: 1, vencimento: '2027-03-01', valorCentavos: 40000, status: 'pendente', pagoEm: null, comprovanteArquivoId: null, atrasada: false },
     ],
@@ -58,6 +59,11 @@ function api(opts: { falharDash?: boolean } = {}) {
       return json(estado.contrato);
     }
     if (path === '/painel/financeiro/contratos/1/parcelas/gerar' && method === 'POST') return json(estado.contrato, 201);
+    if (path === '/painel/financeiro/contratos/1' && method === 'PUT') {
+      estado.contrato = { ...estado.contrato, ...(body as object) };
+      return json(estado.contrato);
+    }
+    if (path === '/painel/financeiro/parcelas/6' && method === 'PUT') return erro(400, 'PARCELAS_EXCEDEM_CONTRATO');
     return undefined;
   };
 }
@@ -133,5 +139,33 @@ describe('Financeiro', () => {
       const call = fetchMock.mock.calls.find(([u]) => String(u).endsWith('/parcelas/gerar'));
       expect(JSON.parse(String(call![1]!.body))).toEqual({ quantidade: 3, primeiroVencimento: '2027-04-01', valorTotalCentavos: 60000 });
     });
+  });
+
+  it('edita descrição e valor do contrato', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/financeiro');
+    fireEvent.click(await screen.findByRole('tab', { name: 'Contratos e parcelas' }));
+    const cartao = await screen.findByRole('article', { name: 'Contrato Buffet completo' });
+    fireEvent.click(within(cartao).getByRole('button', { name: 'Editar' }));
+    const form = within(cartao).getByRole('form', { name: 'Editar contrato Buffet completo' });
+    fireEvent.change(within(form).getByLabelText('Descrição'), { target: { value: 'Buffet com bar' } });
+    fireEvent.change(within(form).getByLabelText('Valor contratado (R$)'), { target: { value: '1500,00' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/financeiro/contratos/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toMatchObject({ descricao: 'Buffet com bar', valorContratadoCentavos: 150000 });
+    });
+  });
+
+  it('parcela que passaria do contrato mostra o motivo', async () => {
+    mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/financeiro');
+    fireEvent.click(await screen.findByRole('tab', { name: 'Contratos e parcelas' }));
+    const cartao = await screen.findByRole('article', { name: 'Contrato Buffet completo' });
+    fireEvent.click(within(cartao).getByRole('button', { name: 'Editar parcela' }));
+    const form = within(cartao).getByRole('form', { name: 'Editar parcela' });
+    fireEvent.change(within(form).getByLabelText('Valor (R$)'), { target: { value: '5000' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar parcela' }));
+    expect(await within(form).findByRole('alert')).toHaveTextContent('PARCELAS_EXCEDEM_CONTRATO');
   });
 });

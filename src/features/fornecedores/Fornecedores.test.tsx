@@ -141,7 +141,7 @@ describe('Fornecedores', () => {
 describe('pagamentos do fornecedor', () => {
   const contrato = {
     id: 7, categoriaId: 3, categoriaNome: 'Buffet', fornecedorId: 1, fornecedorNome: 'Buffet Sabor', descricao: 'Buffet',
-    valorContratadoCentavos: 1000000, pagoCentavos: 300000, parceladoCentavos: 1000000,
+    valorContratadoCentavos: 1000000, pagoCentavos: 300000, parceladoCentavos: 1000000, viagemId: null,
     parcelas: [
       { id: 1, contratoId: 7, vencimento: '2026-11-20', valorCentavos: 300000, status: 'pago', pagoEm: '2026-11-20', comprovanteArquivoId: null, atrasada: false },
       { id: 2, contratoId: 7, vencimento: '2027-01-10', valorCentavos: 700000, status: 'pendente', pagoEm: null, comprovanteArquivoId: null, atrasada: false },
