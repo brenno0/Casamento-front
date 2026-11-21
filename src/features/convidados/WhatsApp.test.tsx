@@ -28,7 +28,7 @@ function grupos(): Grupo[] {
       enviadoEm: null,
       contatoConvidadoId: 10,
       convidados: [
-        { id: 10, grupoId: 1, nome: 'Pai', tipo: 'adulto', lado: 'noivo', funcao: null, telefone: '11988887777', email: null, acompanhantePermitido: false, acompanhanteNome: null, rsvp: 'sem_resposta', rsvpEm: null },
+        { id: 10, grupoId: 1, nome: 'Pai', tipo: 'adulto', lado: 'noivo', funcao: null, telefone: '11988887777', email: null, acompanhantePermitido: false, acompanhanteNome: null, festa: true, rsvp: 'sem_resposta', rsvpEm: null },
       ],
     },
     {
@@ -40,7 +40,7 @@ function grupos(): Grupo[] {
       enviadoEm: '2027-04-01T12:00:00.000Z',
       contatoConvidadoId: null,
       convidados: [
-        { id: 20, grupoId: 2, nome: 'Carlos', tipo: 'adulto', lado: 'noiva', funcao: null, telefone: null, email: null, acompanhantePermitido: false, acompanhanteNome: null, rsvp: 'vai', rsvpEm: null },
+        { id: 20, grupoId: 2, nome: 'Carlos', tipo: 'adulto', lado: 'noiva', funcao: null, telefone: null, email: null, acompanhantePermitido: false, acompanhanteNome: null, festa: true, rsvp: 'vai', rsvpEm: null },
       ],
     },
   ];

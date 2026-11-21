@@ -14,6 +14,7 @@ function conv(id: number, grupoId: number, nome: string, extra: Partial<Convidad
     email: null,
     acompanhantePermitido: false,
     acompanhanteNome: null,
+    festa: true,
     rsvp: 'sem_resposta',
     rsvpEm: null,
     ...extra,
@@ -44,7 +45,7 @@ function api() {
     }
     if (path === '/painel/convidados/resumo') {
       return json({
-        pessoas: 3, convidados: 3, acompanhantes: 0, adultos: 2, criancas: 1, grupos: 2,
+        pessoas: 3, convidados: 3, acompanhantes: 0, adultos: 2, criancas: 1, grupos: 2, festa: 3,
         porLado: { noivo: 1, noiva: 1, ambos: 1 },
         porRsvp: { sem_resposta: 2, vai: 1, nao_vai: 0 },
         porFuncao: { padrinho: 1, madrinha: 0, dama: 1, pajem: 0 },
@@ -185,6 +186,20 @@ describe('Convidados', () => {
       const post = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/convidados') && i?.method === 'POST');
       expect(JSON.parse(String(post![1]!.body))).toMatchObject({ nome: 'Bia', grupoId: 2 });
     });
+  });
+
+  it('desmarca a festa de alguém pela gaveta do grupo', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api().rotas });
+    renderRoute('/painel/convidados');
+    const carlos = await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(within(carlos).getByRole('button', { name: 'Editar grupo' }));
+    const linha = within(await screen.findByRole('dialog', { name: 'Carlos' })).getByRole('listitem', { name: 'Carlos' });
+    fireEvent.click(within(linha).getByLabelText('Festa'));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/convidados/3') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toEqual({ festa: false });
+    });
+    expect(await within(carlos).findByText('Só cerimônia')).toBeInTheDocument();
   });
 
   it('renomeia pessoa ao sair do campo', async () => {

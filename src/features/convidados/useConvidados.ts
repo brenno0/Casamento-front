@@ -28,6 +28,8 @@ export interface Convidado {
   email: string | null;
   acompanhantePermitido: boolean;
   acompanhanteNome: string | null;
+  /** Também convidado para a festa. */
+  festa: boolean;
   rsvp: Rsvp;
   rsvpEm: string | null;
 }
@@ -53,6 +55,7 @@ export interface Resumo {
   porRsvp: Record<Rsvp, number>;
   porFuncao: Record<Funcao, number>;
   grupos: number;
+  festa: number;
 }
 
 export type DadosConvidado = Partial<Omit<Convidado, 'id' | 'rsvp' | 'rsvpEm'>> & { nome?: string };

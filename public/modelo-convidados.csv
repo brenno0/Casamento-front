@@ -1,4 +1,4 @@
-﻿grupo;nome;lado;tipo;funcao;telefone;email;acompanhante;nome_acompanhante
-Ingrid e Gustavo;Ingrid;noiva;adulto;madrinha;(61) 99999-0000;;nao;
-Ingrid e Gustavo;Gustavo;noiva;adulto;;;;nao;
-Samira;Samira;noivo;adulto;;;;sim;Marido da Samira
+﻿grupo;nome;lado;tipo;funcao;telefone;email;acompanhante;nome_acompanhante;festa
+Ingrid e Gustavo;Ingrid;noiva;adulto;madrinha;(61) 99999-0000;;nao;;sim
+Ingrid e Gustavo;Gustavo;noiva;adulto;;;;nao;;sim
+Samira;Samira;noivo;adulto;;;;sim;Marido da Samira;nao

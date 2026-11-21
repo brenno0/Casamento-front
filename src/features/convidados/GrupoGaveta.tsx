@@ -274,7 +274,7 @@ function LinhaPessoa({ c, grupos }: { c: Convidado; grupos: Grupo[] }) {
         </div>
         <span className="text-xs text-grafite-suave">{LABEL_RSVP[c.rsvp]}</span>
       </div>
-      <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center">
+      <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_1.4fr_auto_auto] sm:items-center">
         <select aria-label="Lado" value={c.lado} onChange={(e) => salvar({ lado: e.target.value as Lado })} className={campoPequeno}>
           {Object.entries(LABEL_LADO).map(([v, l]) => (
             <option key={v} value={v}>
@@ -305,6 +305,10 @@ function LinhaPessoa({ c, grupos }: { c: Convidado; grupos: Grupo[] }) {
         <label className="inline-flex items-center gap-2 text-sm">
           <input type="checkbox" checked={c.acompanhantePermitido} onChange={(e) => salvar({ acompanhantePermitido: e.target.checked })} />
           +1
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={c.festa} onChange={(e) => salvar({ festa: e.target.checked })} />
+          Festa
         </label>
       </div>
       <button type="button" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="acao-link mt-2 text-xs text-grafite-suave">

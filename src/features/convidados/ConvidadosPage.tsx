@@ -186,6 +186,7 @@ function ResumoCartoes() {
     ['Grupos', data.grupos],
     ['Adultos', data.adultos],
     ['Crianças', data.criancas],
+    ['Na festa', data.festa],
     ['Padrinhos', data.porFuncao.padrinho],
     ['Madrinhas', data.porFuncao.madrinha],
   ];
@@ -211,7 +212,7 @@ function ResumoCartoes() {
           ))}
         </ul>
       </div>
-      <dl aria-label="Resumo" className="grid grid-cols-3 gap-x-6 gap-y-3 sm:grid-cols-6 lg:border-l lg:border-linha lg:pl-6">
+      <dl aria-label="Resumo" className="grid grid-cols-3 gap-x-6 gap-y-3 sm:grid-cols-7 lg:border-l lg:border-linha lg:pl-6">
         {itens.map(([rotulo, n]) => (
           <div key={rotulo}>
             <dt className="text-sm text-grafite-suave">{rotulo}</dt>
@@ -267,6 +268,7 @@ function CartaoGrupo({
                 {c.nome}
               </button>
               {c.tipo === 'crianca' && <span className="selo bg-nevoa-escuro text-grafite-suave">Criança</span>}
+              {!c.festa && <span className="selo bg-lavanda-claro text-grafite">Só cerimônia</span>}
               {c.funcao && <span className="selo bg-rose-claro text-rose-fundo">{LABEL_FUNCAO[c.funcao]}</span>}
               <span className="text-xs text-grafite-suave">{LABEL_LADO[c.lado]}</span>
               <span
@@ -360,6 +362,7 @@ function ConvidadoModal({
     email: convidado?.email ?? '',
     acompanhantePermitido: convidado?.acompanhantePermitido ?? false,
     acompanhanteNome: convidado?.acompanhanteNome ?? '',
+    festa: convidado?.festa ?? true,
   });
   const ocupado = salvar.isPending || excluir.isPending;
   const campo = <K extends keyof typeof d>(k: K, v: (typeof d)[K]) => {
@@ -381,6 +384,7 @@ function ConvidadoModal({
       email: d.email.trim() || null,
       acompanhantePermitido: d.acompanhantePermitido,
       acompanhanteNome: d.acompanhantePermitido ? d.acompanhanteNome.trim() || null : null,
+      festa: d.festa,
     };
     if (convidado) atualizar.mutate({ id: convidado.id, ...dados }, { onSuccess: onClose });
     else criar.mutate(dados, { onSuccess: onClose });
@@ -442,6 +446,10 @@ function ConvidadoModal({
         <label className="block sm:col-span-2">
           <span className="rotulo">E-mail</span>
           <input type="email" value={d.email} onChange={(e) => campo('email', e.target.value)} className={inputClass} />
+        </label>
+        <label className="flex items-center gap-2 sm:col-span-2">
+          <input type="checkbox" checked={d.festa} onChange={(e) => campo('festa', e.target.checked)} />
+          <span>Também convidado para a festa</span>
         </label>
         <label className="flex items-center gap-2 sm:col-span-2">
           <input type="checkbox" checked={d.acompanhantePermitido} onChange={(e) => campo('acompanhantePermitido', e.target.checked)} />
