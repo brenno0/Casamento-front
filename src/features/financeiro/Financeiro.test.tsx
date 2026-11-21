@@ -8,14 +8,19 @@ const DASH: Dashboard = {
     { id: 1, nome: 'Buffet', previstoCentavos: 3000000, contratadoCentavos: 2500000, pagoCentavos: 1000000 },
     { id: 2, nome: 'Música', previstoCentavos: 500000, contratadoCentavos: 0, pagoCentavos: 0 },
   ],
-  totais: { previstoCentavos: 3500000, contratadoCentavos: 2500000, pagoCentavos: 1000000 },
+  totais: { previstoCentavos: 3500000, contratadoCentavos: 2500000, pagoCentavos: 1000000, faltaPagarCentavos: 1500000, reservadoCentavos: 2000000 },
+  reservas: [
+    { id: 1, titular: 'Brenno', valorCentavos: 1200000, atualizadoEm: null },
+    { id: 2, titular: 'Nayane', valorCentavos: 800000, atualizadoEm: null },
+  ],
+  porFornecedor: [{ fornecedorId: 4, nome: 'Buffet Sabor', contratadoCentavos: 2500000, pagoCentavos: 1000000 }],
+  fornecedoresSemContrato: [{ id: 5, nome: 'Foto Lux' }],
   proximosVencimentos: [
     { id: 7, contratoId: 1, vencimento: '2027-02-15', valorCentavos: 50000, status: 'pendente', pagoEm: null, comprovanteArquivoId: null, atrasada: false, contratoDescricao: 'Buffet completo', categoriaNome: 'Buffet' },
   ],
   atrasadas: [
     { id: 6, contratoId: 1, vencimento: '2027-01-31', valorCentavos: 70000, status: 'pendente', pagoEm: null, comprovanteArquivoId: null, atrasada: true, contratoDescricao: 'Buffet completo', categoriaNome: 'Buffet' },
   ],
-  presentesRecebidosCentavos: 120000,
 };
 
 function contratoFake(): Contrato {
@@ -58,7 +63,7 @@ function api(opts: { falharDash?: boolean } = {}) {
 }
 
 describe('Financeiro', () => {
-  it('resumo mostra totais separados, atrasadas, próximos e presentes à parte', async () => {
+  it('resumo mostra totais separados, atrasadas, próximos, reservas e o que sobra', async () => {
     mockFetch({ logado: true, rotas: api() });
     renderRoute('/painel/financeiro');
     const totais = await screen.findByLabelText('Totais');
@@ -71,7 +76,25 @@ describe('Financeiro', () => {
     const atrasadas = screen.getByRole('heading', { name: 'Parcelas atrasadas' }).closest('section')!;
     expect(within(atrasadas).getByText(/31\/01\/2027/)).toBeInTheDocument();
     expect(screen.getByText(/15\/02\/2027/)).toBeInTheDocument();
-    expect(screen.getByText('R$ 1.200,00')).toBeInTheDocument();
+    expect(within(totais).getByText('Sobra depois de pagar tudo').nextSibling).toHaveTextContent('R$ 5.000,00');
+    expect(screen.getByLabelText('Reservado por Brenno')).toHaveValue('12000,00');
+    expect(screen.getByRole('link', { name: 'Buffet Sabor' })).toHaveAttribute('href', '/painel/fornecedores/4');
+    expect(screen.getByRole('link', { name: 'Foto Lux' })).toHaveAttribute('href', '/painel/fornecedores/5');
+  });
+
+  it('editar o reservado de alguém salva ao sair do campo', async () => {
+    const fetchMock = mockFetch({
+      logado: true,
+      rotas: (r) => (r.path === '/painel/financeiro/reservas/2' && r.method === 'PUT' ? json(DASH.reservas) : api()(r)),
+    });
+    renderRoute('/painel/financeiro');
+    const campo = await screen.findByLabelText('Reservado por Nayane');
+    fireEvent.change(campo, { target: { value: '9500,50' } });
+    fireEvent.blur(campo);
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/financeiro/reservas/2') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toEqual({ valorCentavos: 950050 });
+    });
   });
 
   it('erro no resumo mostra aviso', async () => {

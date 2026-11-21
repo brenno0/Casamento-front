@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router';
 import { FileUpload } from '../../components/FileUpload';
 import { ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
@@ -26,6 +27,7 @@ import {
   type ParcelaResumo,
 } from './useFinanceiro';
 import { Esqueleto } from '../painel/Esqueleto';
+import { Reservas } from './Reservas';
 import { Vazio } from '../painel/Vazio';
 
 type Aba = 'resumo' | 'categorias' | 'contratos';
@@ -97,13 +99,41 @@ function Cartao({ titulo, valor, destaque }: { titulo: string; valor: number; de
 
 function ResumoConteudo({ d }: { d: Dashboard }) {
   const pct = (parte: number, todo: number) => `${todo > 0 ? Math.min(100, Math.round((parte / todo) * 100)) : 0}%`;
+  const sobra = d.totais.reservadoCentavos - d.totais.faltaPagarCentavos;
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3" aria-label="Totais">
         <Cartao titulo="Previsto" valor={d.totais.previstoCentavos} />
         <Cartao titulo="Contratado" valor={d.totais.contratadoCentavos} />
         <Cartao titulo="Pago" valor={d.totais.pagoCentavos} />
+        <Cartao titulo="Falta pagar" valor={d.totais.faltaPagarCentavos} />
+        <Cartao titulo="Reservado" valor={d.totais.reservadoCentavos} />
+        <Cartao
+          titulo={sobra >= 0 ? 'Sobra depois de pagar tudo' : 'Falta juntar'}
+          valor={Math.abs(sobra)}
+          destaque={sobra >= 0 ? 'border-rose-fundo/40' : 'border-erro/40 bg-erro/5'}
+        />
       </div>
+
+      <Reservas reservas={d.reservas} total={d.totais.reservadoCentavos} />
+
+      {d.fornecedoresSemContrato.length > 0 && (
+        <section aria-labelledby="sem-contrato" className="rounded-card border border-linha-forte bg-pessego-claro/40 p-5">
+          <h2 id="sem-contrato" className="text-2xl">
+            Contratados sem valor lançado
+          </h2>
+          <p className="mt-1 text-sm text-grafite-suave">Lance o contrato na página do fornecedor para entrar nos totais.</p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {d.fornecedoresSemContrato.map((f) => (
+              <li key={f.id}>
+                <Link to={`/painel/fornecedores/${f.id}`} className="acao-secundaria min-h-8 px-3 text-sm">
+                  {f.nome}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {d.atrasadas.length > 0 && (
         <section aria-labelledby="atrasadas" className="rounded-card border border-erro/30 bg-erro/5 p-5">
@@ -124,6 +154,49 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
           <ListaParcelas itens={d.proximosVencimentos} />
         )}
       </section>
+
+      {d.porFornecedor.length > 0 && (
+        <section aria-labelledby="por-fornecedor">
+          <h2 id="por-fornecedor" className="text-2xl">
+            Por fornecedor
+          </h2>
+          <div className="mt-3 overflow-x-auto">
+            <table className="tabela">
+              <thead>
+                <tr>
+                  <th>Fornecedor</th>
+                  <th className="num">Contratado</th>
+                  <th className="num">Pago</th>
+                  <th className="num">Falta</th>
+                  <th className="w-1/4">Pago do contratado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.porFornecedor.map((f) => {
+                  const falta = f.contratadoCentavos - f.pagoCentavos;
+                  return (
+                    <tr key={f.fornecedorId}>
+                      <td>
+                        <Link to={`/painel/fornecedores/${f.fornecedorId}`} className="font-medium hover:underline">
+                          {f.nome}
+                        </Link>
+                      </td>
+                      <td className="num">{formatarCentavos(f.contratadoCentavos)}</td>
+                      <td className="num">{formatarCentavos(f.pagoCentavos)}</td>
+                      <td className={`num ${falta > 0 ? 'font-medium text-rose-fundo' : 'text-grafite-suave'}`}>{formatarCentavos(falta)}</td>
+                      <td>
+                        <div className="barra" aria-hidden="true">
+                          <span style={{ width: pct(f.pagoCentavos, f.contratadoCentavos) }} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="por-categoria">
         <h2 id="por-categoria" className="text-2xl">
@@ -162,15 +235,6 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
         </div>
       </section>
 
-      <section aria-labelledby="entradas" className="cartao-painel border-rose-fundo">
-        <h2 id="entradas" className="text-2xl">
-          Entradas
-        </h2>
-        <p className="mt-1">
-          Presentes recebidos: <strong>{formatarCentavos(d.presentesRecebidosCentavos)}</strong>
-        </p>
-        <p className="text-sm text-grafite-suave">Entram à parte e não abatem os custos acima.</p>
-      </section>
     </div>
   );
 }

@@ -36,13 +36,28 @@ export interface Contrato {
   parcelas: Parcela[];
 }
 
+export interface Reserva {
+  id: number;
+  titular: string;
+  valorCentavos: number;
+  atualizadoEm: string | null;
+}
+
 export interface Dashboard {
   hoje: string;
   categorias: (Categoria & { contratadoCentavos: number; pagoCentavos: number })[];
-  totais: { previstoCentavos: number; contratadoCentavos: number; pagoCentavos: number };
+  totais: {
+    previstoCentavos: number;
+    contratadoCentavos: number;
+    pagoCentavos: number;
+    faltaPagarCentavos: number;
+    reservadoCentavos: number;
+  };
+  reservas: Reserva[];
+  porFornecedor: { fornecedorId: number; nome: string; contratadoCentavos: number; pagoCentavos: number }[];
+  fornecedoresSemContrato: { id: number; nome: string }[];
   proximosVencimentos: ParcelaResumo[];
   atrasadas: ParcelaResumo[];
-  presentesRecebidosCentavos: number;
 }
 
 /** Prefixo de tudo do financeiro: toda mutação invalida o conjunto (dashboard depende de tudo). */
@@ -100,6 +115,14 @@ export const useCriarContrato = () =>
     (dados: NovoContrato) =>
       api.post<Contrato>('/painel/financeiro/contratos', dados),
   );
+export const useCriarReserva = () =>
+  useMutacao((dados: { titular: string; valorCentavos?: number }) => api.post<Reserva[]>('/painel/financeiro/reservas', dados));
+export const useAtualizarReserva = () =>
+  useMutacao(({ id, ...dados }: { id: number; titular?: string; valorCentavos?: number }) =>
+    api.put<Reserva[]>(`/painel/financeiro/reservas/${id}`, dados),
+  );
+export const useExcluirReserva = () => useMutacao((id: number) => api.del<Reserva[]>(`/painel/financeiro/reservas/${id}`));
+
 export const useExcluirContrato = () =>
   useMutacao((id: number) => api.del<void>(`/painel/financeiro/contratos/${id}`));
 
