@@ -39,7 +39,8 @@ type Props =
 
 const ehConvite = (l: LocalPublico | LocalConvite): l is LocalConvite => 'endereco' in l;
 
-export function SitePage(props: Props) {
+/** Memo: só refaz quando os dados do site ou os slots mudam (a coreografia inteira depende dele). */
+export const SitePage = memo(function SitePage(props: Props) {
   const { site, camada, slots = {}, aviso } = props;
   const raiz = useRef<HTMLElement>(null);
   useAnimacoesSite(raiz, [site]);
@@ -249,7 +250,7 @@ export function SitePage(props: Props) {
       </footer>
     </main>
   );
-}
+});
 
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 

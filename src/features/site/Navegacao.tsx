@@ -52,7 +52,8 @@ export function Navegacao({ inicialNoiva, inicialNoivo, secoes }: Props) {
     <nav
       aria-label="Seções"
       className={`sticky top-0 z-40 transition-[background-color,border-color] duration-300 ${
-        rolou ? 'border-b border-folha bg-linho/90 backdrop-blur-sm' : 'border-b border-transparent bg-linho'
+        // Sem backdrop-blur: desfocar o que passa por baixo repinta a barra a cada quadro da rolagem.
+        rolou ? 'border-b border-folha bg-linho/95' : 'border-b border-transparent bg-linho'
       }`}
     >
       <span data-progresso aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-vela" />

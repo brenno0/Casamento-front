@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { ApiError } from '../../lib/api';
 import { Carregando } from '../site/HomePage';
@@ -19,6 +19,12 @@ export function ConvitePage() {
   const invalido = convite.error instanceof ApiError && convite.error.status === 404;
   const publico = useSitePublico(invalido);
   const [aberto, setAberto] = useState(() => envelopeJaAberto(token));
+  const nomeGrupo = convite.data?.grupo.nome ?? '';
+  // Slots estáveis: abrir o envelope não refaz o site inteiro (SitePage é memo).
+  const slots = useMemo(
+    () => ({ rsvp: <RsvpSection token={token} />, mural: <MuralSection token={token} nomePadrao={nomeGrupo} /> }),
+    [token, nomeGrupo],
+  );
 
   if (convite.data) {
     return (
@@ -28,10 +34,7 @@ export function ConvitePage() {
           <SitePage
             camada="convite"
             site={convite.data}
-            slots={{
-              rsvp: <RsvpSection token={token} />,
-              mural: <MuralSection token={token} nomePadrao={convite.data.grupo.nome} />,
-            }}
+            slots={slots}
           />
         </div>
       </>
