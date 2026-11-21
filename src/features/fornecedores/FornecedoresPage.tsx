@@ -14,6 +14,7 @@ import { IconePainel } from '../painel/IconePainel';
 import { Esqueleto } from '../painel/Esqueleto';
 import { Vazio } from '../painel/Vazio';
 import { BotaoFechar } from '../painel/BotaoFechar';
+import { totaisDe, useContratos, type Contrato } from '../financeiro/useFinanceiro';
 
 export const inputClass =
   'entrada';
@@ -33,6 +34,7 @@ export function FornecedoresPage() {
   const [status, setStatus] = useState<StatusFornecedor | ''>('');
   const [categoria, setCategoria] = useState('');
   const [criando, setCriando] = useState(false);
+  const contratos = useContratos();
   const { data, isPending, isError } = useFornecedores({
     ...(status ? { status } : {}),
     ...(categoria ? { categoria } : {}),
@@ -100,6 +102,8 @@ export function FornecedoresPage() {
                 <th>Status</th>
                 <th className="num">Orçamentos</th>
                 <th className="num">Menor orçamento</th>
+                <th className="num">Pago</th>
+                <th className="num">Falta</th>
                 <th>Contrato</th>
               </tr>
             </thead>
@@ -119,6 +123,7 @@ export function FornecedoresPage() {
                   <td className="num">
                     {f.menorOrcamentoCentavos === null ? '—' : formatarCentavos(f.menorOrcamentoCentavos)}
                   </td>
+                  <ColunasPagamento fornecedorId={f.id} contratos={contratos.data} />
                   <td className="text-sm text-rose-fundo">{f.contrato ? 'Anexado' : ''}</td>
                 </tr>
               ))}
@@ -129,6 +134,25 @@ export function FornecedoresPage() {
 
       {criando && <NovoFornecedorModal onClose={() => setCriando(false)} />}
     </section>
+  );
+}
+
+function ColunasPagamento({ fornecedorId, contratos }: { fornecedorId: number; contratos?: Contrato[] }) {
+  const doFornecedor = (contratos ?? []).filter((c) => c.fornecedorId === fornecedorId);
+  if (doFornecedor.length === 0) {
+    return (
+      <>
+        <td className="num text-grafite-suave">—</td>
+        <td className="num text-grafite-suave">—</td>
+      </>
+    );
+  }
+  const t = totaisDe(doFornecedor);
+  return (
+    <>
+      <td className="num">{formatarCentavos(t.pago)}</td>
+      <td className={`num ${t.falta > 0 ? 'font-medium text-rose-fundo' : 'text-grafite-suave'}`}>{formatarCentavos(t.falta)}</td>
+    </>
   );
 }
 
@@ -186,7 +210,7 @@ function NovoFornecedorModal({ onClose }: { onClose: () => void }) {
           {criar.isError && (
             <p role="alert" className="text-erro">
               {criar.error instanceof ApiError && criar.error.status === 400
-                ? 'Confira nome e categoria.'
+                ? `Confira nome e categoria: ${criar.error.message}`
                 : 'Não foi possível criar o fornecedor.'}
             </p>
           )}

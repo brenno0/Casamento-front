@@ -77,9 +77,27 @@ export const useAtualizarCategoria = () =>
 export const useExcluirCategoria = () =>
   useMutacao((id: number) => api.del<void>(`/painel/financeiro/categorias/${id}`));
 
+/** Contratado, pago e o que falta de uma lista de contratos. */
+export function totaisDe(contratos: Contrato[]) {
+  const contratado = contratos.reduce((n, c) => n + c.valorContratadoCentavos, 0);
+  const pago = contratos.reduce((n, c) => n + c.pagoCentavos, 0);
+  return { contratado, pago, falta: contratado - pago };
+}
+
+export interface NovoContrato {
+  categoriaId: number;
+  descricao: string;
+  valorContratadoCentavos: number;
+  fornecedorId?: number | null;
+  /** Já pago: vira uma parcela paga. */
+  entrada?: { valorCentavos: number; pagoEm: string };
+  /** O que falta, dividido em parcelas mensais. */
+  restante?: { quantidade: number; primeiroVencimento: string };
+}
+
 export const useCriarContrato = () =>
   useMutacao(
-    (dados: { categoriaId: number; descricao: string; valorContratadoCentavos: number; fornecedorId?: number | null }) =>
+    (dados: NovoContrato) =>
       api.post<Contrato>('/painel/financeiro/contratos', dados),
   );
 export const useExcluirContrato = () =>

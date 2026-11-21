@@ -20,6 +20,7 @@ import {
   type ResponsavelFornecedor,
 } from './useFornecedores';
 import { BotaoSegurar } from '../painel/BotaoSegurar';
+import { PagamentosFornecedor } from './PagamentosFornecedor';
 import { Esqueleto } from '../painel/Esqueleto';
 
 export function FornecedorDetalhePage() {
@@ -88,6 +89,7 @@ function Detalhe({ f }: { f: FornecedorDetalhe }) {
       <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
           <Orcamentos f={f} />
+          <PagamentosFornecedor f={f} />
           <section aria-labelledby="contrato-titulo" className="cartao-painel">
             <h2 id="contrato-titulo" className="text-2xl">
               Contrato
@@ -249,7 +251,9 @@ function DadosForm({
         {atualizar.isSuccess && <span role="status">Salvo.</span>}
         {atualizar.isError && (
           <span role="alert" className="text-erro">
-            Não foi possível salvar. Confira os campos.
+            {atualizar.error instanceof ApiError && atualizar.error.status === 400
+              ? `Não foi possível salvar: ${atualizar.error.message}`
+              : 'Não foi possível salvar. Confira os campos.'}
           </span>
         )}
       </div>

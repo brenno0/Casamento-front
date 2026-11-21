@@ -137,3 +137,56 @@ describe('Fornecedores', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Fornecedor não encontrado');
   });
 });
+
+describe('pagamentos do fornecedor', () => {
+  const contrato = {
+    id: 7, categoriaId: 3, categoriaNome: 'Buffet', fornecedorId: 1, fornecedorNome: 'Buffet Sabor', descricao: 'Buffet',
+    valorContratadoCentavos: 1000000, pagoCentavos: 300000, parceladoCentavos: 1000000,
+    parcelas: [
+      { id: 1, contratoId: 7, vencimento: '2026-11-20', valorCentavos: 300000, status: 'pago', pagoEm: '2026-11-20', comprovanteArquivoId: null, atrasada: false },
+      { id: 2, contratoId: 7, vencimento: '2027-01-10', valorCentavos: 700000, status: 'pendente', pagoEm: null, comprovanteArquivoId: null, atrasada: false },
+    ],
+  };
+  const financeiro = ({ method, path }: { method: string; path: string }) => {
+    if (path === '/painel/financeiro/contratos' && method === 'GET') return json([contrato]);
+    if (path === '/painel/financeiro/categorias') return json([{ id: 3, nome: 'Buffet', previstoCentavos: 0, contratadoCentavos: 0, pagoCentavos: 0 }]);
+    if (path === '/painel/financeiro/contratos' && method === 'POST') return json(contrato, 201);
+    return undefined;
+  };
+
+  it('lista mostra pago e o que falta por fornecedor', async () => {
+    const { rotas } = apiFornecedores();
+    mockFetch({ logado: true, rotas: (r) => financeiro(r) ?? rotas(r) });
+    renderRoute('/painel/fornecedores');
+    const linha = (await screen.findByRole('link', { name: 'Buffet Sabor' })).closest('tr')!;
+    await waitFor(() => expect(linha).toHaveTextContent('R$ 3.000,00'));
+    expect(linha).toHaveTextContent('R$ 7.000,00');
+  });
+
+  it('detalhe: totais e novo contrato com entrada paga e o resto parcelado', async () => {
+    const { rotas } = apiFornecedores();
+    const fetchMock = mockFetch({ logado: true, rotas: (r) => financeiro(r) ?? rotas(r) });
+    renderRoute('/painel/fornecedores/1');
+    const secao = await screen.findByRole('region', { name: 'Pagamentos' });
+    await waitFor(() => expect(within(secao).getByText('Falta').nextSibling).toHaveTextContent('R$ 7.000,00'));
+
+    const form = within(secao).getByRole('form', { name: 'Novo contrato do fornecedor' });
+    fireEvent.change(within(form).getByLabelText('Valor total (R$)'), { target: { value: '5000' } });
+    fireEvent.change(within(form).getByLabelText('Já pago (R$)'), { target: { value: '1000' } });
+    fireEvent.change(within(form).getByLabelText('Pago em'), { target: { value: '2026-11-20' } });
+    fireEvent.change(within(form).getByLabelText('Parcelas'), { target: { value: '4' } });
+    fireEvent.change(within(form).getByLabelText('Primeiro vencimento'), { target: { value: '2027-01-10' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Adicionar contrato' }));
+    await waitFor(() => {
+      const post = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/financeiro/contratos') && i?.method === 'POST');
+      expect(JSON.parse(String(post![1]!.body))).toEqual({
+        categoriaId: 3,
+        fornecedorId: 1,
+        descricao: 'Buffet Sabor',
+        valorContratadoCentavos: 500000,
+        entrada: { valorCentavos: 100000, pagoEm: '2026-11-20' },
+        restante: { quantidade: 4, primeiroVencimento: '2027-01-10' },
+      });
+    });
+  });
+});

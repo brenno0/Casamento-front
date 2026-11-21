@@ -393,7 +393,7 @@ function NovoContrato({ categorias }: { categorias: Categoria[] }) {
   );
 }
 
-function CartaoContrato({ c }: { c: Contrato }) {
+export function CartaoContrato({ c }: { c: Contrato }) {
   const gerar = useGerarParcelas();
   const excluir = useExcluirContrato();
   const [quantidade, setQuantidade] = useState('1');
