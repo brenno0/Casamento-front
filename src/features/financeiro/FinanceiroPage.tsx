@@ -101,12 +101,14 @@ function Cartao({ titulo, valor, destaque }: { titulo: string; valor: number; de
 
 function ResumoConteudo({ d }: { d: Dashboard }) {
   const pct = (parte: number, todo: number) => `${todo > 0 ? Math.min(100, Math.round((parte / todo) * 100)) : 0}%`;
-  const sobra = d.totais.reservadoCentavos - d.totais.faltaPagarCentavos;
+  // Compara o reservado com tudo o que ainda vai sair, contando as estimativas.
+  const sobra = d.totais.reservadoCentavos - (d.totais.estimadoCentavos - d.totais.pagoCentavos);
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-3" aria-label="Totais">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Totais">
         <Cartao titulo="Previsto" valor={d.totais.previstoCentavos} />
         <Cartao titulo="Contratado" valor={d.totais.contratadoCentavos} />
+        <Cartao titulo="Estimado (com cotações)" valor={d.totais.estimadoCentavos} />
         <Cartao titulo="Pago" valor={d.totais.pagoCentavos} />
         <Cartao titulo="Falta pagar" valor={d.totais.faltaPagarCentavos} />
         <Cartao titulo="Reservado" valor={d.totais.reservadoCentavos} />
@@ -168,14 +170,16 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
                 <tr>
                   <th>Fornecedor</th>
                   <th className="num">Contratado</th>
+                  <th className="num">Estimado</th>
                   <th className="num">Pago</th>
                   <th className="num">Falta</th>
-                  <th className="w-1/4">Pago do contratado</th>
+                  <th className="w-1/4">Pago do total</th>
                 </tr>
               </thead>
               <tbody>
                 {d.porFornecedor.map((f) => {
-                  const falta = f.contratadoCentavos - f.pagoCentavos;
+                  const total = f.contratadoCentavos + (f.estimadoCentavos ?? 0);
+                  const falta = total - f.pagoCentavos;
                   return (
                     <tr key={f.fornecedorId}>
                       <td>
@@ -183,12 +187,13 @@ function ResumoConteudo({ d }: { d: Dashboard }) {
                           {f.nome}
                         </Link>
                       </td>
-                      <td className="num">{formatarCentavos(f.contratadoCentavos)}</td>
+                      <td className="num">{f.estimadoCentavos === null ? formatarCentavos(f.contratadoCentavos) : '—'}</td>
+                      <td className="num text-grafite-suave">{f.estimadoCentavos === null ? '—' : formatarCentavos(f.estimadoCentavos)}</td>
                       <td className="num">{formatarCentavos(f.pagoCentavos)}</td>
                       <td className={`num ${falta > 0 ? 'font-medium text-rose-fundo' : 'text-grafite-suave'}`}>{formatarCentavos(falta)}</td>
                       <td>
                         <div className="barra" aria-hidden="true">
-                          <span style={{ width: pct(f.pagoCentavos, f.contratadoCentavos) }} />
+                          <span style={{ width: pct(f.pagoCentavos, total) }} />
                         </div>
                       </td>
                     </tr>

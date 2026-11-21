@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FileUpload } from '../../components/FileUpload';
 import { ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
-import { formatarCentavos, parseCentavos } from '../../lib/dinheiro';
+import { centavosParaInput, formatarCentavos, parseCentavos } from '../../lib/dinheiro';
 import { urlArquivo } from '../../lib/upload';
 import { BadgeStatus, inputClass } from './FornecedoresPage';
 import {
@@ -180,7 +180,10 @@ function DadosForm({
     site: f.site ?? '',
     observacoes: f.observacoes ?? '',
     responsavel: f.responsavel,
+    estimado: f.valorEstimadoCentavos === null ? '' : centavosParaInput(f.valorEstimadoCentavos),
   });
+  const estimado = dados.estimado.trim() ? parseCentavos(dados.estimado) : null;
+  const estimadoOk = !dados.estimado.trim() || (estimado !== null && estimado > 0);
 
   function campo<K extends keyof typeof dados>(k: K, v: (typeof dados)[K]) {
     atualizar.reset();
@@ -189,7 +192,9 @@ function DadosForm({
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!estimadoOk) return;
     atualizar.mutate({
+      valorEstimadoCentavos: estimado,
       nome: dados.nome.trim(),
       categoria: dados.categoria.trim(),
       telefone: dados.telefone.trim() || null,
@@ -210,6 +215,23 @@ function DadosForm({
         <span className="rotulo">Categoria</span>
         <input maxLength={60} value={dados.categoria} onChange={(e) => campo('categoria', e.target.value)} className={inputClass} />
       </label>
+      <div>
+        <label className="block">
+          <span className="rotulo">Valor estimado (R$)</span>
+          <input
+            inputMode="decimal"
+            aria-describedby="estimado-dica"
+            placeholder={f.menorOrcamentoCentavos === null ? 'Quanto vocês acham que vai custar' : `Menor orçamento: ${formatarCentavos(f.menorOrcamentoCentavos)}`}
+            value={dados.estimado}
+            onChange={(e) => campo('estimado', e.target.value)}
+            className={inputClass}
+          />
+        </label>
+        <p id="estimado-dica" className="mt-1 text-xs text-grafite-suave">
+          Entra no financeiro até existir um contrato. Vazio: vale o menor orçamento.
+        </p>
+        {!estimadoOk && <p role="alert" className="mt-1 text-xs text-erro">Valor inválido.</p>}
+      </div>
       <label className="block">
         <span className="rotulo">Telefone</span>
         <input type="tel" value={dados.telefone} onChange={(e) => campo('telefone', e.target.value)} className={inputClass} />

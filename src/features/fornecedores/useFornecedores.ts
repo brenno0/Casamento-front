@@ -67,6 +67,8 @@ export interface Fornecedor {
   contrato: ArquivoRef | null;
   menorOrcamentoCentavos: number | null;
   totalOrcamentos: number;
+  /** Quanto o casal acha que vai custar, antes do contrato. */
+  valorEstimadoCentavos: number | null;
 }
 
 export interface Orcamento {
@@ -91,6 +93,7 @@ export interface DadosFornecedor {
   observacoes?: string | null;
   responsavel?: ResponsavelFornecedor;
   contratoArquivoId?: number | null;
+  valorEstimadoCentavos?: number | null;
 }
 
 export interface FiltroFornecedores {

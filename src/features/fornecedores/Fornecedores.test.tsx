@@ -16,6 +16,7 @@ function detalheFake(extra: Partial<FornecedorDetalhe> = {}): FornecedorDetalhe 
     contrato: null,
     menorOrcamentoCentavos: 750000,
     totalOrcamentos: 3,
+    valorEstimadoCentavos: null,
     orcamentos: [
       { id: 11, descricao: 'Menu B', valorCentavos: 750000, data: '2027-01-10', arquivo: null },
       { id: 12, descricao: 'Menu C', valorCentavos: 820000, data: '2027-01-11', arquivo: null },
@@ -135,6 +136,22 @@ describe('Fornecedores', () => {
     mockFetch({ logado: true, rotas: ({ path }) => (path === '/painel/fornecedores/7' ? erro(404, 'FORNECEDOR_NOT_FOUND') : undefined) });
     renderRoute('/painel/fornecedores/7');
     expect(await screen.findByRole('alert')).toHaveTextContent('Fornecedor não encontrado');
+  });
+});
+
+describe('valor estimado', () => {
+  it('salva o valor estimado do fornecedor', async () => {
+    const { rotas } = apiFornecedores();
+    const fetchMock = mockFetch({ logado: true, rotas });
+    renderRoute('/painel/fornecedores/1');
+    const form = await screen.findByRole('form', { name: 'Dados do fornecedor' });
+    expect(within(form).getByLabelText('Valor estimado (R$)')).toHaveAttribute('placeholder', 'Menor orçamento: R$ 7.500,00');
+    fireEvent.change(within(form).getByLabelText('Valor estimado (R$)'), { target: { value: '8000' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar dados' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/fornecedores/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toMatchObject({ valorEstimadoCentavos: 800000 });
+    });
   });
 });
 

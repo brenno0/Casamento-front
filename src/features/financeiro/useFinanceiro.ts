@@ -53,10 +53,12 @@ export interface Dashboard {
     contratadoCentavos: number;
     pagoCentavos: number;
     faltaPagarCentavos: number;
+    /** Contratado mais o estimado de quem ainda não tem contrato. */
+    estimadoCentavos: number;
     reservadoCentavos: number;
   };
   reservas: Reserva[];
-  porFornecedor: { fornecedorId: number; nome: string; contratadoCentavos: number; pagoCentavos: number }[];
+  porFornecedor: { fornecedorId: number; nome: string; contratadoCentavos: number; pagoCentavos: number; estimadoCentavos: number | null }[];
   fornecedoresSemContrato: { id: number; nome: string }[];
   proximosVencimentos: ParcelaResumo[];
   atrasadas: ParcelaResumo[];
