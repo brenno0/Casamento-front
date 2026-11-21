@@ -3,7 +3,7 @@ import { ApiError } from '../../lib/api';
 import { formatarCentavos } from '../../lib/dinheiro';
 import { useTaxas } from './checkout';
 import { PresentearModal } from './PresentearModal';
-import { enviarFotoConvidado, useJaComprei, useVitrine, type Camada, type ItemVitrine } from './usePresentes';
+import { enviarFotoConvidado, nomeDaLoja, useJaComprei, useVitrine, type Camada, type ItemVitrine } from './usePresentes';
 
 /**
  * Lista de presentes discreta (ux-direction.md): sem cobrança; presente opcional e
@@ -68,11 +68,12 @@ export function Vitrine({
                         {item.fracionavel ? 'Dar uma cota' : 'Presentear'}
                       </button>
                     )}
-                    {!item.fracionavel && item.linkLoja && (
-                      <a href={item.linkLoja} target="_blank" rel="noreferrer noopener" className="botao-contorno px-6">
-                        Comprar na loja
-                      </a>
-                    )}
+                    {!item.fracionavel &&
+                      item.links.map((l) => (
+                        <a key={l.url} href={l.url} target="_blank" rel="noreferrer noopener" className="botao-contorno px-6">
+                          {item.links.length === 1 ? 'Comprar na loja' : `Comprar na ${nomeDaLoja(l)}`}
+                        </a>
+                      ))}
                     {!item.fracionavel && (
                       <button type="button" onClick={() => setComprando(item)} className="py-2 text-verde-suave underline hover:text-verde">
                         Já comprei

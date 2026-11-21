@@ -4,9 +4,9 @@ import type { ItemVitrine } from './usePresentes';
 
 function itens(): ItemVitrine[] {
   return [
-    { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 30000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, linkLoja: 'https://loja.com/tacas', viagem: null },
-    { id: 2, nome: 'Liquidificador', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 0, progresso: 0, esgotado: true, linkLoja: null, viagem: null },
-    { id: 3, nome: 'Passeio de barco', descricao: 'Na lua de mel', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, linkLoja: null, viagem: { nome: 'Lua de mel' } },
+    { id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, precoCentavos: 30000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 1, progresso: 0, esgotado: false, links: [{ url: 'https://loja.com/tacas', rotulo: '' }], viagem: null },
+    { id: 2, nome: 'Liquidificador', descricao: '', fotoUrl: null, precoCentavos: 20000, fracionavel: false, cotaMinimaCentavos: 5000, restante: 0, progresso: 0, esgotado: true, links: [], viagem: null },
+    { id: 3, nome: 'Passeio de barco', descricao: 'Na lua de mel', fotoUrl: null, precoCentavos: 100000, fracionavel: true, cotaMinimaCentavos: 5000, restante: 1, progresso: 30, esgotado: false, links: [], viagem: { nome: 'Lua de mel' } },
   ];
 }
 
@@ -87,5 +87,58 @@ describe('presentes no painel', () => {
     fireEvent.click(within(item).getByRole('button', { name: 'Marcar recebido' }));
     expect(await within(screen.getByRole('listitem', { name: 'Presente de Tia Rosa' })).findByText('Recebido')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/painel/presentes/9/recebido', expect.objectContaining({ method: 'POST' }));
+  });
+});
+
+describe('vários links', () => {
+  it('vitrine mostra um botão por loja, com rótulo ou domínio', async () => {
+    const lista = itens();
+    lista[0]!.links = [
+      { url: 'https://www.amazon.com.br/p', rotulo: '' },
+      { url: 'https://magalu.com/p', rotulo: 'Magalu' },
+    ];
+    mockFetch({ rotas: ({ method, path }) => (path === '/publico/presentes' && method === 'GET' ? json(lista) : undefined) });
+    renderRoute('/');
+    const tacas = await screen.findByRole('article', { name: 'Jogo de taças' });
+    expect(within(tacas).getByRole('link', { name: 'Comprar na amazon.com.br' })).toHaveAttribute('href', 'https://www.amazon.com.br/p');
+    expect(within(tacas).getByRole('link', { name: 'Comprar na Magalu' })).toBeInTheDocument();
+  });
+
+  it('no painel: edita item, adiciona link, pega a foto do link e salva tudo', async () => {
+    const item = {
+      id: 1, nome: 'Jogo de taças', descricao: '', fotoUrl: null, fotoArquivoId: null, precoCentavos: 30000, quantidade: 1,
+      fracionavel: false, cotaMinimaCentavos: 5000, links: [{ url: 'https://loja.com/tacas', rotulo: '' }], ordem: 0, ativo: true,
+      viagemId: null, restante: 1, progresso: 0, esgotado: false, arrecadadoCentavos: 0, viagem: null,
+    };
+    const fetchMock = mockFetch({
+      logado: true,
+      rotas: ({ method, path }) => {
+        if (path === '/painel/presentes/itens' && method === 'GET') return json([item]);
+        if (path === '/painel/presentes/foto-do-link' && method === 'POST') return json({ id: 42, nomeOriginal: 'foto-do-link', mime: 'image/jpeg', tamanhoBytes: 10 }, 201);
+        if (path === '/painel/presentes/itens/1' && method === 'PUT') return json([item]);
+        if (path === '/painel/viagens') return json([]);
+        return undefined;
+      },
+    });
+    renderRoute('/painel/presentes');
+    fireEvent.click(await screen.findByRole('button', { name: 'Editar Jogo de taças' }));
+    const dialog = screen.getByRole('dialog', { name: 'Editar item' });
+    fireEvent.click(within(dialog).getByRole('button', { name: '+ Outro link' }));
+    fireEvent.change(within(dialog).getByLabelText('Link 2'), { target: { value: 'https://magalu.com/tacas' } });
+    fireEvent.change(within(dialog).getByLabelText('Nome da loja 2'), { target: { value: 'Magalu' } });
+    fireEvent.click(within(dialog).getAllByRole('button', { name: 'Pegar foto' })[0]!);
+    expect(await within(dialog).findByRole('status')).toHaveTextContent('Foto do link definida.');
+    expect(within(dialog).getByRole('img', { name: 'Foto do item' })).toHaveAttribute('src', '/api/painel/arquivos/42');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/presentes/itens/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toMatchObject({
+        fotoArquivoId: 42,
+        links: [
+          { url: 'https://loja.com/tacas', rotulo: '' },
+          { url: 'https://magalu.com/tacas', rotulo: 'Magalu' },
+        ],
+      });
+    });
   });
 });

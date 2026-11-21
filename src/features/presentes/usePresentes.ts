@@ -1,6 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiFetch } from '../../lib/api';
 
+export interface LinkLoja {
+  url: string;
+  rotulo: string;
+}
+
+/** Nome da loja: o rótulo, ou o domínio do link sem `www.`. */
+export function nomeDaLoja(l: LinkLoja): string {
+  if (l.rotulo.trim()) return l.rotulo.trim();
+  try {
+    return new URL(l.url).hostname.replace(/^www\./, '');
+  } catch {
+    return 'loja';
+  }
+}
+
 export interface ItemVitrine {
   id: number;
   nome: string;
@@ -12,7 +27,7 @@ export interface ItemVitrine {
   restante: number;
   progresso: number;
   esgotado: boolean;
-  linkLoja: string | null;
+  links: LinkLoja[];
   viagem: { nome: string } | null;
 }
 

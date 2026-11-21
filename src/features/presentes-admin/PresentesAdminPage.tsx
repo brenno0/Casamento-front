@@ -7,6 +7,7 @@ import { urlArquivo } from '../../lib/upload';
 import { FINANCEIRO_QUERY_KEY } from '../financeiro/useFinanceiro';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import { moverNaLista } from '../site-admin/useSiteAdmin';
+import { nomeDaLoja, type LinkLoja } from '../presentes/usePresentes';
 import { useViagens } from '../viagens/useViagens';
 import { IconePainel } from '../painel/IconePainel';
 import { Avatar } from '../painel/Avatar';
@@ -24,7 +25,7 @@ export interface ItemPainel {
   quantidade: number;
   fracionavel: boolean;
   cotaMinimaCentavos: number;
-  linkLoja: string | null;
+  links: LinkLoja[];
   ordem: number;
   ativo: boolean;
   viagemId: number | null;
@@ -132,6 +133,9 @@ function Itens() {
                 <th className="num">Preço</th>
                 <th>Disponível</th>
                 <th className="num">Arrecadado</th>
+                <th>
+                  <span className="sr-only">Ações</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -170,6 +174,11 @@ function Itens() {
                     )}
                   </td>
                   <td className="num">{formatarCentavos(i.arrecadadoCentavos)}</td>
+                  <td>
+                    <button type="button" aria-label={`Editar ${i.nome}`} onClick={() => setEditando(i)} className="acao-secundaria min-h-8 px-3 text-sm">
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -193,7 +202,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
     quantidade: String(item?.quantidade ?? 1),
     fracionavel: item?.fracionavel ?? false,
     cota: centavosParaInput(item?.cotaMinimaCentavos ?? 5000),
-    linkLoja: item?.linkLoja ?? '',
+    links: item?.links.length ? item.links : [{ url: '', rotulo: '' }],
     ativo: item?.ativo ?? true,
     fotoArquivoId: item?.fotoArquivoId ?? null,
     viagemId: item?.viagemId ?? null,
@@ -215,7 +224,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
         quantidade: d.fracionavel ? 1 : qtd,
         fracionavel: d.fracionavel,
         cotaMinimaCentavos: cota,
-        linkLoja: d.linkLoja.trim() || null,
+        links: d.links.map((l) => ({ url: l.url.trim(), rotulo: l.rotulo.trim() })).filter((l) => l.url),
         ativo: d.ativo,
         fotoArquivoId: d.fotoArquivoId,
         viagemId: d.viagemId,
@@ -263,10 +272,7 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
               <input type="number" min={1} value={d.quantidade} onChange={(e) => set('quantidade', e.target.value)} className={inputClass} />
             </label>
           )}
-          <label className="block">
-            <span className="rotulo">Link da loja (opcional)</span>
-            <input type="url" value={d.linkLoja} onChange={(e) => set('linkLoja', e.target.value)} className={inputClass} />
-          </label>
+          <Links links={d.links} onChange={(links) => set('links', links)} onFoto={(id) => set('fotoArquivoId', id)} />
           <label className="block sm:col-span-2">
             <span className="rotulo">Para uma viagem (opcional)</span>
             <select value={d.viagemId ?? ''} onChange={(e) => set('viagemId', e.target.value === '' ? null : Number(e.target.value))} className={inputClass}>
@@ -276,9 +282,17 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
               ))}
             </select>
           </label>
-          <div className="sm:col-span-2">
+          <div className="flex items-center gap-4 sm:col-span-2">
+            {d.fotoArquivoId ? (
+              <img
+                src={d.fotoArquivoId === item?.fotoArquivoId && item.fotoUrl ? item.fotoUrl : urlArquivo(d.fotoArquivoId)}
+                alt="Foto do item"
+                className="size-20 shrink-0 rounded-card object-cover"
+              />
+            ) : (
+              <span aria-hidden="true" className="size-20 shrink-0 rounded-card bg-nevoa-escuro" />
+            )}
             <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />
-            {d.fotoArquivoId && <p className="text-sm text-rose-fundo">Foto definida.</p>}
           </div>
           <label className="flex items-center gap-2 sm:col-span-2">
             <input type="checkbox" checked={d.ativo} onChange={(e) => set('ativo', e.target.checked)} />
@@ -305,6 +319,71 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
         </form>
       </div>
     </div>
+  );
+}
+
+const MAX_LINKS = 5;
+
+/** Lojas do item (até 5). Cada link pode trazer a foto do produto. */
+function Links({ links, onChange, onFoto }: { links: LinkLoja[]; onChange: (l: LinkLoja[]) => void; onFoto: (arquivoId: number) => void }) {
+  const foto = useMutation({
+    mutationFn: (url: string) => api.post<{ id: number }>('/painel/presentes/foto-do-link', { url }),
+    onSuccess: (a) => onFoto(a.id),
+  });
+  const mudar = (i: number, campo: keyof LinkLoja, valor: string) =>
+    onChange(links.map((l, j) => (j === i ? { ...l, [campo]: valor } : l)));
+
+  return (
+    <fieldset className="space-y-2 sm:col-span-2">
+      <legend className="rotulo">Links das lojas (opcional)</legend>
+      {links.map((l, i) => (
+        <div key={i} className="flex flex-wrap items-center gap-2">
+          <input
+            type="url"
+            aria-label={`Link ${i + 1}`}
+            placeholder="https://…"
+            value={l.url}
+            onChange={(e) => mudar(i, 'url', e.target.value)}
+            className={`${inputClass} mt-0 min-w-0 flex-[3]`}
+          />
+          <input
+            aria-label={`Nome da loja ${i + 1}`}
+            placeholder={l.url ? nomeDaLoja(l) : 'Nome da loja'}
+            maxLength={40}
+            value={l.rotulo}
+            onChange={(e) => mudar(i, 'rotulo', e.target.value)}
+            className={`${inputClass} mt-0 min-w-0 flex-[2]`}
+          />
+          <button
+            type="button"
+            disabled={!/^https?:\/\//.test(l.url.trim()) || foto.isPending}
+            onClick={() => foto.mutate(l.url.trim())}
+            className="acao-secundaria min-h-9 px-3 text-sm"
+          >
+            {foto.isPending && foto.variables === l.url.trim() ? 'Buscando…' : 'Pegar foto'}
+          </button>
+          <button
+            type="button"
+            aria-label={`Remover link ${i + 1}`}
+            onClick={() => onChange(links.length === 1 ? [{ url: '', rotulo: '' }] : links.filter((_, j) => j !== i))}
+            className="acao-discreta min-h-9 px-2"
+          >
+            <IconePainel nome="fechar" />
+          </button>
+        </div>
+      ))}
+      {links.length < MAX_LINKS && (
+        <button type="button" onClick={() => onChange([...links, { url: '', rotulo: '' }])} className="acao-link text-sm">
+          + Outro link
+        </button>
+      )}
+      {foto.isError && (
+        <p role="alert" className="text-sm text-erro">
+          {foto.error instanceof ApiError ? foto.error.message : 'Não foi possível pegar a foto.'}
+        </p>
+      )}
+      {foto.isSuccess && <p role="status" className="text-sm text-rose-fundo">Foto do link definida.</p>}
+    </fieldset>
   );
 }
 
