@@ -332,7 +332,7 @@ const usePegarFoto = (onFoto: (arquivoId: number) => void) =>
   });
 
 /** Quando a loja bloqueia a busca automática: cola o endereço da própria imagem. */
-function FotoPorEndereco({ onFoto }: { onFoto: (arquivoId: number) => void }) {
+function FotoPorEndereco({ onFoto, autoFocus }: { onFoto: (arquivoId: number) => void; autoFocus?: boolean }) {
   const foto = usePegarFoto(onFoto);
   const [url, setUrl] = useState('');
   const valido = /^https?:\/\//.test(url.trim());
@@ -342,6 +342,7 @@ function FotoPorEndereco({ onFoto }: { onFoto: (arquivoId: number) => void }) {
         <input
           type="url"
           aria-label="Endereço da imagem"
+          autoFocus={autoFocus}
           placeholder="Endereço da imagem (https://…)"
           value={url}
           onChange={(e) => {
@@ -416,9 +417,15 @@ function Links({ links, onChange, onFoto }: { links: LinkLoja[]; onChange: (l: L
         </button>
       )}
       {foto.isError && (
-        <p role="alert" className="text-sm text-erro">
-          {foto.error instanceof ApiError ? foto.error.message : 'Não foi possível pegar a foto.'}
-        </p>
+        <div className="space-y-2 rounded-card bg-nevoa p-3">
+          <p role="alert" className="text-sm text-erro">
+            {foto.error instanceof ApiError ? foto.error.message : 'Não foi possível pegar a foto.'}
+          </p>
+          <FotoPorEndereco autoFocus onFoto={(id) => {
+            foto.reset();
+            onFoto(id);
+          }} />
+        </div>
       )}
       {foto.isSuccess && <p role="status" className="text-sm text-rose-fundo">Foto do link definida.</p>}
     </fieldset>

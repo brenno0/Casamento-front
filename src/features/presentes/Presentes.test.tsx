@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { json, mockFetch, renderRoute, TOKEN_FAKE } from '../../test/renderRoute';
+import { erro, json, mockFetch, renderRoute, TOKEN_FAKE } from '../../test/renderRoute';
 import type { ItemVitrine } from './usePresentes';
 
 function itens(): ItemVitrine[] {
@@ -140,5 +140,35 @@ describe('vários links', () => {
         ],
       });
     });
+  });
+
+  it('loja bloqueou a foto: o campo de endereço da imagem aparece junto do erro', async () => {
+    const item = {
+      id: 1, nome: 'Robô', descricao: '', fotoUrl: null, fotoArquivoId: null, precoCentavos: 300000, quantidade: 1,
+      fracionavel: false, cotaMinimaCentavos: 5000, links: [{ url: 'https://www.mercadolivre.com.br/p/MLB1', rotulo: '' }], ordem: 0,
+      ativo: true, viagemId: null, restante: 1, progresso: 0, esgotado: false, arrecadadoCentavos: 0, viagem: null,
+    };
+    mockFetch({
+      logado: true,
+      rotas: ({ method, path, body }) => {
+        if (path === '/painel/presentes/itens' && method === 'GET') return json([item]);
+        if (path === '/painel/viagens') return json([]);
+        if (path === '/painel/presentes/foto-do-link') {
+          return (body as { url: string }).url.includes('mlstatic')
+            ? json({ id: 7, nomeOriginal: 'foto-do-link', mime: 'image/jpeg', tamanhoBytes: 10 }, 201)
+            : erro(422, 'FOTO_NAO_ENCONTRADA');
+        }
+        return undefined;
+      },
+    });
+    renderRoute('/painel/presentes');
+    fireEvent.click(await screen.findByRole('button', { name: 'Editar Robô' }));
+    const dialog = screen.getByRole('dialog', { name: 'Editar item' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Pegar foto' }));
+    const alerta = await within(dialog).findByRole('alert');
+    const campo = within(alerta.parentElement!).getByLabelText('Endereço da imagem');
+    fireEvent.change(campo, { target: { value: 'https://http2.mlstatic.com/D_robo.jpg' } });
+    fireEvent.click(within(alerta.parentElement!).getByRole('button', { name: 'Usar' }));
+    await waitFor(() => expect(within(dialog).getByRole('img', { name: 'Foto do item' })).toHaveAttribute('src', '/api/painel/arquivos/7'));
   });
 });
