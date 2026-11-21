@@ -18,7 +18,6 @@ export const routes: RouteObject[] = [
   { path: '/', element: <HomePage /> },
   { path: '/c/:token', element: <ConvitePage /> },
   { path: '/login', element: <LoginPage /> },
-  { path: '/presente/retorno', lazy: pagina(() => import('./features/presentes/RetornoPage'), 'RetornoPage') },
   {
     element: <RequireSessao />,
     children: [
@@ -33,7 +32,6 @@ export const routes: RouteObject[] = [
           { path: 'financeiro', lazy: pagina(() => import('./features/financeiro/FinanceiroPage'), 'FinanceiroPage') },
           { path: 'convidados', lazy: pagina(() => import('./features/convidados/ConvidadosPage'), 'ConvidadosPage') },
           { path: 'site', lazy: pagina(() => import('./features/site-admin/SiteAdminPage'), 'SiteAdminPage') },
-          { path: 'presentes', lazy: pagina(() => import('./features/presentes-admin/PresentesAdminPage'), 'PresentesAdminPage') },
           { path: 'mural', lazy: pagina(() => import('./features/mural/MuralAdminPage'), 'MuralAdminPage') },
           { path: 'viagens', lazy: pagina(() => import('./features/viagens/ViagensPage'), 'ViagensPage') },
           { path: 'viagens/:id', lazy: pagina(() => import('./features/viagens/ViagemPage'), 'ViagemPage') },

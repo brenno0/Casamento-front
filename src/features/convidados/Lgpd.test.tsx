@@ -40,11 +40,4 @@ describe('LGPD no painel', () => {
     fireEvent.click(within(cartao).getByRole('button', { name: 'Apagar contatos agora' }));
     expect(await within(cartao).findByRole('alert')).toHaveTextContent('Só é possível apagar depois do casamento.');
   });
-
-  it('presentes recebidos tem link de export CSV', async () => {
-    mockFetch({ logado: true, rotas: ({ path }) => (path.startsWith('/painel/presentes') ? json([]) : undefined) });
-    renderRoute('/painel/presentes');
-    fireEvent.click(await screen.findByRole('tab', { name: 'Presentes recebidos' }));
-    expect(await screen.findByRole('link', { name: 'Exportar doações (CSV)' })).toHaveAttribute('href', '/api/painel/presentes/export.csv');
-  });
 });

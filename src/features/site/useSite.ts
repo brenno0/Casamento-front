@@ -28,6 +28,8 @@ interface SiteBase {
   casal: { nomeNoiva: string; nomeNoivo: string; dataCasamento: string };
   capaUrl: string | null;
   comoChegar: LocalMapa[];
+  /** Listas de presentes externas (ex.: iCasei). */
+  listasPresentes: { titulo: string; url: string }[];
   historia: { id: number; data: string; titulo: string; texto: string; fotoUrl: string | null }[];
   dressCode: { texto: string; paleta: string[] };
   galeria: { id: number; fotoUrl: string; legenda: string }[];

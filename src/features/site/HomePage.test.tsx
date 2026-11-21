@@ -26,6 +26,14 @@ describe('site público', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/publico/site', expect.objectContaining({ credentials: 'include' }));
   });
 
+  it('lista de presentes externa vira botão que abre em outra aba', async () => {
+    mockFetch();
+    renderRoute('/');
+    const link = await screen.findByRole('link', { name: 'Lista no iCasei' });
+    expect(link).toHaveAttribute('href', 'https://sites.icasei.com.br/nayaneebrenno');
+    expect(link).toHaveAttribute('target', '_blank');
+  });
+
   it('mostra mensagem de erro quando a API falha', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('falhou', { status: 500 })));
     renderRoute('/');

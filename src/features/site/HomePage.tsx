@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Vitrine } from '../presentes/Vitrine';
 import { SitePage } from './SitePage';
 import { useSitePublico } from './useSite';
 
@@ -24,5 +23,5 @@ export function Carregando({ erro }: { erro: boolean }): ReactNode {
 export function HomePage() {
   const { data, isError } = useSitePublico();
   if (!data) return <Carregando erro={isError} />;
-  return <SitePage camada="publico" site={data} slots={{ presentes: <Vitrine token={null} /> }} />;
+  return <SitePage camada="publico" site={data} />;
 }

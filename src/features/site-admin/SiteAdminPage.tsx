@@ -18,13 +18,14 @@ import {
 import { IconePainel } from '../painel/IconePainel';
 import { Esqueleto } from '../painel/Esqueleto';
 
-type Aba = 'locais' | 'capa' | 'historia' | 'dress' | 'galeria' | 'faq' | 'mensagens' | 'extras';
+type Aba = 'locais' | 'capa' | 'historia' | 'dress' | 'presentes' | 'galeria' | 'faq' | 'mensagens' | 'extras';
 
 const ABAS: [Aba, string][] = [
   ['locais', 'Locais'],
   ['capa', 'Capa'],
   ['historia', 'Nossa história'],
   ['dress', 'Dress code e RSVP'],
+  ['presentes', 'Lista de presentes'],
   ['galeria', 'Galeria'],
   ['faq', 'FAQ'],
   ['mensagens', 'Mensagens WhatsApp'],
@@ -73,6 +74,7 @@ export function SiteAdminPage({ extras }: { extras?: { label: string; conteudo: 
         {data && aba === 'capa' && <Capa s={data} />}
         {data && aba === 'historia' && <Historia s={data} />}
         {data && aba === 'dress' && <DressCode key={JSON.stringify(data.config)} s={data} />}
+        {data && aba === 'presentes' && <ListasPresentes key={JSON.stringify(data.config.listasPresentes)} s={data} />}
         {data && aba === 'galeria' && <Galeria s={data} />}
         {data && aba === 'faq' && <Faq s={data} />}
         {data && aba === 'mensagens' && <Mensagens key={data.config.mensagemConvite + data.config.mensagemLembrete} s={data} />}
@@ -353,6 +355,67 @@ function ItemFaq({ f, ids, i }: { f: SitePainel['faq'][number]; ids: number[]; i
         </form>
       )}
     </li>
+  );
+}
+
+const MAX_LISTAS = 5;
+const linhaVazia = { titulo: '', url: '' };
+
+/** Listas de presentes hospedadas fora (iCasei e afins). O site mostra um botão para cada uma. */
+function ListasPresentes({ s }: { s: SitePainel }) {
+  const salvar = useAtualizarConfig();
+  const [listas, setListas] = useState(s.config.listasPresentes.length ? s.config.listasPresentes : [linhaVazia]);
+  const preenchidas = listas.map((l) => ({ titulo: l.titulo.trim(), url: l.url.trim() })).filter((l) => l.titulo || l.url);
+  const valido = preenchidas.every((l) => l.titulo && /^https?:\/\/\S+$/.test(l.url));
+  const mudar = (i: number, campo: 'titulo' | 'url', valor: string) => {
+    salvar.reset();
+    setListas(listas.map((l, j) => (j === i ? { ...l, [campo]: valor } : l)));
+  };
+
+  return (
+    <form
+      aria-label="Listas de presentes"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (valido) salvar.mutate({ listasPresentes: preenchidas });
+      }}
+      className="space-y-4 cartao-painel"
+    >
+      <p className="text-sm text-grafite-suave">Cada lista vira um botão na seção Lista de presentes do site. Sem nenhuma, a seção some.</p>
+      {listas.map((l, i) => (
+        <div key={i} className="grid gap-2 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
+          <label className="block">
+            <span className="rotulo">Texto do botão</span>
+            <input maxLength={60} placeholder="Lista no iCasei" value={l.titulo} onChange={(e) => mudar(i, 'titulo', e.target.value)} className={inputClass} />
+          </label>
+          <label className="block">
+            <span className="rotulo">Link</span>
+            <input type="url" placeholder="https://…" value={l.url} onChange={(e) => mudar(i, 'url', e.target.value)} className={inputClass} />
+          </label>
+          <button
+            type="button"
+            aria-label={`Remover lista ${i + 1}`}
+            onClick={() => setListas(listas.length === 1 ? [linhaVazia] : listas.filter((_, j) => j !== i))}
+            className="acao-discreta min-h-10 px-2"
+          >
+            <IconePainel nome="fechar" />
+          </button>
+        </div>
+      ))}
+      {listas.length < MAX_LISTAS && (
+        <button type="button" onClick={() => setListas([...listas, linhaVazia])} className="acao-link text-sm">
+          + Outra lista
+        </button>
+      )}
+      {!valido && <Erro mostrar texto="Cada lista precisa de texto e de um link começando com https://." />}
+      <Erro mostrar={salvar.isError} />
+      <div className="flex items-center gap-3">
+        <button type="submit" disabled={!valido || salvar.isPending} className="acao">
+          Salvar
+        </button>
+        {salvar.isSuccess && <span role="status">Salvo.</span>}
+      </div>
+    </form>
   );
 }
 

@@ -17,6 +17,7 @@ export function siteFake(estado: { casal: typeof CASAL_FAKE }) {
   return {
     casal: estado.casal,
     capaUrl: '/api/publico/fotos/1',
+    listasPresentes: [{ titulo: 'Lista no iCasei', url: 'https://sites.icasei.com.br/nayaneebrenno' }],
     comoChegar: [{ tipo: 'cerimonia', endereco: 'Rua da Igreja, 10 - Porto Seguro', latitude: null, longitude: null }],
     historia: [{ id: 1, data: '2019-03-10', titulo: 'Nos conhecemos', texto: 'Num show.', fotoUrl: null }],
     locais: [

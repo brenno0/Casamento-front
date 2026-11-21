@@ -30,7 +30,6 @@ export const GRUPOS_MODULOS: GrupoModulos[] = [
     titulo: 'Convidados',
     modulos: [
       { slug: 'convidados', label: 'Convidados', icone: 'convidados' },
-      { slug: 'presentes', label: 'Presentes', icone: 'presentes' },
       { slug: 'mural', label: 'Mural', icone: 'mural' },
       { slug: 'site', label: 'Site', icone: 'site' },
     ],

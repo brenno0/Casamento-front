@@ -17,10 +17,9 @@ import {
   type SitePublico,
 } from './useSite';
 
-/** Conteúdo das seções que outras histórias preenchem (envelope, RSVP, presentes, mural). */
+/** Conteúdo das seções que outras histórias preenchem (envelope, RSVP, mural). */
 export interface SlotsSite {
   rsvp?: ReactNode;
-  presentes?: ReactNode;
   mural?: ReactNode;
 }
 
@@ -55,7 +54,7 @@ export function SitePage(props: Props) {
       ['locais', 'Cerimônia', cerimonia.length > 0],
       ['dress-code', 'Dress code', true],
       ['rsvp', 'Confirmar presença', convite],
-      ['presentes', 'Presentes', true],
+      ['presentes', 'Presentes', site.listasPresentes.length > 0],
       ['galeria', 'Galeria', galeria.length > 0],
       ['mural', 'Mural', convite],
       ['faq', 'Dúvidas', site.faq.length > 0],
@@ -189,9 +188,19 @@ export function SitePage(props: Props) {
         </Secao>
       )}
 
-      <Secao id="presentes" titulo="Lista de presentes" numero={n('presentes')} vinheta="v-presentes" largo>
-        {slots.presentes ?? <p className="text-verde-suave">A lista de presentes chega em breve.</p>}
-      </Secao>
+      {site.listasPresentes.length > 0 && (
+        <Secao id="presentes" titulo="Lista de presentes" numero={n('presentes')} vinheta="v-presentes">
+          <ul data-cascata className="flex flex-wrap gap-3">
+            {site.listasPresentes.map((l, i) => (
+              <li key={l.url}>
+                <a href={l.url} target="_blank" rel="noreferrer noopener" className={i === 0 ? 'botao px-6' : 'botao-contorno px-6'}>
+                  {l.titulo}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Secao>
+      )}
 
       {galeria.length > 0 && <Galeria fotos={galeria} numero={n('galeria')} />}
 

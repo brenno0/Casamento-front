@@ -5,7 +5,6 @@ import { Carregando } from '../site/HomePage';
 import { SitePage } from '../site/SitePage';
 import { useSiteConvite, useSitePublico } from '../site/useSite';
 import { MuralSection } from '../mural/MuralSection';
-import { Vitrine } from '../presentes/Vitrine';
 import { Envelope } from './Envelope';
 import { envelopeJaAberto } from './envelopeStorage';
 import { RsvpSection } from './RsvpSection';
@@ -31,7 +30,6 @@ export function ConvitePage() {
             site={convite.data}
             slots={{
               rsvp: <RsvpSection token={token} />,
-              presentes: <Vitrine token={token} nomePadrao={convite.data.grupo.nome} />,
               mural: <MuralSection token={token} nomePadrao={convite.data.grupo.nome} />,
             }}
           />
@@ -44,7 +42,6 @@ export function ConvitePage() {
       <SitePage
         camada="publico"
         site={publico.data}
-        slots={{ presentes: <Vitrine token={null} /> }}
         aviso={
           <p role="status" className="bg-vela-claro px-gutter py-3 text-center text-verde">
             Não encontramos este convite. Confira o link que você recebeu; abaixo está o site aberto.
