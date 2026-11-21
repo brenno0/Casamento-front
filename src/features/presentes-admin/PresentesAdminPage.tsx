@@ -292,7 +292,10 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
             ) : (
               <span aria-hidden="true" className="size-20 shrink-0 rounded-card bg-nevoa-escuro" />
             )}
-            <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />
+            <div className="min-w-0 flex-1 space-y-2">
+              <FileUpload label="Foto" accept="image/jpeg,image/png,image/webp" onEnviado={(a) => set('fotoArquivoId', a.id)} />
+              <FotoPorEndereco onFoto={(id) => set('fotoArquivoId', id)} />
+            </div>
           </div>
           <label className="flex items-center gap-2 sm:col-span-2">
             <input type="checkbox" checked={d.ativo} onChange={(e) => set('ativo', e.target.checked)} />
@@ -322,14 +325,49 @@ function ItemModal({ item, onClose }: { item: ItemPainel | null; onClose: () => 
   );
 }
 
+const usePegarFoto = (onFoto: (arquivoId: number) => void) =>
+  useMutation({
+    mutationFn: (url: string) => api.post<{ id: number }>('/painel/presentes/foto-do-link', { url }),
+    onSuccess: (a) => onFoto(a.id),
+  });
+
+/** Quando a loja bloqueia a busca automática: cola o endereço da própria imagem. */
+function FotoPorEndereco({ onFoto }: { onFoto: (arquivoId: number) => void }) {
+  const foto = usePegarFoto(onFoto);
+  const [url, setUrl] = useState('');
+  const valido = /^https?:\/\//.test(url.trim());
+  return (
+    <div>
+      <div className="flex gap-2">
+        <input
+          type="url"
+          aria-label="Endereço da imagem"
+          placeholder="Endereço da imagem (https://…)"
+          value={url}
+          onChange={(e) => {
+            foto.reset();
+            setUrl(e.target.value);
+          }}
+          className={`${inputClass} mt-0 min-w-0 flex-1`}
+        />
+        <button type="button" disabled={!valido || foto.isPending} onClick={() => foto.mutate(url.trim())} className="acao-secundaria min-h-9 shrink-0 px-3 text-sm">
+          {foto.isPending ? 'Buscando…' : 'Usar'}
+        </button>
+      </div>
+      {foto.isError && (
+        <p role="alert" className="mt-1 text-sm text-erro">
+          {foto.error instanceof ApiError ? foto.error.message : 'Não foi possível pegar a imagem.'}
+        </p>
+      )}
+    </div>
+  );
+}
+
 const MAX_LINKS = 5;
 
 /** Lojas do item (até 5). Cada link pode trazer a foto do produto. */
 function Links({ links, onChange, onFoto }: { links: LinkLoja[]; onChange: (l: LinkLoja[]) => void; onFoto: (arquivoId: number) => void }) {
-  const foto = useMutation({
-    mutationFn: (url: string) => api.post<{ id: number }>('/painel/presentes/foto-do-link', { url }),
-    onSuccess: (a) => onFoto(a.id),
-  });
+  const foto = usePegarFoto(onFoto);
   const mudar = (i: number, campo: keyof LinkLoja, valor: string) =>
     onChange(links.map((l, j) => (j === i ? { ...l, [campo]: valor } : l)));
 
