@@ -202,6 +202,39 @@ describe('Convidados', () => {
     });
   });
 
+  it('apagar em massa: grupo marcado leva as pessoas; pessoa avulsa vai sozinha', async () => {
+    const { rotas } = api();
+    const fetchMock = mockFetch({
+      logado: true,
+      rotas: (r) =>
+        r.path === '/painel/convidados/excluir-em-massa' && r.method === 'POST' ? json({ convidados: 3, grupos: 1 }) : rotas(r),
+    });
+    renderRoute('/painel/convidados');
+    await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(screen.getByRole('button', { name: 'Apagar em massa' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Apagar convidados' });
+    fireEvent.click(await within(dialog).findByRole('checkbox', { name: /^Família Souza/ }));
+    expect(within(dialog).getByRole('checkbox', { name: 'Pai (Família Souza)' })).toBeDisabled();
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: 'Carlos (Carlos)' }));
+    expect(within(dialog).getByRole('status')).toHaveTextContent('3 pessoas e 1 grupo selecionados.');
+    await segurar(within(dialog).getByRole('button', { name: 'Apagar selecionados' }));
+    await waitFor(() => {
+      const post = fetchMock.mock.calls.find(([u]) => String(u).endsWith('/painel/convidados/excluir-em-massa'));
+      expect(JSON.parse(String(post![1]!.body))).toEqual({ grupoIds: [1], convidadoIds: [3] });
+    });
+    expect(await within(dialog).findByText('Apagados: 3 pessoas e 1 grupo.')).toBeInTheDocument();
+  });
+
+  it('selecionar todos marca todos os grupos', async () => {
+    mockFetch({ logado: true, rotas: api().rotas });
+    renderRoute('/painel/convidados');
+    await screen.findByRole('article', { name: 'Grupo Carlos' });
+    fireEvent.click(screen.getByRole('button', { name: 'Apagar em massa' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Apagar convidados' });
+    fireEvent.click(await within(dialog).findByRole('checkbox', { name: 'Selecionar todos' }));
+    expect(within(dialog).getByRole('status')).toHaveTextContent('3 pessoas e 2 grupos selecionados.');
+  });
+
   it('importa CSV e mostra o que entrou', async () => {
     const { rotas } = api();
     const fetchMock = mockFetch({

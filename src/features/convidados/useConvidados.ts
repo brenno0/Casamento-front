@@ -96,6 +96,11 @@ export interface ResultadoImportacao {
 export const useImportarConvidados = () =>
   useMutacao((csv: string) => api.post<ResultadoImportacao>('/painel/convidados/importar', { csv }));
 
+export const useExcluirEmMassa = () =>
+  useMutacao((sel: { convidadoIds: number[]; grupoIds: number[] }) =>
+    api.post<{ convidados: number; grupos: number }>('/painel/convidados/excluir-em-massa', sel),
+  );
+
 export const useCriarGrupo = () =>
   useMutacao((dados: { nome: string; mensagem?: string | null }) => api.post<Grupo>('/painel/grupos', dados));
 export const useMarcarEnviado = () => useMutacao((id: number) => api.post<Grupo>(`/painel/grupos/${id}/envio`));

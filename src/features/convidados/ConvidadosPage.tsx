@@ -5,6 +5,7 @@ import { linkConvite } from '../../lib/whatsapp';
 import { BotoesWhatsApp } from './BotoesWhatsApp';
 import { CartaoLgpd } from './CartaoLgpd';
 import { Dialogo, FormGrupo, GrupoGaveta } from './GrupoGaveta';
+import { ApagarEmMassa } from './ApagarEmMassa';
 import { ImportarPlanilha } from './ImportarPlanilha';
 import { inputClass } from '../fornecedores/FornecedoresPage';
 import {
@@ -37,7 +38,8 @@ const SEM_FILTRO: Filtros = { lado: '', tipo: '', funcao: '', rsvp: '' };
 type Modal =
   | { tipo: 'grupo'; grupoId?: number }
   | { tipo: 'convidado'; grupoId?: number; convidado?: Convidado }
-  | { tipo: 'importar' };
+  | { tipo: 'importar' }
+  | { tipo: 'apagar' };
 
 /** Ações extras por grupo (link do convite, WhatsApp) entram por aqui nas próximas histórias. */
 export type AcoesGrupo = (g: Grupo) => ReactNode;
@@ -63,6 +65,9 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
           <p className="mt-2 text-grafite-suave">Cada grupo recebe um convite.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setModal({ tipo: 'apagar' })} className="acao-discreta text-erro">
+            Apagar em massa
+          </button>
           <button type="button" onClick={() => setModal({ tipo: 'importar' })} className="acao-secundaria">
             Importar planilha
           </button>
@@ -127,6 +132,7 @@ export function ConvidadosPage({ acoesGrupo }: { acoesGrupo?: AcoesGrupo } = {})
       <CartaoLgpd />
 
       {modal?.tipo === 'importar' && <ImportarPlanilha onClose={() => setModal(null)} />}
+      {modal?.tipo === 'apagar' && <ApagarEmMassa onClose={() => setModal(null)} />}
       {modal?.tipo === 'grupo' && <ModalGrupo grupoId={modal.grupoId} onClose={() => setModal(null)} />}
       {modal?.tipo === 'convidado' && (
         <ConvidadoModal
