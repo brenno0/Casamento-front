@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FileUpload } from '../../components/FileUpload';
 import { api, ApiError } from '../../lib/api';
 import { formatDataCurta } from '../../lib/date';
-import { formatarCentavos, parseCentavos } from '../../lib/dinheiro';
+import { centavosParaInput, formatarCentavos, parseCentavos } from '../../lib/dinheiro';
 import { urlArquivo } from '../../lib/upload';
 import { useCategorias } from '../financeiro/useFinanceiro';
 import { inputClass } from '../fornecedores/FornecedoresPage';
@@ -29,6 +29,7 @@ export function ViagemPage() {
   const [aba, setAba] = useState<Aba>('roteiro');
   const navigate = useNavigate();
   const excluir = useEditarViagem(id, () => api.del<ViagemDetalhe>(`/painel/viagens/${id}`));
+  const [editando, setEditando] = useState(false);
 
   if (isPending) return <Esqueleto />;
   if (isError || !data) {
@@ -48,11 +49,19 @@ export function ViagemPage() {
         <span aria-hidden="true">/</span>
         <span className="truncate text-grafite">{data.nome}</span>
       </nav>
-      <h1 className="mt-2 text-4xl">{data.nome}</h1>
-      <p className="text-grafite-suave">
-        {data.destino && `${data.destino} · `}
-        {formatDataCurta(data.dataInicio)} a {formatDataCurta(data.dataFim)}
-      </p>
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-4xl">{data.nome}</h1>
+          <p className="text-grafite-suave">
+            {data.destino && `${data.destino} · `}
+            {formatDataCurta(data.dataInicio)} a {formatDataCurta(data.dataFim)}
+          </p>
+        </div>
+        <button type="button" aria-expanded={editando} onClick={() => setEditando(!editando)} className="acao-secundaria">
+          {editando ? 'Fechar' : 'Editar viagem'}
+        </button>
+      </div>
+      {editando && <EditarViagem key={JSON.stringify([data.nome, data.destino, data.dataInicio, data.dataFim])} v={data} onFechar={() => setEditando(false)} />}
       <div role="tablist" aria-label="Partes da viagem" className="abas mt-6">
         {(
           [
@@ -100,13 +109,7 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
             {v.roteiro
               .filter((r) => r.data === dia)
               .map((r) => (
-                <li key={r.id} className="mb-3">
-                  <span className="font-semibold">{r.horario ?? '—'}</span> {r.titulo}
-                  {r.local && <span className="text-grafite-suave"> · {r.local}</span>}
-                  <button type="button" aria-label={`Excluir ${r.titulo}`} onClick={() => excluir.mutate(r.id)} className="ml-2 text-sm acao-perigo">
-                    excluir
-                  </button>
-                </li>
+                <ItemRoteiro key={JSON.stringify(r)} v={v} r={r} onExcluir={() => excluir.mutate(r.id)} />
               ))}
           </ol>
         </div>
@@ -148,6 +151,75 @@ function Roteiro({ v }: { v: ViagemDetalhe }) {
         )}
       </form>
     </div>
+  );
+}
+
+type ItemRoteiroDados = ViagemDetalhe['roteiro'][number];
+
+function ItemRoteiro({ v, r, onExcluir }: { v: ViagemDetalhe; r: ItemRoteiroDados; onExcluir: () => void }) {
+  const salvar = useEditarViagem(v.id, (d: object) => api.put<ViagemDetalhe>(`/painel/viagens/${v.id}/roteiro/${r.id}`, d));
+  const [editando, setEditando] = useState(false);
+  const [d, setD] = useState({ data: r.data, horario: r.horario ?? '', titulo: r.titulo, local: r.local });
+
+  if (!editando) {
+    return (
+      <li className="mb-3">
+        <span className="font-semibold">{r.horario ?? '—'}</span> {r.titulo}
+        {r.local && <span className="text-grafite-suave"> · {r.local}</span>}
+        <button type="button" aria-label={`Editar ${r.titulo}`} onClick={() => setEditando(true)} className="ml-2 text-sm acao-link">
+          editar
+        </button>
+        <button type="button" aria-label={`Excluir ${r.titulo}`} onClick={onExcluir} className="ml-2 text-sm acao-perigo">
+          excluir
+        </button>
+      </li>
+    );
+  }
+  return (
+    <li className="mb-3">
+      <form
+        aria-label={`Editar ${r.titulo}`}
+        onSubmit={(e: FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          if (!d.titulo.trim()) return;
+          salvar.mutate(
+            { data: d.data, horario: d.horario || null, titulo: d.titulo.trim(), descricao: r.descricao, local: d.local.trim() },
+            { onSuccess: () => setEditando(false) },
+          );
+        }}
+        className="grid gap-2 rounded-card bg-nevoa p-3 sm:grid-cols-4"
+      >
+        <label className="block">
+          <span className="rotulo">Dia</span>
+          <input type="date" min={v.dataInicio} max={v.dataFim} value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
+        </label>
+        <label className="block">
+          <span className="rotulo">Horário</span>
+          <input type="time" value={d.horario} onChange={(e) => setD({ ...d, horario: e.target.value })} className={inputClass} />
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="rotulo">O quê</span>
+          <input maxLength={120} value={d.titulo} onChange={(e) => setD({ ...d, titulo: e.target.value })} className={inputClass} />
+        </label>
+        <label className="block sm:col-span-4">
+          <span className="rotulo">Local</span>
+          <input maxLength={200} value={d.local} onChange={(e) => setD({ ...d, local: e.target.value })} className={inputClass} />
+        </label>
+        {salvar.isError && (
+          <p role="alert" className="text-sm text-erro sm:col-span-4">
+            {salvar.error instanceof ApiError ? salvar.error.message : 'Não foi possível salvar.'}
+          </p>
+        )}
+        <div className="flex gap-2 sm:col-span-4">
+          <button type="submit" disabled={!d.titulo.trim() || salvar.isPending} className="acao">
+            Salvar
+          </button>
+          <button type="button" onClick={() => setEditando(false)} className="acao-discreta">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </li>
   );
 }
 
@@ -236,9 +308,152 @@ function Reservas({ v }: { v: ViagemDetalhe }) {
   );
 }
 
+/** Nome, destino e datas da viagem. */
+function EditarViagem({ v, onFechar }: { v: ViagemDetalhe; onFechar: () => void }) {
+  const salvar = useEditarViagem(v.id, (d: object) => api.put<ViagemDetalhe>(`/painel/viagens/${v.id}`, d));
+  const [d, setD] = useState({ nome: v.nome, destino: v.destino, dataInicio: v.dataInicio, dataFim: v.dataFim });
+  const valido = d.nome.trim() !== '' && !!d.dataInicio && !!d.dataFim && d.dataFim >= d.dataInicio;
+  return (
+    <form
+      aria-label="Editar viagem"
+      onSubmit={(e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (valido) salvar.mutate({ ...d, nome: d.nome.trim(), destino: d.destino.trim() }, { onSuccess: onFechar });
+      }}
+      className="mt-4 grid gap-3 cartao-painel sm:grid-cols-4"
+    >
+      <label className="block sm:col-span-2">
+        <span className="rotulo">Nome</span>
+        <input maxLength={80} value={d.nome} onChange={(e) => setD({ ...d, nome: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block sm:col-span-2">
+        <span className="rotulo">Destino</span>
+        <input maxLength={120} value={d.destino} onChange={(e) => setD({ ...d, destino: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Início</span>
+        <input type="date" value={d.dataInicio} onChange={(e) => setD({ ...d, dataInicio: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Fim</span>
+        <input type="date" value={d.dataFim} onChange={(e) => setD({ ...d, dataFim: e.target.value })} className={inputClass} />
+      </label>
+      {d.dataFim < d.dataInicio && (
+        <p role="alert" className="text-sm text-erro sm:col-span-4">
+          O fim precisa ser depois do início.
+        </p>
+      )}
+      {salvar.isError && (
+        <p role="alert" className="text-sm text-erro sm:col-span-4">
+          {salvar.error instanceof ApiError ? salvar.error.message : 'Não foi possível salvar a viagem.'}
+        </p>
+      )}
+      <div className="flex items-end gap-2 sm:col-span-2">
+        <button type="submit" disabled={!valido || salvar.isPending} className="acao">
+          Salvar
+        </button>
+        <button type="button" onClick={onFechar} className="acao-discreta">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** Todos os campos de uma reserva; o espelho no financeiro acompanha. */
+function EditarReserva({ viagemId, r, onFechar }: { viagemId: number; r: Reserva; onFechar: () => void }) {
+  const categorias = useCategorias();
+  const salvar = useEditarViagem(viagemId, (d: object) => api.put<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`, d));
+  const [d, setD] = useState({
+    tipo: r.tipo,
+    descricao: r.descricao,
+    codigo: r.codigo,
+    data: r.data,
+    valor: r.valorCentavos === null ? '' : centavosParaInput(r.valorCentavos),
+    categoria: r.categoriaFinanceiraId === null ? '' : String(r.categoriaFinanceiraId),
+  });
+  const [voucher, setVoucher] = useState(r.voucherArquivoId);
+  const valor = d.valor.trim() ? parseCentavos(d.valor) : null;
+  const valido = d.descricao.trim() !== '' && !(d.valor.trim() && (valor === null || valor <= 0));
+
+  return (
+    <form
+      aria-label={`Editar reserva ${r.descricao}`}
+      onSubmit={(e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!valido) return;
+        salvar.mutate(
+          {
+            tipo: d.tipo,
+            descricao: d.descricao.trim(),
+            codigo: d.codigo.trim(),
+            data: d.data,
+            valorCentavos: valor,
+            categoriaFinanceiraId: d.categoria ? Number(d.categoria) : null,
+            voucherArquivoId: voucher,
+          },
+          { onSuccess: onFechar },
+        );
+      }}
+      className="mt-3 grid gap-3 rounded-card bg-nevoa p-3 sm:grid-cols-3"
+    >
+      <label className="block">
+        <span className="rotulo">Tipo</span>
+        <select value={d.tipo} onChange={(e) => setD({ ...d, tipo: e.target.value as TipoReserva })} className={inputClass}>
+          {Object.entries(LABEL_TIPO_RESERVA).map(([k, l]) => (
+            <option key={k} value={k}>{l}</option>
+          ))}
+        </select>
+      </label>
+      <label className="block sm:col-span-2">
+        <span className="rotulo">Descrição</span>
+        <input maxLength={140} value={d.descricao} onChange={(e) => setD({ ...d, descricao: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Código</span>
+        <input maxLength={80} value={d.codigo} onChange={(e) => setD({ ...d, codigo: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Data</span>
+        <input type="date" value={d.data} onChange={(e) => setD({ ...d, data: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Valor (R$)</span>
+        <input inputMode="decimal" value={d.valor} onChange={(e) => setD({ ...d, valor: e.target.value })} className={inputClass} />
+      </label>
+      <label className="block">
+        <span className="rotulo">Lançar no financeiro em</span>
+        <select value={d.categoria} onChange={(e) => setD({ ...d, categoria: e.target.value })} className={inputClass}>
+          <option value="">Não lançar</option>
+          {categorias.data?.map((c) => (
+            <option key={c.id} value={c.id}>{c.nome}</option>
+          ))}
+        </select>
+      </label>
+      <div className="sm:col-span-2">
+        <FileUpload label="Trocar voucher" onEnviado={(a) => setVoucher(a.id)} />
+      </div>
+      {salvar.isError && (
+        <p role="alert" className="text-sm text-erro sm:col-span-3">
+          {salvar.error instanceof ApiError ? salvar.error.message : 'Não foi possível salvar a reserva.'}
+        </p>
+      )}
+      <div className="flex gap-2 sm:col-span-3">
+        <button type="submit" disabled={!valido || salvar.isPending} className="acao">
+          Salvar
+        </button>
+        <button type="button" onClick={onFechar} className="acao-discreta">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
   const atualizar = useEditarViagem(viagemId, (d: object) => api.put<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`, d));
   const excluir = useEditarViagem(viagemId, () => api.del<ViagemDetalhe>(`/painel/viagens/${viagemId}/reservas/${r.id}`));
+  const [editando, setEditando] = useState(false);
   return (
     <article aria-label={`Reserva ${r.descricao}`} className="cartao-painel">
       <p className="text-sm text-grafite-suave">{LABEL_TIPO_RESERVA[r.tipo]} · {formatDataCurta(r.data)}</p>
@@ -256,10 +471,14 @@ function CartaoReserva({ viagemId, r }: { viagemId: number; r: Reserva }) {
         <button type="button" onClick={() => atualizar.mutate({ statusPagamento: r.statusPagamento === 'pago' ? 'pendente' : 'pago' })} className="acao-link">
           {r.statusPagamento === 'pago' ? 'Marcar pendente' : 'Marcar pago'}
         </button>
+        <button type="button" aria-expanded={editando} onClick={() => setEditando(!editando)} className="acao-link">
+          {editando ? 'Fechar' : 'Editar'}
+        </button>
         <button type="button" onClick={() => excluir.mutate(undefined)} className="acao-perigo">
           Excluir
         </button>
       </div>
+      {editando && <EditarReserva key={JSON.stringify(r)} viagemId={viagemId} r={r} onFechar={() => setEditando(false)} />}
     </article>
   );
 }

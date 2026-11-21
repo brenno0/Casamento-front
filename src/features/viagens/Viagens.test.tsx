@@ -32,6 +32,11 @@ function api() {
       return json(v);
     }
     if (path === '/painel/financeiro/categorias') return json([{ id: 8, nome: 'Lua de mel', previstoCentavos: 0 }]);
+    if (path === '/painel/viagens/1' && method === 'PUT') {
+      v = { ...v, ...(body as object) };
+      return json(v);
+    }
+    if (/^\/painel\/viagens\/1\/(reservas|roteiro)\/1$/.test(path) && method === 'PUT') return json(v);
     return undefined;
   };
 }
@@ -75,5 +80,47 @@ describe('viagens', () => {
     fireEvent.change(within(form).getByLabelText('Fim'), { target: { value: '2027-09-01' } });
     expect(within(form).getByRole('alert')).toHaveTextContent('O fim precisa ser no início ou depois.');
     expect(within(form).getByRole('button', { name: 'Criar viagem' })).toBeDisabled();
+  });
+
+  it('edita nome e datas da viagem', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/viagens/1');
+    fireEvent.click(await screen.findByRole('button', { name: 'Editar viagem' }));
+    const form = screen.getByRole('form', { name: 'Editar viagem' });
+    fireEvent.change(within(form).getByLabelText('Nome'), { target: { value: 'Lua de mel em Trancoso' } });
+    fireEvent.change(within(form).getByLabelText('Fim'), { target: { value: '2027-07-27' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Lua de mel em Trancoso' })).toBeInTheDocument();
+    const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/viagens/1') && i?.method === 'PUT');
+    expect(JSON.parse(String(put![1]!.body))).toMatchObject({ nome: 'Lua de mel em Trancoso', dataFim: '2027-07-27' });
+  });
+
+  it('edita valor e código de uma reserva', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/viagens/1');
+    fireEvent.click(await screen.findByRole('tab', { name: 'Reservas' }));
+    const r = screen.getByRole('article', { name: 'Reserva Pacote lua de mel' });
+    fireEvent.click(within(r).getByRole('button', { name: 'Editar' }));
+    const form = within(r).getByRole('form', { name: 'Editar reserva Pacote lua de mel' });
+    fireEvent.change(within(form).getByLabelText('Valor (R$)'), { target: { value: '9500,00' } });
+    fireEvent.change(within(form).getByLabelText('Código'), { target: { value: 'XYZ999' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/viagens/1/reservas/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toMatchObject({ valorCentavos: 950000, codigo: 'XYZ999', categoriaFinanceiraId: 8, voucherArquivoId: 9 });
+    });
+  });
+
+  it('edita item do roteiro', async () => {
+    const fetchMock = mockFetch({ logado: true, rotas: api() });
+    renderRoute('/painel/viagens/1');
+    fireEvent.click(await screen.findByRole('button', { name: 'Editar Check-in' }));
+    const form = screen.getByRole('form', { name: 'Editar Check-in' });
+    fireEvent.change(within(form).getByLabelText('Horário'), { target: { value: '15:00' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => {
+      const put = fetchMock.mock.calls.find(([u, i]) => String(u).endsWith('/painel/viagens/1/roteiro/1') && i?.method === 'PUT');
+      expect(JSON.parse(String(put![1]!.body))).toMatchObject({ horario: '15:00', titulo: 'Check-in' });
+    });
   });
 });
