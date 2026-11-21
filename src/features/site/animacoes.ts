@@ -24,7 +24,7 @@ import { prefereMenosMovimento } from '../../lib/motion';
  * - `[data-pintar]`: a aquarela se pinta de baixo para cima com a rolagem.
  * - `[data-cardapio]`: o cartão é pousado sobre a mesa. `[data-filete]`: filetes que se desenham.
  * - `[data-contar]`: horário que conta até o valor (`data-contar="16"`).
- * - `[data-varal]` com `[data-moldura]`: fotos que andam de lado com a rolagem (desktop).
+ * - `[data-varal]` com `[data-moldura]`: fotos que deslizam de lado enquanto a galeria atravessa a tela (desktop), sem prender a rolagem.
  * - `[data-paleta]`: amostras de cor saltam.
  * - `[data-alfinete]`: alfinete do mapa cai e quica. `[data-cascata]`: filhos entram em cascata.
  * - `[data-rodape]`: nomes do rodapé, letra por letra. `[data-progresso]`: barra de leitura.
@@ -311,15 +311,15 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
             const margem = parseFloat(getComputedStyle(lista).paddingRight) || 0;
             return Math.max(0, ultima.offsetLeft + ultima.offsetWidth + margem - janela);
           };
+          // Sem pin: a página nunca para. As fotos deslizam enquanto a seção atravessa a tela.
           gsap.to(lista, {
             x: () => -distancia(),
             ease: 'none',
             scrollTrigger: {
               trigger: secao,
-              start: 'top top',
-              end: () => `+=${distancia()}`,
-              pin: true,
-              scrub: 0.8,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              scrub: 0.6,
               invalidateOnRefresh: true,
             },
           });
