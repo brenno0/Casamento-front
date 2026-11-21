@@ -311,20 +311,19 @@ export function useAnimacoesSite(ref: RefObject<HTMLElement | null>, deps: unkno
             const margem = parseFloat(getComputedStyle(lista).paddingRight) || 0;
             return Math.max(0, ultima.offsetLeft + ultima.offsetWidth + margem - janela);
           };
-          // Prende a seção inteira (título e fotos juntos: nada passa por cima do título) e solta
-          // depois de 60% do comprimento das fotos, para a página ficar parada por menos tempo.
+          // Prende a seção inteira (título e fotos juntos: nada passa por cima do título) até a última foto.
           gsap.to(lista, {
             x: () => -distancia(),
             ease: 'none',
             scrollTrigger: {
               trigger: secao,
               start: 'top top',
-              end: () => `+=${distancia() * 0.6}`,
+              end: () => `+=${distancia()}`,
               pin: true,
               // Lenis ainda desacelera quando o pin começa: antecipa para não dar o tranco.
               anticipatePin: 1,
-              // Sem atraso próprio: o Lenis já suaviza; atraso extra deixava as fotos fora do lugar na volta.
-              scrub: true,
+              // Atraso curto: suaviza o deslize sem deixar as fotos para trás.
+              scrub: 0.5,
               invalidateOnRefresh: true,
             },
           });
